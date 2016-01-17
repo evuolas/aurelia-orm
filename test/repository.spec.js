@@ -1,4 +1,4 @@
-import {Rest} from 'spoonx/aurelia-api';
+import {Rest} from 'aurelia-api';
 import {EntityManager, Repository, DefaultRepository, Entity} from '../src/index';
 import {WithResource} from './resources/entity/with-resource';
 import {WithAssociations} from './resources/entity/with-associations';

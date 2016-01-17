@@ -9,7 +9,7 @@ import {WithAssociations} from './resources/entity/with-associations';
 import {WithName} from './resources/entity/with-name';
 import {Entity} from  '../src/entity';
 import {Container} from 'aurelia-dependency-injection';
-import {Rest} from 'spoonx/aurelia-api';
+import {Rest} from 'aurelia-api';
 import {Validation} from 'aurelia-validation';
 
 function getRestClient() {
