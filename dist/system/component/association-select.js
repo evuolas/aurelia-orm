@@ -90,6 +90,10 @@ System.register(['aurelia-framework', 'aurelia-binding', 'aurelia-templating', '
 
           this.multiple = false;
 
+          this.matcher = function (a, b) {
+            return a && b && a.id === b.id;
+          };
+
           this._subscriptions = [];
           this.bindingEngine = bindingEngine;
           this.entityManager = entityManager;

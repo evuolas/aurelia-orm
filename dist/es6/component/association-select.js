@@ -23,6 +23,8 @@ export class AssociationSelect {
 
   multiple = false;
 
+  matcher = (a, b) => a && b && a.id === b.id;
+
   ownMeta;
 
   /**

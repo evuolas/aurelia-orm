@@ -1,6 +1,6 @@
 <template>
-  <select class="form-control" value.bind="value" multiple.bind="multiple">
-    <option selected disabled value="0">- Select a value -</option>
-    <option model.bind="option.id" repeat.for="option of options">${option[property]}</option>
+  <select class="form-control" value.bind="value" matcher.bind="matcher" multiple.bind="multiple">
+    <option selected value.bind="null">- Select a value -</option>
+    <option model.bind="option" repeat.for="option of options">${option[property]}</option>
   </select>
 </template>
