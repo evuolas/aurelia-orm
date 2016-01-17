@@ -37,7 +37,6 @@ System.register(['./entity', './default-repository', 'aurelia-framework', 'aurel
               if (!entities.hasOwnProperty(reference)) {
                 continue;
               }
-
               this.registerEntity(entities[reference]);
             }
 

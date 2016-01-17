@@ -10,7 +10,9 @@ export function association(associationData) {
 
     OrmMetadata.forTarget(target.constructor).put('associations', propertyName, {
       type: associationData.entity ? 'entity' : 'collection',
-      entity: associationData.entity || associationData.collection
+      entity: associationData.entity || associationData.collection,
+      includeOnlyIds: associationData.hasOwnProperty('includeOnlyIds') ? associationData.includeOnlyIds : true,
+      ignoreOnSave: associationData.hasOwnProperty('ignoreOnSave') ? associationData.ignoreOnSave : false
     });
   };
 }

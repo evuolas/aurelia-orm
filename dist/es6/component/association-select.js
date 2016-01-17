@@ -124,7 +124,7 @@ export class AssociationSelect {
       });
     }
 
-    return repository.findPath(findPath, criteria);
+    return repository.findPath(findPath, criteria, false, true);
   }
 
   /**

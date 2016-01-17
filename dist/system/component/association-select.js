@@ -163,7 +163,7 @@ System.register(['aurelia-framework', 'aurelia-binding', 'aurelia-templating', '
               });
             }
 
-            return repository.findPath(findPath, criteria);
+            return repository.findPath(findPath, criteria, false, true);
           }
         }, {
           key: 'verifyAssociationValues',

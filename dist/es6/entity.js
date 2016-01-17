@@ -1,6 +1,6 @@
 import {Validation} from 'aurelia-validation';
 import {transient, inject} from 'aurelia-framework';
-import {Rest} from 'spoonx/aurelia-api';
+import {Rest} from 'aurelia-api';
 import {OrmMetadata} from './orm-metadata';
 
 @transient()
@@ -435,17 +435,23 @@ function asObject(entity, shallow) {
 
   Object.keys(entity).forEach(propertyName => {
     let value = entity[propertyName];
+    let associationMeta = metadata.fetch('associations', propertyName);
+
+    // Return if association is set not to be included on save
+    if (associationMeta && associationMeta.ignoreOnSave) {
+      return;
+    }
 
     // No meta data, no value or no association property: simple assignment.
-    if (!metadata.has('associations', propertyName) || !value) {
+    if (!associationMeta || !value) {
       pojo[propertyName] = value;
 
       return;
     }
 
-    // If shallow and is object, set id.
-    if (shallow && typeof value === 'object' && value.id) {
-      pojo[propertyName] = value.id;
+    // If shallow and is object or association marked to include only ids, set id.
+    if ((shallow && typeof value === 'object' && value.id && associationMeta.includeOnlyIds)) {
+      pojo[`${propertyName}Id`] = value.id;
 
       return;
     }

@@ -17,7 +17,7 @@ define(['exports', 'aurelia-metadata', './default-repository'], function (export
     _createClass(OrmMetadata, null, [{
       key: 'forTarget',
       value: function forTarget(target) {
-        return _aureliaMetadata.metadata.getOrCreateOwn(Metadata.key, Metadata, target);
+        return _aureliaMetadata.metadata.getOrCreateOwn(Metadata.key, Metadata, target, target.name);
       }
     }]);
 

@@ -1,7 +1,7 @@
-System.register(['aurelia-framework', 'spoonx/aurelia-api'], function (_export) {
+System.register(['aurelia-framework', 'aurelia-api', 'aurelia-api/utils'], function (_export) {
   'use strict';
 
-  var inject, Rest, Repository;
+  var inject, Rest, stringToCamelCase, Repository;
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -10,13 +10,17 @@ System.register(['aurelia-framework', 'spoonx/aurelia-api'], function (_export) 
   return {
     setters: [function (_aureliaFramework) {
       inject = _aureliaFramework.inject;
-    }, function (_spoonxAureliaApi) {
-      Rest = _spoonxAureliaApi.Rest;
+    }, function (_aureliaApi) {
+      Rest = _aureliaApi.Rest;
+    }, function (_aureliaApiUtils) {
+      stringToCamelCase = _aureliaApiUtils.stringToCamelCase;
     }],
     execute: function () {
       Repository = (function () {
         function Repository(restClient) {
           _classCallCheck(this, _Repository);
+
+          this.enableRootObjects = true;
 
           this.api = restClient;
         }
@@ -39,9 +43,16 @@ System.register(['aurelia-framework', 'spoonx/aurelia-api'], function (_export) 
             return this.findPath(this.resource, criteria, raw);
           }
         }, {
+          key: 'search',
+          value: function search(criteria, raw) {
+            return this.findPath(this.resource, criteria, raw, true);
+          }
+        }, {
           key: 'findPath',
           value: function findPath(path, criteria, raw) {
             var _this = this;
+
+            var collection = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
             var findQuery = this.api.find(path, criteria);
 
@@ -50,6 +61,11 @@ System.register(['aurelia-framework', 'spoonx/aurelia-api'], function (_export) 
             }
 
             return findQuery.then(function (x) {
+              if (_this.enableRootObjects) {
+                var rootObject = collection ? _this.jsonRootObjectPlural : _this.jsonRootObjectSingle;
+                x = x[rootObject];
+              }
+
               return _this.populateEntities(x);
             }).then(function (populated) {
               if (!Array.isArray(populated)) {
@@ -138,6 +154,16 @@ System.register(['aurelia-framework', 'spoonx/aurelia-api'], function (_export) 
             }
 
             return entity;
+          }
+        }, {
+          key: 'jsonRootObjectSingle',
+          get: function get() {
+            return stringToCamelCase(this.resource.replace(/s$/, ''));
+          }
+        }, {
+          key: 'jsonRootObjectPlural',
+          get: function get() {
+            return stringToCamelCase(this.resource);
           }
         }]);
 

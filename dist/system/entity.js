@@ -1,4 +1,4 @@
-System.register(['aurelia-validation', 'aurelia-framework', 'spoonx/aurelia-api', './orm-metadata'], function (_export) {
+System.register(['aurelia-validation', 'aurelia-framework', 'aurelia-api', './orm-metadata'], function (_export) {
   'use strict';
 
   var Validation, transient, inject, Rest, OrmMetadata, Entity;
@@ -13,15 +13,20 @@ System.register(['aurelia-validation', 'aurelia-framework', 'spoonx/aurelia-api'
 
     Object.keys(entity).forEach(function (propertyName) {
       var value = entity[propertyName];
+      var associationMeta = metadata.fetch('associations', propertyName);
 
-      if (!metadata.has('associations', propertyName) || !value) {
+      if (associationMeta && associationMeta.ignoreOnSave) {
+        return;
+      }
+
+      if (!associationMeta || !value) {
         pojo[propertyName] = value;
 
         return;
       }
 
-      if (shallow && typeof value === 'object' && value.id) {
-        pojo[propertyName] = value.id;
+      if (shallow && typeof value === 'object' && value.id && associationMeta.includeOnlyIds) {
+        pojo[propertyName + 'Id'] = value.id;
 
         return;
       }
@@ -129,8 +134,8 @@ System.register(['aurelia-validation', 'aurelia-framework', 'spoonx/aurelia-api'
     }, function (_aureliaFramework) {
       transient = _aureliaFramework.transient;
       inject = _aureliaFramework.inject;
-    }, function (_spoonxAureliaApi) {
-      Rest = _spoonxAureliaApi.Rest;
+    }, function (_aureliaApi) {
+      Rest = _aureliaApi.Rest;
     }, function (_ormMetadata) {
       OrmMetadata = _ormMetadata.OrmMetadata;
     }],

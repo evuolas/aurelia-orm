@@ -30,7 +30,6 @@ export class EntityManager {
       if (!entities.hasOwnProperty(reference)) {
         continue;
       }
-
       this.registerEntity(entities[reference]);
     }
 

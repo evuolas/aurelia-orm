@@ -35,7 +35,6 @@ var EntityManager = (function () {
         if (!entities.hasOwnProperty(reference)) {
           continue;
         }
-
         this.registerEntity(entities[reference]);
       }
 

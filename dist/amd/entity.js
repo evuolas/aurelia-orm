@@ -1,4 +1,4 @@
-define(['exports', 'aurelia-validation', 'aurelia-framework', 'spoonx/aurelia-api', './orm-metadata'], function (exports, _aureliaValidation, _aureliaFramework, _spoonxAureliaApi, _ormMetadata) {
+define(['exports', 'aurelia-validation', 'aurelia-framework', 'aurelia-api', './orm-metadata'], function (exports, _aureliaValidation, _aureliaFramework, _aureliaApi, _ormMetadata) {
   'use strict';
 
   Object.defineProperty(exports, '__esModule', {
@@ -298,7 +298,7 @@ define(['exports', 'aurelia-validation', 'aurelia-framework', 'spoonx/aurelia-ap
     }]);
 
     var _Entity = Entity;
-    Entity = (0, _aureliaFramework.inject)(_aureliaValidation.Validation, _spoonxAureliaApi.Rest)(Entity) || Entity;
+    Entity = (0, _aureliaFramework.inject)(_aureliaValidation.Validation, _aureliaApi.Rest)(Entity) || Entity;
     Entity = (0, _aureliaFramework.transient)()(Entity) || Entity;
     return Entity;
   })();
@@ -311,15 +311,20 @@ define(['exports', 'aurelia-validation', 'aurelia-framework', 'spoonx/aurelia-ap
 
     Object.keys(entity).forEach(function (propertyName) {
       var value = entity[propertyName];
+      var associationMeta = metadata.fetch('associations', propertyName);
 
-      if (!metadata.has('associations', propertyName) || !value) {
+      if (associationMeta && associationMeta.ignoreOnSave) {
+        return;
+      }
+
+      if (!associationMeta || !value) {
         pojo[propertyName] = value;
 
         return;
       }
 
-      if (shallow && typeof value === 'object' && value.id) {
-        pojo[propertyName] = value.id;
+      if (shallow && typeof value === 'object' && value.id && associationMeta.includeOnlyIds) {
+        pojo[propertyName + 'Id'] = value.id;
 
         return;
       }

@@ -1,4 +1,4 @@
-define(['exports', 'aurelia-framework', 'spoonx/aurelia-api'], function (exports, _aureliaFramework, _spoonxAureliaApi) {
+define(['exports', 'aurelia-framework', 'aurelia-api', 'aurelia-api/utils'], function (exports, _aureliaFramework, _aureliaApi, _aureliaApiUtils) {
   'use strict';
 
   Object.defineProperty(exports, '__esModule', {
@@ -12,6 +12,8 @@ define(['exports', 'aurelia-framework', 'spoonx/aurelia-api'], function (exports
   var Repository = (function () {
     function Repository(restClient) {
       _classCallCheck(this, _Repository);
+
+      this.enableRootObjects = true;
 
       this.api = restClient;
     }
@@ -34,9 +36,16 @@ define(['exports', 'aurelia-framework', 'spoonx/aurelia-api'], function (exports
         return this.findPath(this.resource, criteria, raw);
       }
     }, {
+      key: 'search',
+      value: function search(criteria, raw) {
+        return this.findPath(this.resource, criteria, raw, true);
+      }
+    }, {
       key: 'findPath',
       value: function findPath(path, criteria, raw) {
         var _this = this;
+
+        var collection = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
         var findQuery = this.api.find(path, criteria);
 
@@ -45,6 +54,11 @@ define(['exports', 'aurelia-framework', 'spoonx/aurelia-api'], function (exports
         }
 
         return findQuery.then(function (x) {
+          if (_this.enableRootObjects) {
+            var rootObject = collection ? _this.jsonRootObjectPlural : _this.jsonRootObjectSingle;
+            x = x[rootObject];
+          }
+
           return _this.populateEntities(x);
         }).then(function (populated) {
           if (!Array.isArray(populated)) {
@@ -134,10 +148,20 @@ define(['exports', 'aurelia-framework', 'spoonx/aurelia-api'], function (exports
 
         return entity;
       }
+    }, {
+      key: 'jsonRootObjectSingle',
+      get: function get() {
+        return (0, _aureliaApiUtils.stringToCamelCase)(this.resource.replace(/s$/, ''));
+      }
+    }, {
+      key: 'jsonRootObjectPlural',
+      get: function get() {
+        return (0, _aureliaApiUtils.stringToCamelCase)(this.resource);
+      }
     }]);
 
     var _Repository = Repository;
-    Repository = (0, _aureliaFramework.inject)(_spoonxAureliaApi.Rest)(Repository) || Repository;
+    Repository = (0, _aureliaFramework.inject)(_aureliaApi.Rest)(Repository) || Repository;
     return Repository;
   })();
 

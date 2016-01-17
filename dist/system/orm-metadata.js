@@ -22,7 +22,7 @@ System.register(['aurelia-metadata', './default-repository'], function (_export)
         _createClass(OrmMetadata, null, [{
           key: 'forTarget',
           value: function forTarget(target) {
-            return metadata.getOrCreateOwn(Metadata.key, Metadata, target);
+            return metadata.getOrCreateOwn(Metadata.key, Metadata, target, target.name);
           }
         }]);
 

@@ -26,7 +26,6 @@ define(['exports', './entity', './default-repository', 'aurelia-framework', 'aur
           if (!entities.hasOwnProperty(reference)) {
             continue;
           }
-
           this.registerEntity(entities[reference]);
         }
 

@@ -161,7 +161,7 @@ var AssociationSelect = (function () {
         });
       }
 
-      return repository.findPath(findPath, criteria);
+      return repository.findPath(findPath, criteria, false, true);
     }
   }, {
     key: 'verifyAssociationValues',

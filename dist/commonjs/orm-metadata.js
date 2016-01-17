@@ -20,7 +20,7 @@ var OrmMetadata = (function () {
   _createClass(OrmMetadata, null, [{
     key: 'forTarget',
     value: function forTarget(target) {
-      return _aureliaMetadata.metadata.getOrCreateOwn(Metadata.key, Metadata, target);
+      return _aureliaMetadata.metadata.getOrCreateOwn(Metadata.key, Metadata, target, target.name);
     }
   }]);
 

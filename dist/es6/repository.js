@@ -1,8 +1,11 @@
 import {inject} from 'aurelia-framework';
-import {Rest} from 'spoonx/aurelia-api';
+import {Rest} from 'aurelia-api';
+import {stringToCamelCase} from 'aurelia-api/utils';
 
 @inject(Rest)
 export class Repository {
+  enableRootObjects = true;
+
   /**
    * Construct.
    *
@@ -36,6 +39,14 @@ export class Repository {
     return this.resource;
   }
 
+  get jsonRootObjectSingle() {
+    return stringToCamelCase(this.resource.replace(/s$/, ''));
+  }
+
+  get jsonRootObjectPlural() {
+    return stringToCamelCase(this.resource);
+  }
+
   /**
    * Perform a find query.
    *
@@ -48,14 +59,26 @@ export class Repository {
   }
 
   /**
-   * Perform a find query for `path`.
+   * Perform a search query.
    *
-   * @param {string}         path
    * @param {null|{}|Number} criteria Criteria to add to the query.
    * @param {boolean}        [raw]    Set to true to get a POJO in stead of populated entities.
    * @return {Promise}
    */
-  findPath(path, criteria, raw) {
+  search(criteria, raw) {
+    return this.findPath(this.resource, criteria, raw, true);
+  }
+
+  /**
+   * Perform a find query for `path`.
+   *
+   * @param {string}         path
+   * @param {null|{}|Number} criteria   Criteria to add to the query.
+   * @param {boolean}        [raw]      Set to true to get a POJO in stead of populated entities.
+   * @param {boolean}        collection Set to true if you except result contain collection.
+   * @return {Promise}
+   */
+  findPath(path, criteria, raw, collection = false) {
     let findQuery = this.api.find(path, criteria);
 
     if (raw) {
@@ -63,7 +86,14 @@ export class Repository {
     }
 
     return findQuery
-      .then(x => this.populateEntities(x))
+      .then(x => {
+        if (this.enableRootObjects) {
+          let rootObject = collection ? this.jsonRootObjectPlural : this.jsonRootObjectSingle;
+          x = x[rootObject];
+        }
+
+        return this.populateEntities(x);
+      })
       .then(populated => {
         if (!Array.isArray(populated)) {
           return populated;

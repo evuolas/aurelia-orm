@@ -12,7 +12,7 @@ var _aureliaValidation = require('aurelia-validation');
 
 var _aureliaFramework = require('aurelia-framework');
 
-var _spoonxAureliaApi = require('spoonx/aurelia-api');
+var _aureliaApi = require('aurelia-api');
 
 var _ormMetadata = require('./orm-metadata');
 
@@ -305,7 +305,7 @@ var Entity = (function () {
   }]);
 
   var _Entity = Entity;
-  Entity = (0, _aureliaFramework.inject)(_aureliaValidation.Validation, _spoonxAureliaApi.Rest)(Entity) || Entity;
+  Entity = (0, _aureliaFramework.inject)(_aureliaValidation.Validation, _aureliaApi.Rest)(Entity) || Entity;
   Entity = (0, _aureliaFramework.transient)()(Entity) || Entity;
   return Entity;
 })();
@@ -318,15 +318,20 @@ function _asObject(entity, shallow) {
 
   Object.keys(entity).forEach(function (propertyName) {
     var value = entity[propertyName];
+    var associationMeta = metadata.fetch('associations', propertyName);
 
-    if (!metadata.has('associations', propertyName) || !value) {
+    if (associationMeta && associationMeta.ignoreOnSave) {
+      return;
+    }
+
+    if (!associationMeta || !value) {
       pojo[propertyName] = value;
 
       return;
     }
 
-    if (shallow && typeof value === 'object' && value.id) {
-      pojo[propertyName] = value.id;
+    if (shallow && typeof value === 'object' && value.id && associationMeta.includeOnlyIds) {
+      pojo[propertyName + 'Id'] = value.id;
 
       return;
     }
