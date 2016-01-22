@@ -1,5 +1,5 @@
 <template>
-  <select class="form-control" value.bind="value" matcher.bind="matcher" multiple.bind="multiple">
+  <select class="form-control c-select" value.bind="value" matcher.bind="matcher" multiple.bind="multiple">
     <option selected value.bind="null">- Select a value -</option>
     <option model.bind="option" repeat.for="option of options">${option[property]}</option>
   </select>
