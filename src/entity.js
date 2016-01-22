@@ -87,10 +87,18 @@ export class Entity {
       return this.update();
     }
 
+    let repository = this.getRepository();
+    let requestBody = this.asObject(true);
     let response;
 
+    if (repository.enableRootObjects) {
+      let bodyWithRoot = {};
+      bodyWithRoot[repository.jsonRootObjectSingle] = requestBody;
+      requestBody = bodyWithRoot;
+    }
+
     return this.__api
-      .create(this.getResource(), this.asObject(true))
+      .create(this.getResource(), requestBody)
       .then((created) => {
         this.id  = created.id;
         response = created;
@@ -119,8 +127,15 @@ export class Entity {
       return Promise.resolve(null);
     }
 
+    let repository = this.getRepository();
     let requestBody = this.asObject(true);
     let response;
+
+    if (repository.enableRootObjects) {
+      let bodyWithRoot = {};
+      bodyWithRoot[repository.jsonRootObjectSingle] = requestBody;
+      requestBody = bodyWithRoot;
+    }
 
     delete requestBody.id;
 
@@ -434,6 +449,7 @@ function asObject(entity, shallow) {
   let metadata = entity.getMeta();
 
   Object.keys(entity).forEach(propertyName => {
+
     let value = entity[propertyName];
     let associationMeta = metadata.fetch('associations', propertyName);
 
@@ -477,10 +493,7 @@ function asObject(entity, shallow) {
         return;
       }
 
-      // If shallow, we don't handle toMany.
-      if (!shallow || (typeof childValue === 'object' && !childValue.id)) {
-        asObjects.push(childValue.asObject(shallow));
-      }
+      asObjects.push(childValue.asObject(shallow));
     });
 
     // We don't send along empty arrays.

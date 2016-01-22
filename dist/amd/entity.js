@@ -57,9 +57,17 @@ define(['exports', 'aurelia-validation', 'aurelia-framework', 'aurelia-api', './
           return this.update();
         }
 
+        var repository = this.getRepository();
+        var requestBody = this.asObject(true);
         var response = undefined;
 
-        return this.__api.create(this.getResource(), this.asObject(true)).then(function (created) {
+        if (repository.enableRootObjects) {
+          var bodyWithRoot = {};
+          bodyWithRoot[repository.jsonRootObjectSingle] = requestBody;
+          requestBody = bodyWithRoot;
+        }
+
+        return this.__api.create(this.getResource(), requestBody).then(function (created) {
           _this.id = created.id;
           response = created;
         }).then(function () {
@@ -83,8 +91,15 @@ define(['exports', 'aurelia-validation', 'aurelia-framework', 'aurelia-api', './
           return Promise.resolve(null);
         }
 
+        var repository = this.getRepository();
         var requestBody = this.asObject(true);
         var response = undefined;
+
+        if (repository.enableRootObjects) {
+          var bodyWithRoot = {};
+          bodyWithRoot[repository.jsonRootObjectSingle] = requestBody;
+          requestBody = bodyWithRoot;
+        }
 
         delete requestBody.id;
 
@@ -310,6 +325,7 @@ define(['exports', 'aurelia-validation', 'aurelia-framework', 'aurelia-api', './
     var metadata = entity.getMeta();
 
     Object.keys(entity).forEach(function (propertyName) {
+
       var value = entity[propertyName];
       var associationMeta = metadata.fetch('associations', propertyName);
 
@@ -348,9 +364,7 @@ define(['exports', 'aurelia-validation', 'aurelia-framework', 'aurelia-api', './
           return;
         }
 
-        if (!shallow || typeof childValue === 'object' && !childValue.id) {
-          asObjects.push(childValue.asObject(shallow));
-        }
+        asObjects.push(childValue.asObject(shallow));
       });
 
       if (asObjects.length > 0) {
