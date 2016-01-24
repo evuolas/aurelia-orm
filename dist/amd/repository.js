@@ -31,6 +31,14 @@ define(['exports', 'aurelia-framework', 'aurelia-api', 'aurelia-api/utils'], fun
         return this.resource;
       }
     }, {
+      key: 'getJsonRootObject',
+      value: function getJsonRootObject() {
+        var entity = this.getNewEntity();
+        var jsonRoot = entity.getMeta().fetch('jsonRoot');
+
+        return jsonRoot ? jsonRoot : this.resource;
+      }
+    }, {
       key: 'find',
       value: function find(criteria, raw) {
         return this.findPath(this.resource, criteria, raw);
@@ -151,12 +159,18 @@ define(['exports', 'aurelia-framework', 'aurelia-api', 'aurelia-api/utils'], fun
     }, {
       key: 'jsonRootObjectSingle',
       get: function get() {
-        return (0, _aureliaApiUtils.stringToCamelCase)(this.resource.replace(/s$/, ''));
+        var jsonRoot = this.getJsonRootObject();
+        jsonRoot = typeof jsonRoot === 'object' ? jsonRoot.single : jsonRoot;
+
+        return (0, _aureliaApiUtils.stringToCamelCase)(jsonRoot.replace(/s$/, ''));
       }
     }, {
       key: 'jsonRootObjectPlural',
       get: function get() {
-        return (0, _aureliaApiUtils.stringToCamelCase)(this.resource);
+        var jsonRoot = this.getJsonRootObject();
+        jsonRoot = typeof jsonRoot === 'object' ? jsonRoot.plural : jsonRoot;
+
+        return (0, _aureliaApiUtils.stringToCamelCase)(jsonRoot);
       }
     }]);
 

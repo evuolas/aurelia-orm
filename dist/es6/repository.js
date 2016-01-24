@@ -40,11 +40,24 @@ export class Repository {
   }
 
   get jsonRootObjectSingle() {
-    return stringToCamelCase(this.resource.replace(/s$/, ''));
+    let jsonRoot = this.getJsonRootObject();
+    jsonRoot = typeof jsonRoot === 'object' ? jsonRoot.single : jsonRoot;
+
+    return stringToCamelCase(jsonRoot.replace(/s$/, ''));
   }
 
   get jsonRootObjectPlural() {
-    return stringToCamelCase(this.resource);
+    let jsonRoot = this.getJsonRootObject();
+    jsonRoot = typeof jsonRoot === 'object' ? jsonRoot.plural : jsonRoot;
+
+    return stringToCamelCase(jsonRoot);
+  }
+
+  getJsonRootObject() {
+    let entity   = this.getNewEntity();
+    let jsonRoot = entity.getMeta().fetch('jsonRoot');
+
+    return jsonRoot ? jsonRoot : this.resource;
   }
 
   /**

@@ -1,4 +1,4 @@
-System.register(['./entity-manager', 'aurelia-validation', './validator/has-association', './default-repository', './repository', './entity', './orm-metadata', './decorator/association', './decorator/resource', './decorator/name', './decorator/repository', './decorator/validation', './decorator/validated-resource'], function (_export) {
+System.register(['./entity-manager', 'aurelia-validation', './validator/has-association', './default-repository', './repository', './entity', './orm-metadata', './decorator/association', './decorator/resource', './decorator/name', './decorator/repository', './decorator/json-root', './decorator/validation', './decorator/validated-resource'], function (_export) {
   'use strict';
 
   var EntityManager, ValidationGroup, HasAssociationValidationRule;
@@ -42,6 +42,8 @@ System.register(['./entity-manager', 'aurelia-validation', './validator/has-asso
       _export('name', _decoratorName.name);
     }, function (_decoratorRepository) {
       _export('repository', _decoratorRepository.repository);
+    }, function (_decoratorJsonRoot) {
+      _export('jsonRoot', _decoratorJsonRoot.jsonRoot);
     }, function (_decoratorValidation) {
       _export('validation', _decoratorValidation.validation);
     }, function (_decoratorValidatedResource) {

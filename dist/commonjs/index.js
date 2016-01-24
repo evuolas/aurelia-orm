@@ -89,6 +89,15 @@ Object.defineProperty(exports, 'repository', {
   }
 });
 
+var _decoratorJsonRoot = require('./decorator/json-root');
+
+Object.defineProperty(exports, 'jsonRoot', {
+  enumerable: true,
+  get: function get() {
+    return _decoratorJsonRoot.jsonRoot;
+  }
+});
+
 var _decoratorValidation = require('./decorator/validation');
 
 Object.defineProperty(exports, 'validation', {

@@ -38,6 +38,14 @@ System.register(['aurelia-framework', 'aurelia-api', 'aurelia-api/utils'], funct
             return this.resource;
           }
         }, {
+          key: 'getJsonRootObject',
+          value: function getJsonRootObject() {
+            var entity = this.getNewEntity();
+            var jsonRoot = entity.getMeta().fetch('jsonRoot');
+
+            return jsonRoot ? jsonRoot : this.resource;
+          }
+        }, {
           key: 'find',
           value: function find(criteria, raw) {
             return this.findPath(this.resource, criteria, raw);
@@ -158,12 +166,18 @@ System.register(['aurelia-framework', 'aurelia-api', 'aurelia-api/utils'], funct
         }, {
           key: 'jsonRootObjectSingle',
           get: function get() {
-            return stringToCamelCase(this.resource.replace(/s$/, ''));
+            var jsonRoot = this.getJsonRootObject();
+            jsonRoot = typeof jsonRoot === 'object' ? jsonRoot.single : jsonRoot;
+
+            return stringToCamelCase(jsonRoot.replace(/s$/, ''));
           }
         }, {
           key: 'jsonRootObjectPlural',
           get: function get() {
-            return stringToCamelCase(this.resource);
+            var jsonRoot = this.getJsonRootObject();
+            jsonRoot = typeof jsonRoot === 'object' ? jsonRoot.plural : jsonRoot;
+
+            return stringToCamelCase(jsonRoot);
           }
         }]);
 
