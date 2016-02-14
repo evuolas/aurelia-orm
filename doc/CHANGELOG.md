@@ -1,3 +1,40 @@
+<a name"2.0.3"></a>
+## 2.0.3 (2016-01-25)
+
+
+#### Bug Fixes
+
+* **repository:** retrieved single entitiy marked clean ([be0b5d13](https://github.com/SpoonX/aurelia-orm/commit/be0b5d13))
+
+
+<a name"2.0.2"></a>
+### 2.0.2 (2016-01-24)
+
+
+#### Bug Fixes
+
+* **project:**
+  * removed aurelia-framework dependency and imported directly ([a23194b5](https://github.com/SpoonX/aurelia-orm/commit/a23194b5))
+  
+
+<a name"2.0.1"></a>
+### 2.0.1 (2016-01-24)
+
+
+#### Bug Fixes
+
+* **project:** systemjs module loader ([126dbaf8](https://github.com/SpoonX/aurelia-orm/commit/126dbaf8))
+
+
+## 2.0.0 (2016-01-17)
+
+
+#### Features
+
+* **decorator:** Added @endpoint() decorator ([36d58cd1](https://github.com/SpoonX/aurelia-orm/commit/36d58cd133b58491774b9f90c65c2208405c0b86))
+* **project:** Expose @endpoint() decorator ([8a0c107a](https://github.com/SpoonX/aurelia-orm/commit/8a0c107acef3cf351faec14b2b7c607c64b7ec78))
+
+
 ## 1.4.0 (2016-01-06)
 
 

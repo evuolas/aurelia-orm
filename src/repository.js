@@ -1,20 +1,51 @@
-import {inject} from 'aurelia-framework';
-import {Rest} from 'aurelia-api';
+import {inject} from 'aurelia-dependency-injection';
+import {Config} from 'spoonx/aurelia-api';
 import {stringToCamelCase} from './utils';
 
-@inject(Rest)
+@inject(Config)
 export class Repository {
   enableRootObjects = true;
+  transport = null;
 
   /**
    * Construct.
    *
-   * @param {Rest} restClient
+   * @param {Config} clientConfig
    *
    * @constructor
    */
-  constructor(restClient) {
-    this.api = restClient;
+  constructor(clientConfig) {
+    this.clientConfig = clientConfig;
+  }
+
+  /**
+   * Get the transport for the resource this repository represents.
+   *
+   * @return {Rest}
+   */
+  getTransport() {
+    if (this.transport === null) {
+      this.transport = this.clientConfig.getEndpoint(this.getMeta().fetch('endpoint'));
+    }
+
+    return this.transport;
+  }
+
+  /**
+   * Set the associated entity's meta data
+   *
+   * @param {Object} meta
+   */
+  setMeta(meta) {
+    this.meta = meta;
+  }
+
+  /**
+   * Get the associated entity's meta data.
+   * @return {Object}
+   */
+  getMeta() {
+    return this.meta;
   }
 
   /**
@@ -65,6 +96,7 @@ export class Repository {
    *
    * @param {null|{}|Number} criteria Criteria to add to the query.
    * @param {boolean}        [raw]    Set to true to get a POJO in stead of populated entities.
+   *
    * @return {Promise}
    */
   find(criteria, raw) {
@@ -76,8 +108,10 @@ export class Repository {
    *
    * @param {null|{}|Number} criteria Criteria to add to the query.
    * @param {boolean}        [raw]    Set to true to get a POJO in stead of populated entities.
+   *
    * @return {Promise}
    */
+
   search(criteria, raw) {
     return this.findPath(this.resource, criteria, raw, true);
   }
@@ -92,7 +126,7 @@ export class Repository {
    * @return {Promise}
    */
   findPath(path, criteria, raw, collection = false) {
-    let findQuery = this.api.find(path, criteria);
+    let findQuery = this.getTransport().find(path, criteria);
 
     if (raw) {
       return findQuery;
@@ -109,7 +143,7 @@ export class Repository {
       })
       .then(populated => {
         if (!Array.isArray(populated)) {
-          return populated;
+          return populated.markClean();
         }
 
         populated.forEach(entity => entity.markClean());
@@ -122,16 +156,18 @@ export class Repository {
    * Perform a count.
    *
    * @param {null|{}} criteria
+   *
    * @return {Promise}
    */
   count(criteria) {
-    return this.api.find(this.resource + '/count', criteria);
+    return this.getTransport().find(this.resource + '/count', criteria);
   }
 
   /**
    * Populate entities based on supplied data.
    *
    * @param {{}} data
+   *
    * @return {*}
    */
   populateEntities(data) {
@@ -154,7 +190,7 @@ export class Repository {
 
   /**
    * @param {{}}     data
-   * @param {Entity} entity
+   * @param {Entity} [entity]
    *
    * @return {Entity}
    */

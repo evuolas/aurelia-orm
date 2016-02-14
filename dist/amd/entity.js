@@ -1,4 +1,4 @@
-define(['exports', 'aurelia-validation', 'aurelia-framework', 'aurelia-api', './orm-metadata'], function (exports, _aureliaValidation, _aureliaFramework, _aureliaApi, _ormMetadata) {
+define(['exports', 'aurelia-validation', 'aurelia-dependency-injection', './orm-metadata'], function (exports, _aureliaValidation, _aureliaDependencyInjection, _ormMetadata) {
   'use strict';
 
   Object.defineProperty(exports, '__esModule', {
@@ -10,10 +10,10 @@ define(['exports', 'aurelia-validation', 'aurelia-framework', 'aurelia-api', './
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   var Entity = (function () {
-    function Entity(validator, restClient) {
+    function Entity(validator) {
       _classCallCheck(this, _Entity);
 
-      this.define('__api', restClient).define('__meta', _ormMetadata.OrmMetadata.forTarget(this.constructor)).define('__cleanValues', {}, true);
+      this.define('__meta', _ormMetadata.OrmMetadata.forTarget(this.constructor)).define('__cleanValues', {}, true);
 
       if (!this.hasValidation()) {
         return this;
@@ -23,6 +23,11 @@ define(['exports', 'aurelia-validation', 'aurelia-framework', 'aurelia-api', './
     }
 
     _createClass(Entity, [{
+      key: 'getTransport',
+      value: function getTransport() {
+        return this.getRepository().getTransport();
+      }
+    }, {
       key: 'getRepository',
       value: function getRepository() {
         return this.__repository;
@@ -67,7 +72,7 @@ define(['exports', 'aurelia-validation', 'aurelia-framework', 'aurelia-api', './
           requestBody = bodyWithRoot;
         }
 
-        return this.__api.create(this.getResource(), requestBody).then(function (created) {
+        return this.getTransport.create(this.getResource(), requestBody).then(function (created) {
           _this.id = created.id;
           response = created;
         }).then(function () {
@@ -103,7 +108,7 @@ define(['exports', 'aurelia-validation', 'aurelia-framework', 'aurelia-api', './
 
         delete requestBody.id;
 
-        return this.__api.update(this.getResource(), this.id, requestBody).then(function (updated) {
+        return this.getTransport().update(this.getResource(), this.id, requestBody).then(function (updated) {
           return response = updated;
         }).then(function () {
           return _this2.saveCollections();
@@ -127,7 +132,7 @@ define(['exports', 'aurelia-validation', 'aurelia-framework', 'aurelia-api', './
           idToAdd = entity.id;
         }
 
-        return this.__api.create([this.getResource(), this.id, property, idToAdd].join('/'));
+        return this.getTransport().create([this.getResource(), this.id, property, idToAdd].join('/'));
       }
     }, {
       key: 'removeCollectionAssociation',
@@ -143,7 +148,7 @@ define(['exports', 'aurelia-validation', 'aurelia-framework', 'aurelia-api', './
           idToRemove = entity.id;
         }
 
-        return this.__api.destroy([this.getResource(), this.id, property, idToRemove].join('/'));
+        return this.getTransport().destroy([this.getResource(), this.id, property, idToRemove].join('/'));
       }
     }, {
       key: 'saveCollections',
@@ -233,7 +238,7 @@ define(['exports', 'aurelia-validation', 'aurelia-framework', 'aurelia-api', './
           throw new Error('Required value "id" missing on entity.');
         }
 
-        return this.__api.destroy(this.getResource(), this.id);
+        return this.getTransport().destroy(this.getResource(), this.id);
       }
     }, {
       key: 'getName',
@@ -282,7 +287,7 @@ define(['exports', 'aurelia-validation', 'aurelia-framework', 'aurelia-api', './
     }, {
       key: 'hasValidation',
       value: function hasValidation() {
-        return !!this.__meta.fetch('validation');
+        return !!this.getMeta().fetch('validation');
       }
     }, {
       key: 'asObject',
@@ -313,8 +318,8 @@ define(['exports', 'aurelia-validation', 'aurelia-framework', 'aurelia-api', './
     }]);
 
     var _Entity = Entity;
-    Entity = (0, _aureliaFramework.inject)(_aureliaValidation.Validation, _aureliaApi.Rest)(Entity) || Entity;
-    Entity = (0, _aureliaFramework.transient)()(Entity) || Entity;
+    Entity = (0, _aureliaDependencyInjection.inject)(_aureliaValidation.Validation)(Entity) || Entity;
+    Entity = (0, _aureliaDependencyInjection.transient)()(Entity) || Entity;
     return Entity;
   })();
 

@@ -1,4 +1,4 @@
-define(['exports', 'aurelia-framework', 'aurelia-api', './utils'], function (exports, _aureliaFramework, _aureliaApi, _utils) {
+define(['exports', 'aurelia-dependency-injection', 'spoonx/aurelia-api', './utils'], function (exports, _aureliaDependencyInjection, _spoonxAureliaApi, _utils) {
   'use strict';
 
   Object.defineProperty(exports, '__esModule', {
@@ -10,15 +10,35 @@ define(['exports', 'aurelia-framework', 'aurelia-api', './utils'], function (exp
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   var Repository = (function () {
-    function Repository(restClient) {
+    function Repository(clientConfig) {
       _classCallCheck(this, _Repository);
 
       this.enableRootObjects = true;
+      this.transport = null;
 
-      this.api = restClient;
+      this.clientConfig = clientConfig;
     }
 
     _createClass(Repository, [{
+      key: 'getTransport',
+      value: function getTransport() {
+        if (this.transport === null) {
+          this.transport = this.clientConfig.getEndpoint(this.getMeta().fetch('endpoint'));
+        }
+
+        return this.transport;
+      }
+    }, {
+      key: 'setMeta',
+      value: function setMeta(meta) {
+        this.meta = meta;
+      }
+    }, {
+      key: 'getMeta',
+      value: function getMeta() {
+        return this.meta;
+      }
+    }, {
       key: 'setResource',
       value: function setResource(resource) {
         this.resource = resource;
@@ -55,7 +75,7 @@ define(['exports', 'aurelia-framework', 'aurelia-api', './utils'], function (exp
 
         var collection = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
-        var findQuery = this.api.find(path, criteria);
+        var findQuery = this.getTransport().find(path, criteria);
 
         if (raw) {
           return findQuery;
@@ -69,8 +89,9 @@ define(['exports', 'aurelia-framework', 'aurelia-api', './utils'], function (exp
 
           return _this.populateEntities(x);
         }).then(function (populated) {
+          console.log(populated);
           if (!Array.isArray(populated)) {
-            return populated;
+            return populated.markClean();
           }
 
           populated.forEach(function (entity) {
@@ -83,7 +104,7 @@ define(['exports', 'aurelia-framework', 'aurelia-api', './utils'], function (exp
     }, {
       key: 'count',
       value: function count(criteria) {
-        return this.api.find(this.resource + '/count', criteria);
+        return this.getTransport().find(this.resource + '/count', criteria);
       }
     }, {
       key: 'populateEntities',
@@ -175,7 +196,7 @@ define(['exports', 'aurelia-framework', 'aurelia-api', './utils'], function (exp
     }]);
 
     var _Repository = Repository;
-    Repository = (0, _aureliaFramework.inject)(_aureliaApi.Rest)(Repository) || Repository;
+    Repository = (0, _aureliaDependencyInjection.inject)(_spoonxAureliaApi.Config)(Repository) || Repository;
     return Repository;
   })();
 

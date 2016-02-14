@@ -1,31 +1,51 @@
-System.register(['aurelia-framework', 'aurelia-api', './utils'], function (_export) {
+System.register(['aurelia-dependency-injection', 'spoonx/aurelia-api', './utils'], function (_export) {
   'use strict';
 
-  var inject, Rest, stringToCamelCase, Repository;
+  var inject, Config, stringToCamelCase, Repository;
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   return {
-    setters: [function (_aureliaFramework) {
-      inject = _aureliaFramework.inject;
-    }, function (_aureliaApi) {
-      Rest = _aureliaApi.Rest;
+    setters: [function (_aureliaDependencyInjection) {
+      inject = _aureliaDependencyInjection.inject;
+    }, function (_spoonxAureliaApi) {
+      Config = _spoonxAureliaApi.Config;
     }, function (_utils) {
       stringToCamelCase = _utils.stringToCamelCase;
     }],
     execute: function () {
       Repository = (function () {
-        function Repository(restClient) {
+        function Repository(clientConfig) {
           _classCallCheck(this, _Repository);
 
           this.enableRootObjects = true;
+          this.transport = null;
 
-          this.api = restClient;
+          this.clientConfig = clientConfig;
         }
 
         _createClass(Repository, [{
+          key: 'getTransport',
+          value: function getTransport() {
+            if (this.transport === null) {
+              this.transport = this.clientConfig.getEndpoint(this.getMeta().fetch('endpoint'));
+            }
+
+            return this.transport;
+          }
+        }, {
+          key: 'setMeta',
+          value: function setMeta(meta) {
+            this.meta = meta;
+          }
+        }, {
+          key: 'getMeta',
+          value: function getMeta() {
+            return this.meta;
+          }
+        }, {
           key: 'setResource',
           value: function setResource(resource) {
             this.resource = resource;
@@ -62,7 +82,7 @@ System.register(['aurelia-framework', 'aurelia-api', './utils'], function (_expo
 
             var collection = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
-            var findQuery = this.api.find(path, criteria);
+            var findQuery = this.getTransport().find(path, criteria);
 
             if (raw) {
               return findQuery;
@@ -76,8 +96,9 @@ System.register(['aurelia-framework', 'aurelia-api', './utils'], function (_expo
 
               return _this.populateEntities(x);
             }).then(function (populated) {
+              console.log(populated);
               if (!Array.isArray(populated)) {
-                return populated;
+                return populated.markClean();
               }
 
               populated.forEach(function (entity) {
@@ -90,7 +111,7 @@ System.register(['aurelia-framework', 'aurelia-api', './utils'], function (_expo
         }, {
           key: 'count',
           value: function count(criteria) {
-            return this.api.find(this.resource + '/count', criteria);
+            return this.getTransport().find(this.resource + '/count', criteria);
           }
         }, {
           key: 'populateEntities',
@@ -182,7 +203,7 @@ System.register(['aurelia-framework', 'aurelia-api', './utils'], function (_expo
         }]);
 
         var _Repository = Repository;
-        Repository = inject(Rest)(Repository) || Repository;
+        Repository = inject(Config)(Repository) || Repository;
         return Repository;
       })();
 

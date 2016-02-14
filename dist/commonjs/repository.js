@@ -8,22 +8,42 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _aureliaFramework = require('aurelia-framework');
+var _aureliaDependencyInjection = require('aurelia-dependency-injection');
 
-var _aureliaApi = require('aurelia-api');
+var _spoonxAureliaApi = require('spoonx/aurelia-api');
 
 var _utils = require('./utils');
 
 var Repository = (function () {
-  function Repository(restClient) {
+  function Repository(clientConfig) {
     _classCallCheck(this, _Repository);
 
     this.enableRootObjects = true;
+    this.transport = null;
 
-    this.api = restClient;
+    this.clientConfig = clientConfig;
   }
 
   _createClass(Repository, [{
+    key: 'getTransport',
+    value: function getTransport() {
+      if (this.transport === null) {
+        this.transport = this.clientConfig.getEndpoint(this.getMeta().fetch('endpoint'));
+      }
+
+      return this.transport;
+    }
+  }, {
+    key: 'setMeta',
+    value: function setMeta(meta) {
+      this.meta = meta;
+    }
+  }, {
+    key: 'getMeta',
+    value: function getMeta() {
+      return this.meta;
+    }
+  }, {
     key: 'setResource',
     value: function setResource(resource) {
       this.resource = resource;
@@ -60,7 +80,7 @@ var Repository = (function () {
 
       var collection = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
-      var findQuery = this.api.find(path, criteria);
+      var findQuery = this.getTransport().find(path, criteria);
 
       if (raw) {
         return findQuery;
@@ -74,8 +94,9 @@ var Repository = (function () {
 
         return _this.populateEntities(x);
       }).then(function (populated) {
+        console.log(populated);
         if (!Array.isArray(populated)) {
-          return populated;
+          return populated.markClean();
         }
 
         populated.forEach(function (entity) {
@@ -88,7 +109,7 @@ var Repository = (function () {
   }, {
     key: 'count',
     value: function count(criteria) {
-      return this.api.find(this.resource + '/count', criteria);
+      return this.getTransport().find(this.resource + '/count', criteria);
     }
   }, {
     key: 'populateEntities',
@@ -180,7 +201,7 @@ var Repository = (function () {
   }]);
 
   var _Repository = Repository;
-  Repository = (0, _aureliaFramework.inject)(_aureliaApi.Rest)(Repository) || Repository;
+  Repository = (0, _aureliaDependencyInjection.inject)(_spoonxAureliaApi.Config)(Repository) || Repository;
   return Repository;
 })();
 
