@@ -96,7 +96,6 @@ System.register(['aurelia-dependency-injection', 'spoonx/aurelia-api', './utils'
 
               return _this.populateEntities(x);
             }).then(function (populated) {
-              console.log(populated);
               if (!Array.isArray(populated)) {
                 return populated.markClean();
               }

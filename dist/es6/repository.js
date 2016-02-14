@@ -142,7 +142,6 @@ export class Repository {
         return this.populateEntities(x);
       })
       .then(populated => {
-        console.log(populated);
         if (!Array.isArray(populated)) {
           return populated.markClean();
         }
