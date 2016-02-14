@@ -1,4 +1,4 @@
-System.register(['aurelia-framework', 'aurelia-api', 'aurelia-api/utils'], function (_export) {
+System.register(['aurelia-framework', 'aurelia-api', './utils'], function (_export) {
   'use strict';
 
   var inject, Rest, stringToCamelCase, Repository;
@@ -12,8 +12,8 @@ System.register(['aurelia-framework', 'aurelia-api', 'aurelia-api/utils'], funct
       inject = _aureliaFramework.inject;
     }, function (_aureliaApi) {
       Rest = _aureliaApi.Rest;
-    }, function (_aureliaApiUtils) {
-      stringToCamelCase = _aureliaApiUtils.stringToCamelCase;
+    }, function (_utils) {
+      stringToCamelCase = _utils.stringToCamelCase;
     }],
     execute: function () {
       Repository = (function () {

@@ -1,4 +1,4 @@
-define(['exports', 'aurelia-framework', 'aurelia-api', 'aurelia-api/utils'], function (exports, _aureliaFramework, _aureliaApi, _aureliaApiUtils) {
+define(['exports', 'aurelia-framework', 'aurelia-api', './utils'], function (exports, _aureliaFramework, _aureliaApi, _utils) {
   'use strict';
 
   Object.defineProperty(exports, '__esModule', {
@@ -162,7 +162,7 @@ define(['exports', 'aurelia-framework', 'aurelia-api', 'aurelia-api/utils'], fun
         var jsonRoot = this.getJsonRootObject();
         jsonRoot = typeof jsonRoot === 'object' ? jsonRoot.single : jsonRoot;
 
-        return (0, _aureliaApiUtils.stringToCamelCase)(jsonRoot.replace(/s$/, ''));
+        return (0, _utils.stringToCamelCase)(jsonRoot.replace(/s$/, ''));
       }
     }, {
       key: 'jsonRootObjectPlural',
@@ -170,7 +170,7 @@ define(['exports', 'aurelia-framework', 'aurelia-api', 'aurelia-api/utils'], fun
         var jsonRoot = this.getJsonRootObject();
         jsonRoot = typeof jsonRoot === 'object' ? jsonRoot.plural : jsonRoot;
 
-        return (0, _aureliaApiUtils.stringToCamelCase)(jsonRoot);
+        return (0, _utils.stringToCamelCase)(jsonRoot);
       }
     }]);
 

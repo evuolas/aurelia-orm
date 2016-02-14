@@ -1,6 +1,6 @@
 import {inject} from 'aurelia-framework';
 import {Rest} from 'aurelia-api';
-import {stringToCamelCase} from 'aurelia-api/utils';
+import {stringToCamelCase} from './utils';
 
 @inject(Rest)
 export class Repository {

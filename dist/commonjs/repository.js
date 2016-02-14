@@ -12,7 +12,7 @@ var _aureliaFramework = require('aurelia-framework');
 
 var _aureliaApi = require('aurelia-api');
 
-var _aureliaApiUtils = require('aurelia-api/utils');
+var _utils = require('./utils');
 
 var Repository = (function () {
   function Repository(restClient) {
@@ -167,7 +167,7 @@ var Repository = (function () {
       var jsonRoot = this.getJsonRootObject();
       jsonRoot = typeof jsonRoot === 'object' ? jsonRoot.single : jsonRoot;
 
-      return (0, _aureliaApiUtils.stringToCamelCase)(jsonRoot.replace(/s$/, ''));
+      return (0, _utils.stringToCamelCase)(jsonRoot.replace(/s$/, ''));
     }
   }, {
     key: 'jsonRootObjectPlural',
@@ -175,7 +175,7 @@ var Repository = (function () {
       var jsonRoot = this.getJsonRootObject();
       jsonRoot = typeof jsonRoot === 'object' ? jsonRoot.plural : jsonRoot;
 
-      return (0, _aureliaApiUtils.stringToCamelCase)(jsonRoot);
+      return (0, _utils.stringToCamelCase)(jsonRoot);
     }
   }]);
 
