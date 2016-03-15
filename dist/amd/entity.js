@@ -72,7 +72,7 @@ define(['exports', 'aurelia-validation', 'aurelia-dependency-injection', './orm-
           requestBody = bodyWithRoot;
         }
 
-        return this.getTransport.create(this.getResource(), requestBody).then(function (created) {
+        return this.getTransport().create(this.getResource(), requestBody).then(function (created) {
           _this.id = created.id;
           response = created;
         }).then(function () {

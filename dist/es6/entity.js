@@ -103,7 +103,7 @@ export class Entity {
       requestBody = bodyWithRoot;
     }
 
-    return this.getTransport
+    return this.getTransport()
       .create(this.getResource(), requestBody)
       .then((created) => {
         this.id  = created.id;
