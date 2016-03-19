@@ -201,7 +201,12 @@ System.register(['aurelia-validation', 'aurelia-dependency-injection', './orm-me
             }
 
             return this.getTransport().create(this.getResource(), requestBody).then(function (created) {
-              _this.id = created.id;
+              if (repository.enableRootObjects) {
+                _this.id = created[repository.jsonRootObjectSingle].id;
+              } else {
+                _this.id = created.id;
+              }
+
               response = created;
             }).then(function () {
               return _this.saveCollections();

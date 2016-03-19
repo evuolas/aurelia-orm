@@ -106,7 +106,12 @@ export class Entity {
     return this.getTransport()
       .create(this.getResource(), requestBody)
       .then((created) => {
-        this.id  = created.id;
+        if (repository.enableRootObjects) {
+          this.id = created[repository.jsonRootObjectSingle].id;
+        } else {
+          this.id  = created.id;
+        }
+
         response = created;
       })
       .then(() => this.saveCollections())
