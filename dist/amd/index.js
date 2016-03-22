@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 define(['exports', './entity-manager', 'aurelia-validation', './validator/has-association', './default-repository', './repository', './entity', './orm-metadata', './decorator/association', './decorator/resource', './decorator/endpoint', './decorator/name', './decorator/repository', './decorator/json-root', './decorator/validation', './decorator/validated-resource'], function (exports, _entityManager, _aureliaValidation, _validatorHasAssociation, _defaultRepository, _repository, _entity, _ormMetadata, _decoratorAssociation, _decoratorResource, _decoratorEndpoint, _decoratorName, _decoratorRepository, _decoratorJsonRoot, _decoratorValidation, _decoratorValidatedResource) {
+=======
+define(['exports', './entity-manager', 'aurelia-validation', './validator/has-association', './default-repository', './repository', './entity', './orm-metadata', './decorator/association', './decorator/resource', './decorator/endpoint', './decorator/name', './decorator/repository', './decorator/validation', './decorator/type', './decorator/validated-resource'], function (exports, _entityManager, _aureliaValidation, _validatorHasAssociation, _defaultRepository, _repository, _entity, _ormMetadata, _decoratorAssociation, _decoratorResource, _decoratorEndpoint, _decoratorName, _decoratorRepository, _decoratorValidation, _decoratorType, _decoratorValidatedResource) {
+>>>>>>> SpoonX/master
   'use strict';
 
   Object.defineProperty(exports, '__esModule', {
@@ -75,6 +79,12 @@ define(['exports', './entity-manager', 'aurelia-validation', './validator/has-as
     enumerable: true,
     get: function get() {
       return _decoratorValidation.validation;
+    }
+  });
+  Object.defineProperty(exports, 'type', {
+    enumerable: true,
+    get: function get() {
+      return _decoratorType.type;
     }
   });
   Object.defineProperty(exports, 'validatedResource', {

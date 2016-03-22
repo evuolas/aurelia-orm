@@ -1,8 +1,8 @@
 import {inject} from 'aurelia-dependency-injection';
 import {Config} from 'spoonx/aurelia-api';
 import {stringToCamelCase} from './utils';
+import typer from 'typer';
 
-@inject(Config)
 export class Repository {
   enableRootObjects = true;
   transport = null;
@@ -206,6 +206,12 @@ export class Repository {
       }
 
       let value = data[key];
+
+      if (entityMetadata.has('types', key)) {
+        populatedData[key] = typer.cast(value, entityMetadata.fetch('types', key));
+
+        continue;
+      }
 
       if (!entityMetadata.has('associations', key) || typeof value !== 'object') {
         // Not an association, or not an object. clean copy.

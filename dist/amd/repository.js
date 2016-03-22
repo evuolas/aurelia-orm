@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 define(['exports', 'aurelia-dependency-injection', 'spoonx/aurelia-api', './utils'], function (exports, _aureliaDependencyInjection, _spoonxAureliaApi, _utils) {
+=======
+define(['exports', 'aurelia-dependency-injection', 'spoonx/aurelia-api', 'typer'], function (exports, _aureliaDependencyInjection, _spoonxAureliaApi, _typer) {
+>>>>>>> SpoonX/master
   'use strict';
 
   Object.defineProperty(exports, '__esModule', {
@@ -7,13 +11,20 @@ define(['exports', 'aurelia-dependency-injection', 'spoonx/aurelia-api', './util
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
+  function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  var _typer2 = _interopRequireDefault(_typer);
 
   var Repository = (function () {
     function Repository(clientConfig) {
       _classCallCheck(this, _Repository);
 
+<<<<<<< HEAD
       this.enableRootObjects = true;
+=======
+>>>>>>> SpoonX/master
       this.transport = null;
 
       this.clientConfig = clientConfig;
@@ -73,8 +84,11 @@ define(['exports', 'aurelia-dependency-injection', 'spoonx/aurelia-api', './util
       value: function findPath(path, criteria, raw) {
         var _this = this;
 
+<<<<<<< HEAD
         var collection = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
+=======
+>>>>>>> SpoonX/master
         var findQuery = this.getTransport().find(path, criteria);
 
         if (raw) {
@@ -140,6 +154,12 @@ define(['exports', 'aurelia-dependency-injection', 'spoonx/aurelia-api', './util
           }
 
           var value = data[key];
+
+          if (entityMetadata.has('types', key)) {
+            populatedData[key] = _typer2['default'].cast(value, entityMetadata.fetch('types', key));
+
+            continue;
+          }
 
           if (!entityMetadata.has('associations', key) || typeof value !== 'object') {
             populatedData[key] = value;

@@ -65,6 +65,7 @@ define(['exports', 'aurelia-validation', 'aurelia-dependency-injection', './orm-
         var repository = this.getRepository();
         var requestBody = this.asObject(true);
         var response = undefined;
+<<<<<<< HEAD
 
         if (repository.enableRootObjects) {
           var bodyWithRoot = {};
@@ -79,6 +80,10 @@ define(['exports', 'aurelia-validation', 'aurelia-dependency-injection', './orm-
             _this.id = created.id;
           }
 
+=======
+        return this.getTransport().create(this.getResource(), this.asObject(true)).then(function (created) {
+          _this.id = created.id;
+>>>>>>> SpoonX/master
           response = created;
         }).then(function () {
           return _this.saveCollections();
@@ -127,17 +132,32 @@ define(['exports', 'aurelia-validation', 'aurelia-dependency-injection', './orm-
       key: 'addCollectionAssociation',
       value: function addCollectionAssociation(entity, property) {
         property = property || getPropertyForAssociation(this, entity);
-        var idToAdd = entity;
+        var body = undefined;
+        var url = [this.getResource(), this.id, property];
 
-        if (entity instanceof Entity) {
-          if (!entity.id) {
-            return Promise.resolve(null);
-          }
-
-          idToAdd = entity.id;
+        if (this.isNew()) {
+          throw new Error('Cannot add association to entity that does not have an id.');
         }
 
+        if (!(entity instanceof Entity)) {
+          url.push(entity);
+
+          return this.getTransport().create(url.join('/'));
+        }
+
+<<<<<<< HEAD
         return this.getTransport().create([this.getResource(), this.id, property, idToAdd].join('/'));
+=======
+        if (entity.isNew()) {
+          body = entity.asObject();
+        } else {
+          url.push(entity.id);
+        }
+
+        return this.getTransport().create(url.join('/'), body).then(function (created) {
+          return entity.setData(created).markClean();
+        });
+>>>>>>> SpoonX/master
       }
     }, {
       key: 'removeCollectionAssociation',

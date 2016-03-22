@@ -6,19 +6,30 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 var _aureliaDependencyInjection = require('aurelia-dependency-injection');
 
 var _spoonxAureliaApi = require('spoonx/aurelia-api');
 
+<<<<<<< HEAD
 var _utils = require('./utils');
+=======
+var _typer = require('typer');
+
+var _typer2 = _interopRequireDefault(_typer);
+>>>>>>> SpoonX/master
 
 var Repository = (function () {
   function Repository(clientConfig) {
     _classCallCheck(this, _Repository);
 
+<<<<<<< HEAD
     this.enableRootObjects = true;
+=======
+>>>>>>> SpoonX/master
     this.transport = null;
 
     this.clientConfig = clientConfig;
@@ -78,8 +89,11 @@ var Repository = (function () {
     value: function findPath(path, criteria, raw) {
       var _this = this;
 
+<<<<<<< HEAD
       var collection = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
+=======
+>>>>>>> SpoonX/master
       var findQuery = this.getTransport().find(path, criteria);
 
       if (raw) {
@@ -145,6 +159,12 @@ var Repository = (function () {
         }
 
         var value = data[key];
+
+        if (entityMetadata.has('types', key)) {
+          populatedData[key] = _typer2['default'].cast(value, entityMetadata.fetch('types', key));
+
+          continue;
+        }
 
         if (!entityMetadata.has('associations', key) || typeof value !== 'object') {
           populatedData[key] = value;

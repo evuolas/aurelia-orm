@@ -1,3 +1,26 @@
+<a name"2.2.0"></a>
+## 2.2.0 (2016-03-05)
+
+
+#### Features
+
+* **entity:** Create child when new, upon adding ([a2ff99d9](https://github.com/SpoonX/aurelia-orm/commit/a2ff99d9))
+
+
+<a name"2.1.1"></a>
+### 2.1.1 (2016-03-02)
+
+
+## 2.1.0 (2016-02-23)
+
+
+#### Features
+
+* **decorator:** Added type decorator ([3e70062e](https://github.com/SpoonX/aurelia-orm/commit/3e70062e0f11d82bdadc80985a1eba625a152182))
+* **project:** Expose type decorator from project index ([e20459cc](https://github.com/SpoonX/aurelia-orm/commit/e20459cca82ffa2b5196ec1bcf03f0487b29a591))
+* **repository:** Cast values if they have type decorators ([a40d7632](https://github.com/SpoonX/aurelia-orm/commit/a40d7632f856a78ff78c0428075c78f90af67a68))
+
+
 <a name"2.0.3"></a>
 ## 2.0.3 (2016-01-25)
 
@@ -15,7 +38,7 @@
 
 * **project:**
   * removed aurelia-framework dependency and imported directly ([a23194b5](https://github.com/SpoonX/aurelia-orm/commit/a23194b5))
-  
+
 
 <a name"2.0.1"></a>
 ### 2.0.1 (2016-01-24)
