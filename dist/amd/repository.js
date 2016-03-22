@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-define(['exports', 'aurelia-dependency-injection', 'spoonx/aurelia-api', './utils'], function (exports, _aureliaDependencyInjection, _spoonxAureliaApi, _utils) {
-=======
-define(['exports', 'aurelia-dependency-injection', 'spoonx/aurelia-api', 'typer'], function (exports, _aureliaDependencyInjection, _spoonxAureliaApi, _typer) {
->>>>>>> SpoonX/master
+define(['exports', 'aurelia-dependency-injection', 'spoonx/aurelia-api', './utils', 'typer'], function (exports, _aureliaDependencyInjection, _spoonxAureliaApi, _utils, _typer) {
   'use strict';
 
   Object.defineProperty(exports, '__esModule', {
@@ -19,12 +15,9 @@ define(['exports', 'aurelia-dependency-injection', 'spoonx/aurelia-api', 'typer'
 
   var Repository = (function () {
     function Repository(clientConfig) {
-      _classCallCheck(this, _Repository);
+      _classCallCheck(this, Repository);
 
-<<<<<<< HEAD
       this.enableRootObjects = true;
-=======
->>>>>>> SpoonX/master
       this.transport = null;
 
       this.clientConfig = clientConfig;
@@ -84,11 +77,8 @@ define(['exports', 'aurelia-dependency-injection', 'spoonx/aurelia-api', 'typer'
       value: function findPath(path, criteria, raw) {
         var _this = this;
 
-<<<<<<< HEAD
         var collection = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
-=======
->>>>>>> SpoonX/master
         var findQuery = this.getTransport().find(path, criteria);
 
         if (raw) {
@@ -214,8 +204,6 @@ define(['exports', 'aurelia-dependency-injection', 'spoonx/aurelia-api', 'typer'
       }
     }]);
 
-    var _Repository = Repository;
-    Repository = (0, _aureliaDependencyInjection.inject)(_spoonxAureliaApi.Config)(Repository) || Repository;
     return Repository;
   })();
 

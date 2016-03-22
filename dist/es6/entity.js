@@ -96,7 +96,6 @@ export class Entity {
     let repository = this.getRepository();
     let requestBody = this.asObject(true);
     let response;
-<<<<<<< HEAD
 
     if (repository.enableRootObjects) {
       let bodyWithRoot = {};
@@ -106,10 +105,6 @@ export class Entity {
 
     return this.getTransport()
       .create(this.getResource(), requestBody)
-=======
-    return this.getTransport()
-      .create(this.getResource(), this.asObject(true))
->>>>>>> SpoonX/master
       .then((created) => {
         if (repository.enableRootObjects) {
           this.id = created[repository.jsonRootObjectSingle].id;
@@ -196,14 +191,10 @@ export class Entity {
       url.push(entity.id);
     }
 
-<<<<<<< HEAD
-    return this.getTransport().create([this.getResource(), this.id, property, idToAdd].join('/'));
-=======
     return this.getTransport().create(url.join('/'), body)
       .then(created => {
         return entity.setData(created).markClean();
       });
->>>>>>> SpoonX/master
   }
 
   /**

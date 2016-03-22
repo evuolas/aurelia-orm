@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-System.register(['./entity-manager', 'aurelia-validation', './validator/has-association', './default-repository', './repository', './entity', './orm-metadata', './decorator/association', './decorator/resource', './decorator/endpoint', './decorator/name', './decorator/repository', './decorator/json-root', './decorator/validation', './decorator/validated-resource'], function (_export) {
-=======
-System.register(['./entity-manager', 'aurelia-validation', './validator/has-association', './default-repository', './repository', './entity', './orm-metadata', './decorator/association', './decorator/resource', './decorator/endpoint', './decorator/name', './decorator/repository', './decorator/validation', './decorator/type', './decorator/validated-resource'], function (_export) {
->>>>>>> SpoonX/master
+System.register(['./entity-manager', 'aurelia-validation', './validator/has-association', './default-repository', './repository', './entity', './orm-metadata', './decorator/association', './decorator/resource', './decorator/endpoint', './decorator/name', './decorator/repository', './decorator/json-root', './decorator/validation', './decorator/type', './decorator/validated-resource'], function (_export) {
   'use strict';
 
   var EntityManager, ValidationGroup, HasAssociationValidationRule;

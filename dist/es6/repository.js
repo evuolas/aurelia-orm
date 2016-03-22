@@ -1,17 +1,10 @@
 import {inject} from 'aurelia-dependency-injection';
 import {Config} from 'spoonx/aurelia-api';
-<<<<<<< HEAD
 import {stringToCamelCase} from './utils';
-
-@inject(Config)
-export class Repository {
-  enableRootObjects = true;
-=======
 import typer from 'typer';
 
-@inject(Config)
 export class Repository {
->>>>>>> SpoonX/master
+  enableRootObjects = true;
   transport = null;
 
   /**
@@ -118,7 +111,6 @@ export class Repository {
    *
    * @return {Promise}
    */
-<<<<<<< HEAD
 
   search(criteria, raw) {
     return this.findPath(this.resource, criteria, raw, true);
@@ -134,9 +126,6 @@ export class Repository {
    * @return {Promise}
    */
   findPath(path, criteria, raw, collection = false) {
-=======
-  findPath(path, criteria, raw) {
->>>>>>> SpoonX/master
     let findQuery = this.getTransport().find(path, criteria);
 
     if (raw) {

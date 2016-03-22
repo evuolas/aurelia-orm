@@ -14,22 +14,17 @@ var _aureliaDependencyInjection = require('aurelia-dependency-injection');
 
 var _spoonxAureliaApi = require('spoonx/aurelia-api');
 
-<<<<<<< HEAD
 var _utils = require('./utils');
-=======
+
 var _typer = require('typer');
 
 var _typer2 = _interopRequireDefault(_typer);
->>>>>>> SpoonX/master
 
 var Repository = (function () {
   function Repository(clientConfig) {
-    _classCallCheck(this, _Repository);
+    _classCallCheck(this, Repository);
 
-<<<<<<< HEAD
     this.enableRootObjects = true;
-=======
->>>>>>> SpoonX/master
     this.transport = null;
 
     this.clientConfig = clientConfig;
@@ -89,11 +84,8 @@ var Repository = (function () {
     value: function findPath(path, criteria, raw) {
       var _this = this;
 
-<<<<<<< HEAD
       var collection = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
-=======
->>>>>>> SpoonX/master
       var findQuery = this.getTransport().find(path, criteria);
 
       if (raw) {
@@ -219,8 +211,6 @@ var Repository = (function () {
     }
   }]);
 
-  var _Repository = Repository;
-  Repository = (0, _aureliaDependencyInjection.inject)(_spoonxAureliaApi.Config)(Repository) || Repository;
   return Repository;
 })();
 

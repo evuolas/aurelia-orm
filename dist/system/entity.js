@@ -193,7 +193,6 @@ System.register(['aurelia-validation', 'aurelia-dependency-injection', './orm-me
             var repository = this.getRepository();
             var requestBody = this.asObject(true);
             var response = undefined;
-<<<<<<< HEAD
 
             if (repository.enableRootObjects) {
               var bodyWithRoot = {};
@@ -208,10 +207,6 @@ System.register(['aurelia-validation', 'aurelia-dependency-injection', './orm-me
                 _this.id = created.id;
               }
 
-=======
-            return this.getTransport().create(this.getResource(), this.asObject(true)).then(function (created) {
-              _this.id = created.id;
->>>>>>> SpoonX/master
               response = created;
             }).then(function () {
               return _this.saveCollections();
@@ -273,9 +268,6 @@ System.register(['aurelia-validation', 'aurelia-dependency-injection', './orm-me
               return this.getTransport().create(url.join('/'));
             }
 
-<<<<<<< HEAD
-            return this.getTransport().create([this.getResource(), this.id, property, idToAdd].join('/'));
-=======
             if (entity.isNew()) {
               body = entity.asObject();
             } else {
@@ -285,7 +277,6 @@ System.register(['aurelia-validation', 'aurelia-dependency-injection', './orm-me
             return this.getTransport().create(url.join('/'), body).then(function (created) {
               return entity.setData(created).markClean();
             });
->>>>>>> SpoonX/master
           }
         }, {
           key: 'removeCollectionAssociation',
