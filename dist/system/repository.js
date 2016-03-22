@@ -20,7 +20,7 @@ System.register(['aurelia-dependency-injection', 'spoonx/aurelia-api', './utils'
     execute: function () {
       Repository = (function () {
         function Repository(clientConfig) {
-          _classCallCheck(this, Repository);
+          _classCallCheck(this, _Repository);
 
           this.enableRootObjects = true;
           this.transport = null;
@@ -209,6 +209,8 @@ System.register(['aurelia-dependency-injection', 'spoonx/aurelia-api', './utils'
           }
         }]);
 
+        var _Repository = Repository;
+        Repository = inject(Config)(Repository) || Repository;
         return Repository;
       })();
 

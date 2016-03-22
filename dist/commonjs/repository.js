@@ -22,7 +22,7 @@ var _typer2 = _interopRequireDefault(_typer);
 
 var Repository = (function () {
   function Repository(clientConfig) {
-    _classCallCheck(this, Repository);
+    _classCallCheck(this, _Repository);
 
     this.enableRootObjects = true;
     this.transport = null;
@@ -211,6 +211,8 @@ var Repository = (function () {
     }
   }]);
 
+  var _Repository = Repository;
+  Repository = (0, _aureliaDependencyInjection.inject)(_spoonxAureliaApi.Config)(Repository) || Repository;
   return Repository;
 })();
 

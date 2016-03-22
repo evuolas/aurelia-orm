@@ -15,7 +15,7 @@ define(['exports', 'aurelia-dependency-injection', 'spoonx/aurelia-api', './util
 
   var Repository = (function () {
     function Repository(clientConfig) {
-      _classCallCheck(this, Repository);
+      _classCallCheck(this, _Repository);
 
       this.enableRootObjects = true;
       this.transport = null;
@@ -204,6 +204,8 @@ define(['exports', 'aurelia-dependency-injection', 'spoonx/aurelia-api', './util
       }
     }]);
 
+    var _Repository = Repository;
+    Repository = (0, _aureliaDependencyInjection.inject)(_spoonxAureliaApi.Config)(Repository) || Repository;
     return Repository;
   })();
 

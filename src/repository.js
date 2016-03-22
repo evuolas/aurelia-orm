@@ -3,6 +3,7 @@ import {Config} from 'spoonx/aurelia-api';
 import {stringToCamelCase} from './utils';
 import typer from 'typer';
 
+@inject(Config)
 export class Repository {
   enableRootObjects = true;
   transport = null;

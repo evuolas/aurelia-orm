@@ -354,8 +354,15 @@ function _asObject(entity, shallow) {
 
     var value = entity[propertyName];
     var associationMeta = metadata.fetch('associations', propertyName);
+    var typeMeta = metadata.fetch('types', propertyName);
 
     if (associationMeta && associationMeta.ignoreOnSave) {
+      return;
+    }
+
+    if (typeMeta === 'date' && value && typeof value === 'object' && typeof value.toISOString === 'function') {
+      pojo[propertyName] = value.toISOString();
+
       return;
     }
 

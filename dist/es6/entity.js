@@ -479,9 +479,19 @@ function asObject(entity, shallow) {
 
     let value = entity[propertyName];
     let associationMeta = metadata.fetch('associations', propertyName);
+    let typeMeta = metadata.fetch('types', propertyName);
 
     // Return if association is set not to be included on save
     if (associationMeta && associationMeta.ignoreOnSave) {
+      return;
+    }
+
+    // If property is defined as date and moment object found, convert it to
+    // ISO string.
+    if (typeMeta === 'date' && value && typeof value === 'object' &&
+        typeof value.toISOString === 'function') {
+      pojo[propertyName] = value.toISOString();
+
       return;
     }
 
