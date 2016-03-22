@@ -242,7 +242,7 @@ export class Repository {
     for (let property in associations) {
       let assocMeta = associations[property];
 
-      if (assocMeta.type !== 'entity') {
+      if (assocMeta.type !== 'entity' || !assocMeta.populateOnCreate) {
         continue;
       }
 

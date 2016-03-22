@@ -167,7 +167,7 @@ define(['exports', 'aurelia-dependency-injection', 'spoonx/aurelia-api', './util
         for (var property in associations) {
           var assocMeta = associations[property];
 
-          if (assocMeta.type !== 'entity') {
+          if (assocMeta.type !== 'entity' || !assocMeta.populateOnCreate) {
             continue;
           }
 

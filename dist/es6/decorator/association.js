@@ -12,7 +12,8 @@ export function association(associationData) {
       type: associationData.entity ? 'entity' : 'collection',
       entity: associationData.entity || associationData.collection,
       includeOnlyIds: associationData.hasOwnProperty('includeOnlyIds') ? associationData.includeOnlyIds : true,
-      ignoreOnSave: associationData.hasOwnProperty('ignoreOnSave') ? associationData.ignoreOnSave : false
+      ignoreOnSave: associationData.hasOwnProperty('ignoreOnSave') ? associationData.ignoreOnSave : false,
+      populateOnCreate: associationData.hasOwnProperty('populateOnCreate') ? associationData.populateOnCreate : true
     });
   };
 }

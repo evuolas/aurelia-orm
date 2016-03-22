@@ -172,7 +172,7 @@ var Repository = (function () {
       for (var property in associations) {
         var assocMeta = associations[property];
 
-        if (assocMeta.type !== 'entity') {
+        if (assocMeta.type !== 'entity' || !assocMeta.populateOnCreate) {
           continue;
         }
 
