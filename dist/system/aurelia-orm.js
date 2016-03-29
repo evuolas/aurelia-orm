@@ -1,7 +1,7 @@
 'use strict';
 
-System.register(['./entity-manager', 'aurelia-validation', './validator/has-association', './default-repository', './repository', './entity', './orm-metadata', './decorator/association', './decorator/resource', './decorator/endpoint', './decorator/name', './decorator/repository', './decorator/validation', './decorator/type', './decorator/validated-resource'], function (_export, _context) {
-  var EntityManager, ValidationGroup, HasAssociationValidationRule, DefaultRepository, Repository, Entity, OrmMetadata, association, resource, endpoint, name, repository, validation, type, validatedResource;
+System.register(['./entity-manager', 'aurelia-validation', './validator/has-association', './default-repository', './repository', './entity', './orm-metadata', './decorator/association', './decorator/resource', './decorator/endpoint', './decorator/json-root', './decorator/name', './decorator/repository', './decorator/validation', './decorator/type', './decorator/validated-resource'], function (_export, _context) {
+  var EntityManager, ValidationGroup, HasAssociationValidationRule, DefaultRepository, Repository, Entity, OrmMetadata, association, resource, endpoint, jsonRoot, name, repository, validation, type, validatedResource;
 
 
   function configure(aurelia, configCallback) {
@@ -37,6 +37,8 @@ System.register(['./entity-manager', 'aurelia-validation', './validator/has-asso
       resource = _decoratorResource.resource;
     }, function (_decoratorEndpoint) {
       endpoint = _decoratorEndpoint.endpoint;
+    }, function (_decoratorJsonRoot) {
+      jsonRoot = _decoratorJsonRoot.jsonRoot;
     }, function (_decoratorName) {
       name = _decoratorName.name;
     }, function (_decoratorRepository) {
@@ -66,6 +68,8 @@ System.register(['./entity-manager', 'aurelia-validation', './validator/has-asso
       _export('resource', resource);
 
       _export('endpoint', endpoint);
+
+      _export('jsonRoot', jsonRoot);
 
       _export('name', name);
 

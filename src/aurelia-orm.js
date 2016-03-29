@@ -9,6 +9,7 @@ import {OrmMetadata} from './orm-metadata';
 import {association} from './decorator/association';
 import {resource} from './decorator/resource';
 import {endpoint} from './decorator/endpoint';
+import {jsonRoot} from './decorator/json-root';
 import {name} from './decorator/name';
 import {repository} from './decorator/repository';
 import {validation} from './decorator/validation';
@@ -37,6 +38,7 @@ export {
   association,
   resource,
   endpoint,
+  jsonRoot,
   name,
   repository,
   validation,

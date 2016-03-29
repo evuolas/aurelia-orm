@@ -527,21 +527,6 @@ declare module 'aurelia-orm' {
     getNewPopulatedEntity(): any;
   }
   export function stringToCamelCase(str: any): any;
-  export function association(associationData: any): any;
-  
-  /**
-   * @param {String} entityEndpoint
-   *
-   * @return {Function}
-   */
-  export function endpoint(entityEndpoint: any): any;
-  export function jsonRoot(name: any): any;
-  export function name(entityName: any): any;
-  export function repository(repositoryReference: any): any;
-  export function resource(resourceName: any): any;
-  export function type(typeValue: any): any;
-  export function validatedResource(resourceName: any): any;
-  export function validation(): any;
   export class AssociationSelect {
     criteria: any;
     repository: any;
@@ -630,6 +615,21 @@ declare module 'aurelia-orm' {
        */
     unbind(): any;
   }
+  export function association(associationData: any): any;
+  
+  /**
+   * @param {String} entityEndpoint
+   *
+   * @return {Function}
+   */
+  export function endpoint(entityEndpoint: any): any;
+  export function jsonRoot(name: any): any;
+  export function name(entityName: any): any;
+  export function repository(repositoryReference: any): any;
+  export function resource(resourceName: any): any;
+  export function type(typeValue: any): any;
+  export function validatedResource(resourceName: any): any;
+  export function validation(): any;
   export class HasAssociationValidationRule extends ValidationRule {
     constructor();
   }

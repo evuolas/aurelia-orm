@@ -1,10 +1,10 @@
-define(['exports', './entity-manager', 'aurelia-validation', './validator/has-association', './default-repository', './repository', './entity', './orm-metadata', './decorator/association', './decorator/resource', './decorator/endpoint', './decorator/name', './decorator/repository', './decorator/validation', './decorator/type', './decorator/validated-resource'], function (exports, _entityManager, _aureliaValidation, _hasAssociation, _defaultRepository, _repository, _entity, _ormMetadata, _association, _resource, _endpoint, _name, _repository2, _validation, _type, _validatedResource) {
+define(['exports', './entity-manager', 'aurelia-validation', './validator/has-association', './default-repository', './repository', './entity', './orm-metadata', './decorator/association', './decorator/resource', './decorator/endpoint', './decorator/json-root', './decorator/name', './decorator/repository', './decorator/validation', './decorator/type', './decorator/validated-resource'], function (exports, _entityManager, _aureliaValidation, _hasAssociation, _defaultRepository, _repository, _entity, _ormMetadata, _association, _resource, _endpoint, _jsonRoot, _name, _repository2, _validation, _type, _validatedResource) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.validatedResource = exports.type = exports.validation = exports.repository = exports.name = exports.endpoint = exports.resource = exports.association = exports.EntityManager = exports.OrmMetadata = exports.Entity = exports.Repository = exports.DefaultRepository = exports.configure = undefined;
+  exports.validatedResource = exports.type = exports.validation = exports.repository = exports.name = exports.jsonRoot = exports.endpoint = exports.resource = exports.association = exports.EntityManager = exports.OrmMetadata = exports.Entity = exports.Repository = exports.DefaultRepository = exports.configure = undefined;
 
 
   function configure(aurelia, configCallback) {
@@ -28,6 +28,7 @@ define(['exports', './entity-manager', 'aurelia-validation', './validator/has-as
   exports.association = _association.association;
   exports.resource = _resource.resource;
   exports.endpoint = _endpoint.endpoint;
+  exports.jsonRoot = _jsonRoot.jsonRoot;
   exports.name = _name.name;
   exports.repository = _repository2.repository;
   exports.validation = _validation.validation;
