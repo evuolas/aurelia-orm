@@ -9,6 +9,7 @@ import { OrmMetadata } from './orm-metadata';
 import { association } from './decorator/association';
 import { resource } from './decorator/resource';
 import { endpoint } from './decorator/endpoint';
+import { jsonRoot } from './decorator/json-root';
 import { name } from './decorator/name';
 import { repository } from './decorator/repository';
 import { validation } from './decorator/validation';
@@ -27,4 +28,4 @@ function configure(aurelia, configCallback) {
   aurelia.globalResources('./component/association-select');
 }
 
-export { configure, DefaultRepository, Repository, Entity, OrmMetadata, EntityManager, association, resource, endpoint, name, repository, validation, type, validatedResource };
+export { configure, DefaultRepository, Repository, Entity, OrmMetadata, EntityManager, association, resource, endpoint, jsonRoot, name, repository, validation, type, validatedResource };
