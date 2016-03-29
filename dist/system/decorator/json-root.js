@@ -1,20 +1,19 @@
-System.register(['../orm-metadata'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register(['../orm-metadata'], function (_export, _context) {
   var OrmMetadata;
-
-  _export('jsonRoot', jsonRoot);
-
-  function jsonRoot(name) {
-    return function (target) {
-      OrmMetadata.forTarget(target).put('jsonRoot', name);
-    };
-  }
-
   return {
     setters: [function (_ormMetadata) {
       OrmMetadata = _ormMetadata.OrmMetadata;
     }],
-    execute: function () {}
+    execute: function () {
+      function jsonRoot(name) {
+        return function (target) {
+          OrmMetadata.forTarget(target).put('jsonRoot', name);
+        };
+      }
+
+      _export('jsonRoot', jsonRoot);
+    }
   };
 });

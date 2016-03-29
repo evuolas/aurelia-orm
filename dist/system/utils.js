@@ -1,16 +1,16 @@
-System.register([], function (_export) {
-  "use strict";
+"use strict";
 
-  _export("stringToCamelCase", stringToCamelCase);
-
-  function stringToCamelCase(str) {
-    return str.replace(/(_\w)/g, function (m) {
-      return m[1].toUpperCase();
-    });
-  }
-
+System.register([], function (_export, _context) {
   return {
     setters: [],
-    execute: function () {}
+    execute: function () {
+      function stringToCamelCase(str) {
+        return str.replace(/(_\w)/g, function (m) {
+          return m[1].toUpperCase();
+        });
+      }
+
+      _export("stringToCamelCase", stringToCamelCase);
+    }
   };
 });

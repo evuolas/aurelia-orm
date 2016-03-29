@@ -1,15 +1,9 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.configure = configure;
-
-var _entityManager = require('./entity-manager');
-
-var _aureliaValidation = require('aurelia-validation');
-
-var _validatorHasAssociation = require('./validator/has-association');
+exports.validatedResource = exports.type = exports.validation = exports.jsonRoot = exports.repository = exports.name = exports.endpoint = exports.resource = exports.association = exports.EntityManager = exports.OrmMetadata = exports.Entity = exports.Repository = exports.DefaultRepository = undefined;
 
 var _defaultRepository = require('./default-repository');
 
@@ -46,6 +40,9 @@ Object.defineProperty(exports, 'OrmMetadata', {
     return _ormMetadata.OrmMetadata;
   }
 });
+
+var _entityManager = require('./entity-manager');
+
 Object.defineProperty(exports, 'EntityManager', {
   enumerable: true,
   get: function get() {
@@ -53,86 +50,91 @@ Object.defineProperty(exports, 'EntityManager', {
   }
 });
 
-var _decoratorAssociation = require('./decorator/association');
+var _association = require('./decorator/association');
 
 Object.defineProperty(exports, 'association', {
   enumerable: true,
   get: function get() {
-    return _decoratorAssociation.association;
+    return _association.association;
   }
 });
 
-var _decoratorResource = require('./decorator/resource');
+var _resource = require('./decorator/resource');
 
 Object.defineProperty(exports, 'resource', {
   enumerable: true,
   get: function get() {
-    return _decoratorResource.resource;
+    return _resource.resource;
   }
 });
 
-var _decoratorEndpoint = require('./decorator/endpoint');
+var _endpoint = require('./decorator/endpoint');
 
 Object.defineProperty(exports, 'endpoint', {
   enumerable: true,
   get: function get() {
-    return _decoratorEndpoint.endpoint;
+    return _endpoint.endpoint;
   }
 });
 
-var _decoratorName = require('./decorator/name');
+var _name = require('./decorator/name');
 
 Object.defineProperty(exports, 'name', {
   enumerable: true,
   get: function get() {
-    return _decoratorName.name;
+    return _name.name;
   }
 });
 
-var _decoratorRepository = require('./decorator/repository');
+var _repository2 = require('./decorator/repository');
 
 Object.defineProperty(exports, 'repository', {
   enumerable: true,
   get: function get() {
-    return _decoratorRepository.repository;
+    return _repository2.repository;
   }
 });
 
-var _decoratorJsonRoot = require('./decorator/json-root');
+var _jsonRoot = require('./decorator/json-root');
 
 Object.defineProperty(exports, 'jsonRoot', {
   enumerable: true,
   get: function get() {
-    return _decoratorJsonRoot.jsonRoot;
+    return _jsonRoot.jsonRoot;
   }
 });
 
-var _decoratorValidation = require('./decorator/validation');
+var _validation = require('./decorator/validation');
 
 Object.defineProperty(exports, 'validation', {
   enumerable: true,
   get: function get() {
-    return _decoratorValidation.validation;
+    return _validation.validation;
   }
 });
 
-var _decoratorType = require('./decorator/type');
+var _type = require('./decorator/type');
 
 Object.defineProperty(exports, 'type', {
   enumerable: true,
   get: function get() {
-    return _decoratorType.type;
+    return _type.type;
   }
 });
 
-var _decoratorValidatedResource = require('./decorator/validated-resource');
+var _validatedResource = require('./decorator/validated-resource');
 
 Object.defineProperty(exports, 'validatedResource', {
   enumerable: true,
   get: function get() {
-    return _decoratorValidatedResource.validatedResource;
+    return _validatedResource.validatedResource;
   }
 });
+exports.configure = configure;
+
+var _aureliaValidation = require('aurelia-validation');
+
+var _hasAssociation = require('./validator/has-association');
 
 function configure(aurelia, configCallback) {
   var entityManagerInstance = aurelia.container.get(_entityManager.EntityManager);
@@ -140,7 +142,7 @@ function configure(aurelia, configCallback) {
   configCallback(entityManagerInstance);
 
   _aureliaValidation.ValidationGroup.prototype.hasAssociation = function () {
-    return this.isNotEmpty().passesRule(new _validatorHasAssociation.HasAssociationValidationRule());
+    return this.isNotEmpty().passesRule(new _hasAssociation.HasAssociationValidationRule());
   };
 
   aurelia.globalResources('./component/association-select');

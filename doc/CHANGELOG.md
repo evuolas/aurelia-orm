@@ -1,3 +1,25 @@
+<a name"2.2.3"></a>
+### 2.2.3 (2016-03-26)
+
+
+#### Bug Fixes
+
+* **project:** fix wrong dependency introduced in 2.2.2 ([ae8a42d0](https://github.com/SpoonX/aurelia-orm/commit/ae8a42d0))
+
+
+<a name"2.2.2"></a>
+### 2.2.2 (2016-03-25)
+
+
+<a name"2.2.1"></a>
+### 2.2.1 (2016-03-25)
+
+
+#### Features
+
+* **project:** add d.ts file ([6a6368ce](https://github.com/SpoonX/aurelia-orm/commit/6a6368ce))
+
+
 <a name"2.2.0"></a>
 ## 2.2.0 (2016-03-05)
 
