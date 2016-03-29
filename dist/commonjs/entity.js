@@ -67,22 +67,19 @@ var Entity = exports.Entity = (_dec = (0, _aureliaDependencyInjection.transient)
     var requestBody = this.asObject(true);
     var response = void 0;
 
-    if (repository.enableRootObjects) {
+    var rootObject = repository.enableRootObjects;
+
+    if (rootObject) {
       var bodyWithRoot = {};
       bodyWithRoot[repository.jsonRootObjectSingle] = requestBody;
       requestBody = bodyWithRoot;
     }
 
     return this.getTransport().create(this.getResource(), requestBody).then(function (created) {
-      if (repository.enableRootObjects) {
-        _this.id = created[repository.jsonRootObjectSingle].id;
-      } else {
-        _this.id = created.id;
-      }
+      var data = rootObject ? created[repository.jsonRootObjectSingle] : created;
+      repository.getPopulatedEntity(data, _this);
 
       response = created;
-    }).then(function () {
-      return _this.saveCollections();
     }).then(function () {
       return _this.markClean();
     }).then(function () {
@@ -105,7 +102,9 @@ var Entity = exports.Entity = (_dec = (0, _aureliaDependencyInjection.transient)
     var requestBody = this.asObject(true);
     var response = void 0;
 
-    if (repository.enableRootObjects) {
+    var rootObject = repository.enableRootObjects;
+
+    if (rootObject) {
       var bodyWithRoot = {};
       bodyWithRoot[repository.jsonRootObjectSingle] = requestBody;
       requestBody = bodyWithRoot;
@@ -114,9 +113,10 @@ var Entity = exports.Entity = (_dec = (0, _aureliaDependencyInjection.transient)
     delete requestBody.id;
 
     return this.getTransport().update(this.getResource(), this.id, requestBody).then(function (updated) {
-      return response = updated;
-    }).then(function () {
-      return _this2.saveCollections();
+      var data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
+      repository.getPopulatedEntity(data, _this2);
+
+      response = updated;
     }).then(function () {
       return _this2.markClean();
     }).then(function () {

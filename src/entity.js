@@ -97,7 +97,9 @@ export class Entity {
     let requestBody = this.asObject(true);
     let response;
 
-    if (repository.enableRootObjects) {
+    const rootObject = repository.enableRootObjects;
+
+    if (rootObject) {
       let bodyWithRoot = {};
       bodyWithRoot[repository.jsonRootObjectSingle] = requestBody;
       requestBody = bodyWithRoot;
@@ -106,15 +108,12 @@ export class Entity {
     return this.getTransport()
       .create(this.getResource(), requestBody)
       .then((created) => {
-        if (repository.enableRootObjects) {
-          this.id = created[repository.jsonRootObjectSingle].id;
-        } else {
-          this.id  = created.id;
-        }
+        const data = rootObject ? created[repository.jsonRootObjectSingle] : created;
+        repository.getPopulatedEntity(data, this);
 
         response = created;
       })
-      .then(() => this.saveCollections())
+      //.then(() => this.saveCollections())
       .then(() => this.markClean())
       .then(() => response);
   }
@@ -142,7 +141,9 @@ export class Entity {
     let requestBody = this.asObject(true);
     let response;
 
-    if (repository.enableRootObjects) {
+    const rootObject = repository.enableRootObjects;
+
+    if (rootObject) {
       let bodyWithRoot = {};
       bodyWithRoot[repository.jsonRootObjectSingle] = requestBody;
       requestBody = bodyWithRoot;
@@ -152,8 +153,13 @@ export class Entity {
 
     return this.getTransport()
       .update(this.getResource(), this.id, requestBody)
-      .then((updated) => response = updated)
-      .then(() => this.saveCollections())
+      .then((updated) => {
+        const data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
+        repository.getPopulatedEntity(data, this);
+
+        response = updated;
+      })
+      //.then(() => this.saveCollections())
       .then(() => this.markClean())
       .then(() => response);
   }
