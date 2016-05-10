@@ -191,7 +191,7 @@ System.register(['aurelia-validation', 'aurelia-dependency-injection', './orm-me
           return this.__meta;
         };
 
-        Entity.prototype.save = function save() {
+        Entity.prototype.save = function save(path) {
           var _this = this;
 
           if (!this.isNew()) {
@@ -210,7 +210,11 @@ System.register(['aurelia-validation', 'aurelia-dependency-injection', './orm-me
             requestBody = bodyWithRoot;
           }
 
-          return this.getTransport().create(this.getResource(), requestBody).then(function (created) {
+          if (!path) {
+            path = this.getResource();
+          }
+
+          return this.getTransport().create(path, requestBody).then(function (created) {
             var data = rootObject ? created[repository.jsonRootObjectSingle] : created;
             repository.getPopulatedEntity(data, _this);
 
@@ -222,7 +226,7 @@ System.register(['aurelia-validation', 'aurelia-dependency-injection', './orm-me
           });
         };
 
-        Entity.prototype.update = function update() {
+        Entity.prototype.update = function update(path) {
           var _this2 = this;
 
           if (this.isNew()) {
@@ -247,7 +251,11 @@ System.register(['aurelia-validation', 'aurelia-dependency-injection', './orm-me
 
           delete requestBody.id;
 
-          return this.getTransport().update(this.getResource(), this.id, requestBody).then(function (updated) {
+          if (!path) {
+            path = this.getResource();
+          }
+
+          return this.getTransport().update(path, this.id, requestBody).then(function (updated) {
             var data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
             repository.getPopulatedEntity(data, _this2);
 

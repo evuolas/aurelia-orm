@@ -143,7 +143,7 @@ declare module 'aurelia-orm' {
        *
        * @return {Promise}
        */
-    save(): any;
+    save(path: any): any;
     
     /**
        * Persist the changes made to this entity to the server.
@@ -154,7 +154,7 @@ declare module 'aurelia-orm' {
        *
        * @throws {Error}
        */
-    update(): any;
+    update(path: any): any;
     
     /**
        * Add an entity to a collection (persist).

@@ -41,7 +41,7 @@ export let Entity = (_dec = transient(), _dec2 = inject(Validation), _dec(_class
     return this.__meta;
   }
 
-  save() {
+  save(path) {
     if (!this.isNew()) {
       return this.update();
     }
@@ -58,7 +58,11 @@ export let Entity = (_dec = transient(), _dec2 = inject(Validation), _dec(_class
       requestBody = bodyWithRoot;
     }
 
-    return this.getTransport().create(this.getResource(), requestBody).then(created => {
+    if (!path) {
+      path = this.getResource();
+    }
+
+    return this.getTransport().create(path, requestBody).then(created => {
       const data = rootObject ? created[repository.jsonRootObjectSingle] : created;
       repository.getPopulatedEntity(data, this);
 
@@ -66,7 +70,7 @@ export let Entity = (_dec = transient(), _dec2 = inject(Validation), _dec(_class
     }).then(() => this.markClean()).then(() => response);
   }
 
-  update() {
+  update(path) {
     if (this.isNew()) {
       throw new Error('Required value "id" missing on entity.');
     }
@@ -89,7 +93,11 @@ export let Entity = (_dec = transient(), _dec2 = inject(Validation), _dec(_class
 
     delete requestBody.id;
 
-    return this.getTransport().update(this.getResource(), this.id, requestBody).then(updated => {
+    if (!path) {
+      path = this.getResource();
+    }
+
+    return this.getTransport().update(path, this.id, requestBody).then(updated => {
       const data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
       repository.getPopulatedEntity(data, this);
 

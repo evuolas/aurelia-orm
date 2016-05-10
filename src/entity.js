@@ -88,7 +88,7 @@ export class Entity {
    *
    * @return {Promise}
    */
-  save() {
+  save(path) {
     if (!this.isNew()) {
       return this.update();
     }
@@ -105,8 +105,12 @@ export class Entity {
       requestBody = bodyWithRoot;
     }
 
+    if (!path) {
+      path = this.getResource();
+    }
+
     return this.getTransport()
-      .create(this.getResource(), requestBody)
+      .create(path, requestBody)
       .then((created) => {
         const data = rootObject ? created[repository.jsonRootObjectSingle] : created;
         repository.getPopulatedEntity(data, this);
@@ -127,7 +131,7 @@ export class Entity {
    *
    * @throws {Error}
    */
-  update() {
+  update(path) {
     if (this.isNew()) {
       throw new Error('Required value "id" missing on entity.');
     }
@@ -151,8 +155,12 @@ export class Entity {
 
     delete requestBody.id;
 
+    if (!path) {
+      path = this.getResource();
+    }
+
     return this.getTransport()
-      .update(this.getResource(), this.id, requestBody)
+      .update(path, this.id, requestBody)
       .then((updated) => {
         const data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
         repository.getPopulatedEntity(data, this);
