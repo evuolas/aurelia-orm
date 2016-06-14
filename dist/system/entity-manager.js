@@ -1,6 +1,8 @@
 'use strict';
 
 System.register(['./entity', './default-repository', 'aurelia-dependency-injection', './orm-metadata'], function (_export, _context) {
+  "use strict";
+
   var Entity, DefaultRepository, Container, inject, OrmMetadata, _dec, _class, EntityManager;
 
   function _classCallCheck(instance, Constructor) {

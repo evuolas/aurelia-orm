@@ -1,6 +1,8 @@
 'use strict';
 
 System.register(['aurelia-validation', '../aurelia-orm'], function (_export, _context) {
+  "use strict";
+
   var ValidationRule, Entity, HasAssociationValidationRule;
 
   function _classCallCheck(instance, Constructor) {

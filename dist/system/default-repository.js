@@ -1,6 +1,8 @@
 'use strict';
 
 System.register(['aurelia-dependency-injection', './repository'], function (_export, _context) {
+  "use strict";
+
   var transient, Repository, _dec, _class, DefaultRepository;
 
   function _classCallCheck(instance, Constructor) {

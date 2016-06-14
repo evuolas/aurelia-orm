@@ -1,6 +1,8 @@
 'use strict';
 
-System.register(['aurelia-dependency-injection', 'spoonx/aurelia-api', './utils', 'typer'], function (_export, _context) {
+System.register(['aurelia-dependency-injection', 'aurelia-api', './utils', 'typer'], function (_export, _context) {
+  "use strict";
+
   var inject, Config, stringToCamelCase, typer, _typeof, _createClass, _dec, _class, Repository;
 
   function _classCallCheck(instance, Constructor) {
@@ -12,8 +14,8 @@ System.register(['aurelia-dependency-injection', 'spoonx/aurelia-api', './utils'
   return {
     setters: [function (_aureliaDependencyInjection) {
       inject = _aureliaDependencyInjection.inject;
-    }, function (_spoonxAureliaApi) {
-      Config = _spoonxAureliaApi.Config;
+    }, function (_aureliaApi) {
+      Config = _aureliaApi.Config;
     }, function (_utils) {
       stringToCamelCase = _utils.stringToCamelCase;
     }, function (_typer) {
@@ -57,6 +59,10 @@ System.register(['aurelia-dependency-injection', 'spoonx/aurelia-api', './utils'
         Repository.prototype.getTransport = function getTransport() {
           if (this.transport === null) {
             this.transport = this.clientConfig.getEndpoint(this.getMeta().fetch('endpoint'));
+
+            if (!this.transport) {
+              throw new Error('No transport found for \'' + (this.getMeta().fetch('endpoint') || 'default') + '\'.');
+            }
           }
 
           return this.transport;

@@ -1,74 +1,72 @@
 # Entities
 
-This document is a collection of snippets and examples considering entities and what they can do.
+> An instance or class of type `Entity` that defines, and holds the data of a single resource record.
 
-## Create
+Entities represent the schema of your resources. They can hold validation rules, associations, type hinting and more. In this chapter, we'll be looking at what an entity looks like, how you can create one and what they're responsible for.
 
-Following is a small, but more complete example of how you would implement a create. This example uses [aurelia-validation](https://github.com/aurelia/validation).
+## Creating
 
-### File: entity/user-entity.js
+By default, aurelia-orm works with all resources, even if you don't supply a custom entity. When this happens, your entities won't have any decoration and aurelia-orm will allow all values to be set as-is.
 
-```javascript
-import {Entity, validatedResource} from 'spoonx/aurelia-orm';
-import {ensure} from 'aurelia-validation';
+But if you do want all these fizzy good make feel nice features, you'll want to keep on reading.
 
-@validatedResource('user')
-export default class UserEntity extends Entity {
-  @ensure(it => it.isNotEmpty().containsOnlyAlpha().hasLengthBetween(3, 20))
-  username = null;
+![](http://media.tumblr.com/tumblr_m8vsn5EwG61r1c47w.gif)
 
-  @ensure(it => it.isNotEmpty().isStrongPassword())
-  password = null;
+### The class
 
-  @ensure(it => it.isNotEmpty().isEmail())
-  email = null;
+Creating an entity is simple.
+
+```js
+import {Entity} from 'aurelia-orm';
+
+export class Product extends Entity {
 }
 ```
 
-### File: page/user/create.js
+That's it! That's all that's needed to create an entity.
 
-```javascript
-import {EntityManager} from 'spoonx/aurelia-orm';
-import {inject} from 'aurelia-framework';
+### Registering
+
+After creating your gem of an Entity, you'll want to register it with the EntityManager.
+Then the Repository responsible for your resource will populate using your new entity!
+
+Here's how:
+
+```js
+import {EntityManager} from 'aurelia-orm';
+import {inject} from 'aurelia-dependency-injection';
+import {Product} from './entity/product';
 
 @inject(EntityManager)
-export class Create {
-
-  requestInFlight = false;
-
-  constructor (entityManager) {
-    this.entity = entityManager.getEntity('user');
-  }
-
-  create () {
-    this.requestInFlight = true;
-
-    this.entity.save()
-      .then(result => {
-        this.requestInFlight = false;
-
-        console.log('User created successfully');
-      })
-      .catch(error => {
-        console.error(error);
-      });
+class SomeClass {
+  constructor(entityManager) {
+    entityManager.registerEntity(Product);
   }
 }
 ```
 
-### File: page/user/create.html
+There's an easier way to do this, as described in the chapter [Configuration](configuration.html).
 
-```html
-<template>
-  <require from="component/form/user-form"></require>
+## Going deep
 
-  <h4 class="panel-title" t="Create user"></h4>
+Here's an example that showcases (almost) all possibilities for your entity:
 
-  <user-form
-    data.bind        = "entity"
-    complete.trigger = "create()"
-    type             = "Create"
-    working.bind     = "requestInFlight">
-  </location-form>
-</template>
+```js
+import {ensure} from 'aurelia-validation';
+import {Entity, type, association, validatedResource} from 'aurelia-orm';
+
+@validatedResource('product')
+export class Product extends Entity {
+  @type('string')
+  @ensure(it => it.isNotEmpty().containsOnlyAlpha().hasLengthBetween(3, 20))
+  name = null;
+
+  @association('category')
+  category = null;
+
+  @association({collection: 'media'})
+  media = [];
+}
 ```
+
+Further information on the decorators used are in the [decorators chapter](decorators.html).

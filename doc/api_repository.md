@@ -1,13 +1,11 @@
-Docs for the {`Repository`} class
-=======
+# Repository class
 
 A `Repository` allows you to retrieve entities, populate them with data and more.
 It can also be extended, allowing you to supply your custom `Repository`.
 
 -----
 
-.find(criteria[, raw = false])
-------
+## .find(criteria[, raw = false])
 
 Find data on the server using supplied criteria. If `raw` has been set to true, the `Repository` **won't** populate the results into entities and return POJOs.
 
@@ -19,19 +17,20 @@ Find data on the server using supplied criteria. If `raw` has been set to true, 
 | raw       | boolean        | Whether or not to populate the results into entities. |
 
 ### Returns
+
 A new `Promise` to be resolved when `.find()` has completed.
 
 ### Examples
 
-```javascript
+```js
 import {inject}        from 'aurelia-framework';
-import {EntityManager} from 'spoonx/aurelia-orm';
+import {EntityManager} from 'aurelia-orm';
 
 @inject(EntityManager)
 export class SomeViewModel {
   constructor (entityManager) {
     let repository = entityManager.getRepository('user');
-    
+
     // Find a single record.
     repository.find(7)
       .then(console.log)
@@ -40,10 +39,9 @@ export class SomeViewModel {
 }
 ```
 
---------
+-----
 
-.getPopulatedEntity(data)
-------
+## .getPopulatedEntity(data)
 
 Populates a fresh entity with supplied data.
 
@@ -61,15 +59,15 @@ A new `Entity` instance with the populated data.
 
 ### Examples
 
-```javascript
+```js
 import {inject}        from 'aurelia-framework';
-import {EntityManager} from 'spoonx/aurelia-orm';
+import {EntityManager} from 'aurelia-orm';
 
 @inject(EntityManager)
 export class SomeViewModel {
   constructor (entityManager) {
     let repository = entityManager.getRepository('user');
-    
+
     // Create a new entity
     repository
       .getPopulatedEntity({username: 'bob', password: 'bacon'})
@@ -80,17 +78,16 @@ export class SomeViewModel {
 }
 ```
 
---------
+-----
 
-.populateEntities(data)
--------
+## .populateEntities(data)
 
 Calls [.getPopulatedEntity()](#getpopulatedentitydata) for every object in data (also works when given an object in stead of an array).
 
 ### Parameters
 
-| Parameter | Type   | Description                                 |
-| --------- | ------ | ------------------------------------------- |
+| Parameter | Type         | Description                           |
+| --------- | -------------| ------------------------------------- |
 | data      | object/array | Data to populate the new entity with. |
 
 ### Returns
@@ -99,25 +96,24 @@ A new `Entity` instance with the populated data, or an array or `Entity` instanc
 
 ### Examples
 
-```javascript
+```js
 import {inject}        from 'aurelia-framework';
-import {EntityManager} from 'spoonx/aurelia-orm';
+import {EntityManager} from 'aurelia-orm';
 
 @inject(EntityManager)
 export class SomeViewModel {
   constructor (entityManager) {
     let repository = entityManager.getRepository('notes');
-    
+
     // entities is an array of Entity instances.
     let entities = repository.populateEntities([{note: 'laundry'}, {note: 'bacon'}]);
   }
 }
 ```
 
---------
+-----
 
-.getNewEntity()
--------
+## .getNewEntity()
 
 Get a new, empty entity instance.
 
@@ -129,10 +125,9 @@ Get a new, empty entity instance.
 
 A new `Entity` instance for the repository's resource.
 
---------
+-----
 
-.getNewPopulatedEntity()
--------
+## .getNewPopulatedEntity()
 
 Get a new, empty entity with associations set as an instance.
 

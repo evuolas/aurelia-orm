@@ -1,6 +1,8 @@
 'use strict';
 
 System.register(['./entity-manager', 'aurelia-validation', './validator/has-association', './default-repository', './repository', './entity', './orm-metadata', './decorator/association', './decorator/resource', './decorator/endpoint', './decorator/name', './decorator/repository', './decorator/json-root', './decorator/validation', './decorator/type', './decorator/validated-resource'], function (_export, _context) {
+  "use strict";
+
   var EntityManager, ValidationGroup, HasAssociationValidationRule;
   return {
     setters: [function (_entityManager) {

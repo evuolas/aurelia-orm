@@ -76,7 +76,7 @@ export let Entity = (_dec = transient(), _dec2 = inject(Validation), _dec(_class
     }
 
     if (this.isClean()) {
-      return Promise.resolve(null);
+      return this.saveCollections().then(() => this.markClean()).then(() => null);
     }
 
     let repository = this.getRepository();
@@ -107,7 +107,6 @@ export let Entity = (_dec = transient(), _dec2 = inject(Validation), _dec(_class
 
   addCollectionAssociation(entity, property) {
     property = property || getPropertyForAssociation(this, entity);
-    let body = undefined;
     let url = [this.getResource(), this.id, property];
 
     if (this.isNew()) {
@@ -121,13 +120,26 @@ export let Entity = (_dec = transient(), _dec2 = inject(Validation), _dec(_class
     }
 
     if (entity.isNew()) {
-      body = entity.asObject();
-    } else {
-      url.push(entity.id);
+      let associationProperty = getPropertyForAssociation(entity, this);
+      let relation = entity.getMeta().fetch('association', associationProperty);
+
+      if (!relation || relation.type !== 'entity') {
+        return entity.save().then(() => {
+          return this.addCollectionAssociation(entity, property);
+        });
+      }
+
+      entity[associationProperty] = this.id;
+
+      return entity.save().then(() => {
+        return entity;
+      });
     }
 
-    return this.getTransport().create(url.join('/'), body).then(created => {
-      return entity.setData(created).markClean();
+    url.push(entity.id);
+
+    return this.getTransport().create(url.join('/')).then(() => {
+      return entity;
     });
   }
 
@@ -148,7 +160,7 @@ export let Entity = (_dec = transient(), _dec2 = inject(Validation), _dec(_class
 
   saveCollections() {
     let tasks = [];
-    let currentCollections = getCollectionsCompact(this);
+    let currentCollections = getCollectionsCompact(this, true);
     let cleanCollections = this.__cleanValues.data ? this.__cleanValues.data.collections : null;
 
     let addTasksForDifferences = (base, candidate, method) => {
@@ -169,23 +181,7 @@ export let Entity = (_dec = transient(), _dec2 = inject(Validation), _dec(_class
 
     addTasksForDifferences(cleanCollections, currentCollections, this.removeCollectionAssociation);
 
-    return Promise.all(tasks).then(results => {
-      if (!Array.isArray(results)) {
-        return this;
-      }
-
-      let newState = null;
-
-      while (newState === null) {
-        newState = results.pop();
-      }
-
-      if (newState) {
-        this.getRepository().getPopulatedEntity(newState, this);
-      }
-
-      return this;
-    });
+    return Promise.all(tasks).then(results => this);
   }
 
   markClean() {
@@ -298,7 +294,6 @@ function asObject(entity, shallow) {
   let metadata = entity.getMeta();
 
   Object.keys(entity).forEach(propertyName => {
-
     let value = entity[propertyName];
     let associationMeta = metadata.fetch('associations', propertyName);
     let typeMeta = metadata.fetch('types', propertyName);
@@ -321,6 +316,21 @@ function asObject(entity, shallow) {
 
     if (shallow && typeof value === 'object' && value.id && associationMeta.includeOnlyIds) {
       pojo[`${ propertyName }Id`] = value.id;
+      return;
+    }
+
+    if (shallow) {
+      if (associationMeta.type === 'collection') {
+        return;
+      }
+
+      if (value.id) {
+        pojo[propertyName] = value.id;
+      } else if (value instanceof Entity) {
+        pojo[propertyName] = value.asObject();
+      } else if (['string', 'number', 'boolean'].indexOf(typeof value) > -1 || value.constructor === Object) {
+        pojo[propertyName] = value;
+      }
 
       return;
     }
@@ -367,7 +377,7 @@ function asJson(entity, shallow) {
   return json;
 }
 
-function getCollectionsCompact(forEntity) {
+function getCollectionsCompact(forEntity, includeNew) {
   let associations = forEntity.getMeta().fetch('associations');
   let collections = {};
 
@@ -393,6 +403,8 @@ function getCollectionsCompact(forEntity) {
 
       if (entity.id) {
         collections[index].push(entity.id);
+      } else if (includeNew && entity instanceof Entity) {
+        collections[index].push(entity);
       }
     });
   });

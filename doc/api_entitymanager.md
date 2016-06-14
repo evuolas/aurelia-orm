@@ -1,12 +1,10 @@
-Docs for the {`EntityManager`}
-=======
+# EntityManager class
 
 The `EntityManager` allows you to manage `Repositories` and `Entities`.
 
 -----
 
-.getRepository(referenceOrResource)
-------
+## .getRepository(referenceOrResource)
 
 Get a repository based on either a resource name, or a custom  `Entity` reference.
 When using an `Entity` reference with a custom repository configured, the `EntityManager` will return that.
@@ -18,14 +16,15 @@ When using an `Entity` reference with a custom repository configured, the `Entit
 | referenceOrResource | string/Entity | Reference or resource string |
 
 ### Returns
+
 A `Repository` instance.
 
 ### Examples
 
-```javascript
-import {inject}           from 'aurelia-framework';
-import {EntityManager} 	  from 'spoonx/aurelia-orm';
-import UserEntity         from 'entity/user';
+```js
+import {inject}        from 'aurelia-framework';
+import {EntityManager} from 'aurelia-orm';
+import UserEntity      from 'entity/user';
 
 @inject(EntityManager)
 export class SomeUpdateViewModel {
@@ -36,10 +35,9 @@ export class SomeUpdateViewModel {
 }
 ```
 
---------
+-----
 
-.getEntity(referenceOrResource)
-------
+## .getEntity(referenceOrResource)
 
 Get an entity instance based on either a 'resource' name, or a custom `Entity` reference.
 When unable to resolve to an entity, the `EntityManager` will return a default Entity for the supplied resource.
@@ -53,31 +51,31 @@ When unable to resolve to an entity, the `EntityManager` will return a default E
 | referenceOrResource | string/Entity | Reference or resource string |
 
 ### Returns
+
 An `Entity` instance.
 
 ### Examples
 
-```javascript
-import {inject}           from 'aurelia-framework';
-import {EntityManager} 	  from 'spoonx/aurelia-orm';
-import UserEntity         from 'entity/user';
+```js
+import {inject}        from 'aurelia-framework';
+import {EntityManager} from 'aurelia-orm';
+import UserEntity      from 'entity/user';
 
 @inject(EntityManager)
 export class SomeUpdateViewModel {
   constructor (entityManager) {
     // Get a custom Entity instance for the User entity
     entityManager.getEntity(UserEntity);
-    
+
     // Get a default entity for the 'article' resource
     entityManager.getEntity('article');
   }
 }
 ```
 
---------
+-----
 
-.registerEntity(reference)
-------
+## .registerEntity(reference)
 
 Register an entity with the EntityManager.
 
@@ -90,13 +88,14 @@ Register an entity with the EntityManager.
 | reference | Entity | Entity reference to register |
 
 ### Returns
+
 Itself to allow chaining.
 
 ### Examples
 
-```javascript
+```js
 import {inject}        from 'aurelia-framework';
-import {EntityManager} from 'spoonx/aurelia-orm';
+import {EntityManager} from 'aurelia-orm';
 import UserEntity      from 'entity/user';
 
 @inject(EntityManager)
@@ -107,10 +106,9 @@ export class SomeViewModel {
 }
 ```
 
---------
+-----
 
-.registerEntities(reference[])
-------
+## .registerEntities(reference[])
 
 Register an entity with the EntityManager for every item in the reference[] array.
 
@@ -121,13 +119,14 @@ Register an entity with the EntityManager for every item in the reference[] arra
 | reference[] | Entity[] | Array of Entity references to register |
 
 ### Returns
+
 Itself to allow chaining.
 
 ### Examples
 
-```javascript
+```js
 import {inject}        from 'aurelia-framework';
-import {EntityManager} from 'spoonx/aurelia-orm';
+import {EntityManager} from 'aurelia-orm';
 import UserEntity      from 'entity/user';
 import CategoryEntity  from 'entity/category';
 

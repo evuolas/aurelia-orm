@@ -3,7 +3,7 @@ import {Foo} from '../resources/entity/foo';
 import {OrmMetadata} from '../../src/orm-metadata';
 import {EntityManager} from '../../src/aurelia-orm';
 import {Container} from 'aurelia-dependency-injection';
-import {Config} from 'spoonx/aurelia-api';
+import {Config} from 'aurelia-api';
 
 function getContainer() {
   let container = new Container();
@@ -30,18 +30,11 @@ describe('@endpoint()', function() {
     expect(OrmMetadata.forTarget(WithEndpoint).fetch('endpoint')).toEqual('sx/alternative');
   });
 
-  it('Should set the corresponding transport.', function(done) {
+  it('Should set the corresponding transport.', function() {
     let customEntity  = constructEntity(WithEndpoint);
     let defaultEntity = constructEntity(Foo);
 
     expect(defaultEntity.getTransport().client.baseUrl).toEqual('http://localhost:1927/');
     expect(customEntity.getTransport().client.baseUrl).toEqual('http://127.0.0.1:1927/');
-
-    Promise.all([
-      customEntity.save().then(x => expect(x.host).toEqual('127.0.0.1')),
-      defaultEntity.save().then(x => expect(x.host).toEqual('localhost'))
-    ]).then(() => {
-      done();
-    });
   });
 });

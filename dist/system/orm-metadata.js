@@ -1,6 +1,8 @@
 'use strict';
 
 System.register(['aurelia-metadata', './default-repository'], function (_export, _context) {
+  "use strict";
+
   var metadata, DefaultRepository, _typeof, _class, _temp, OrmMetadata, Metadata;
 
   function _classCallCheck(instance, Constructor) {

@@ -1,23 +1,22 @@
 # Decorators
 
-Aurelia-orm ships with a couple of decorators that help you configure your entities.
+Aurelia-orm ships with a couple of decorators that help you configure your entities. These decorators offer functionality and convenience.
 
 ## Small example
 
 Here's an example using (almost) all decorators available:
 
->>>>>>> SpoonX/master
-
-```javascript
-import {Entity, resource, repository, validation, association} from 'spoonx/aurelia-orm';
+```js
+import {Entity, resource, repository, validation, association, type} from 'aurelia-orm';
 import {ensure} from 'aurelia-validation';
 import {CustomRepository} from 'repository/custom-repository';
 
 @resource('my-endpoint')
 @repository(CustomRepository)
-validation()
+@validation()
 export class MyEntity extends Entity {
   @ensure(it => it.isNotEmpty().hasLengthBetween(3, 20))
+  @type('string')
   name = null;
 
   // Will use string 'onetoone' as resource name.
@@ -34,7 +33,7 @@ export class MyEntity extends Entity {
 
 Use this decorator to give your entity a name (fetched using `.getName()` on the entity). This is useful when creating dynamic components that use your entities.
 
-```javascript
+```js
 // Sets the name to `John Cena`
 @name('John Cena')
 class HelloWorld {}
@@ -50,7 +49,7 @@ This decorator is probably the most important one. Without it, aurelia-orm won't
 
 When left empty, the name of the class (.toLowerCase()) will be used as the resource name. This is usually fine.
 
-```javascript
+```js
 // Defaults to resource "helloworld"
 @resource()
 class HelloWorld {}
@@ -64,8 +63,8 @@ class HelloWorld {}
 
 Usually, you won't need the `@repository()` decorator. It's used to define a custom repository for your entity (which can be useful if you wish to implement different methods).
 
-```javascript
-import {Entity, repository} from 'spoonx/aurelia-orm';
+```js
+import {Entity, repository} from 'aurelia-orm';
 import {CustomRepository} from 'repository/custom-repository';
 
 @repository(CustomRepository)
@@ -94,8 +93,8 @@ This decorator allows you to add types to your properties. These types will be u
 
 ### Example
 
-```javascript
-import {Entity, type} from 'spoonx/aurelia-orm';
+```js
+import {Entity, type} from 'aurelia-orm';
 
 export class MyEntity extends Entity {
   @type('string')
@@ -135,8 +134,8 @@ When not set, the orm will use the defaultEndpoint.
 
 An example for a User entity
 
-```javascript
-import {Entity, endpoint} from 'spoonx/aurelia-orm';
+```js
+import {Entity, endpoint} from 'aurelia-orm';
 
 @endpoint('auth')
 export class User extends Entity {}
@@ -146,8 +145,8 @@ export class User extends Entity {}
 
 An example for a weather entity
 
-```javascript
-import {Entity, endpoint} from 'spoonx/aurelia-orm';
+```js
+import {Entity, endpoint} from 'aurelia-orm';
 
 @endpoint('weather')
 export class Weather extends Entity {}
@@ -158,11 +157,11 @@ export class Weather extends Entity {}
 Aurelia-orm extends aurelia-validate, and adds validation for your associations.
 To add validation for associations, simply use the .hasAssociation() rule like so:
 
-```javascript
+```js
 import {ensure} from 'aurelia-validation';
-import {association, validatedResource, Entity} from 'spoonx/aurelia-orm';
+import {association, validatedResource, Entity} from 'aurelia-orm';
 
-validatedResource()
+@validatedResource()
 export class SomeEntity extends Entity {
   @association('manufacturer')
   @ensure(it => it.hasAssociation())
