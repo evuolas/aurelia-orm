@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ValidationGroup = exports.HasAssociationValidationRule = exports.EntityManager = exports.validatedResource = exports.type = exports.validation = exports.repository = exports.name = exports.endpoint = exports.resource = exports.association = exports.OrmMetadata = exports.Entity = exports.Repository = exports.DefaultRepository = undefined;
+exports.ValidationGroup = exports.HasAssociationValidationRule = exports.EntityManager = exports.validatedResource = exports.type = exports.validation = exports.jsonRoot = exports.repository = exports.name = exports.endpoint = exports.resource = exports.association = exports.OrmMetadata = exports.Entity = exports.Repository = exports.DefaultRepository = undefined;
 
 var _defaultRepository = require('./default-repository');
 
@@ -83,6 +83,15 @@ Object.defineProperty(exports, 'repository', {
   enumerable: true,
   get: function get() {
     return _repository2.repository;
+  }
+});
+
+var _jsonRoot = require('./decorator/json-root');
+
+Object.defineProperty(exports, 'jsonRoot', {
+  enumerable: true,
+  get: function get() {
+    return _jsonRoot.jsonRoot;
   }
 });
 

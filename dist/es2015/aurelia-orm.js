@@ -12,6 +12,7 @@ export { resource } from './decorator/resource';
 export { endpoint } from './decorator/endpoint';
 export { name } from './decorator/name';
 export { repository } from './decorator/repository';
+export { jsonRoot } from './decorator/json-root';
 export { validation } from './decorator/validation';
 export { type } from './decorator/type';
 export { validatedResource } from './decorator/validated-resource';

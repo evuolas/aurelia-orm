@@ -1,6 +1,6 @@
 'use strict';
 
-System.register(['./entity-manager', './validator/has-association', 'aurelia-validation', './component/association-select', './component/paged', './default-repository', './repository', './entity', './orm-metadata', './decorator/association', './decorator/resource', './decorator/endpoint', './decorator/name', './decorator/repository', './decorator/validation', './decorator/type', './decorator/validated-resource'], function (_export, _context) {
+System.register(['./entity-manager', './validator/has-association', 'aurelia-validation', './component/association-select', './component/paged', './default-repository', './repository', './entity', './orm-metadata', './decorator/association', './decorator/resource', './decorator/endpoint', './decorator/name', './decorator/repository', './decorator/json-root', './decorator/validation', './decorator/type', './decorator/validated-resource'], function (_export, _context) {
   "use strict";
 
   var EntityManager, HasAssociationValidationRule, ValidationGroup;
@@ -56,21 +56,26 @@ System.register(['./entity-manager', './validator/has-association', 'aurelia-val
       _exportObj9.repository = _decoratorRepository.repository;
 
       _export(_exportObj9);
-    }, function (_decoratorValidation) {
+    }, function (_decoratorJsonRoot) {
       var _exportObj10 = {};
-      _exportObj10.validation = _decoratorValidation.validation;
+      _exportObj10.jsonRoot = _decoratorJsonRoot.jsonRoot;
 
       _export(_exportObj10);
-    }, function (_decoratorType) {
+    }, function (_decoratorValidation) {
       var _exportObj11 = {};
-      _exportObj11.type = _decoratorType.type;
+      _exportObj11.validation = _decoratorValidation.validation;
 
       _export(_exportObj11);
-    }, function (_decoratorValidatedResource) {
+    }, function (_decoratorType) {
       var _exportObj12 = {};
-      _exportObj12.validatedResource = _decoratorValidatedResource.validatedResource;
+      _exportObj12.type = _decoratorType.type;
 
       _export(_exportObj12);
+    }, function (_decoratorValidatedResource) {
+      var _exportObj13 = {};
+      _exportObj13.validatedResource = _decoratorValidatedResource.validatedResource;
+
+      _export(_exportObj13);
     }],
     execute: function () {
       function configure(aurelia, configCallback) {

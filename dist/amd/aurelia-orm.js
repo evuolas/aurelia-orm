@@ -1,10 +1,10 @@
-define(['exports', './default-repository', './repository', './entity', './orm-metadata', './decorator/association', './decorator/resource', './decorator/endpoint', './decorator/name', './decorator/repository', './decorator/validation', './decorator/type', './decorator/validated-resource', './entity-manager', './validator/has-association', 'aurelia-validation', './component/association-select', './component/paged'], function (exports, _defaultRepository, _repository, _entity, _ormMetadata, _association, _resource, _endpoint, _name, _repository2, _validation, _type, _validatedResource, _entityManager, _hasAssociation, _aureliaValidation) {
+define(['exports', './default-repository', './repository', './entity', './orm-metadata', './decorator/association', './decorator/resource', './decorator/endpoint', './decorator/name', './decorator/repository', './decorator/json-root', './decorator/validation', './decorator/type', './decorator/validated-resource', './entity-manager', './validator/has-association', 'aurelia-validation', './component/association-select', './component/paged'], function (exports, _defaultRepository, _repository, _entity, _ormMetadata, _association, _resource, _endpoint, _name, _repository2, _jsonRoot, _validation, _type, _validatedResource, _entityManager, _hasAssociation, _aureliaValidation) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.ValidationGroup = exports.HasAssociationValidationRule = exports.EntityManager = exports.validatedResource = exports.type = exports.validation = exports.repository = exports.name = exports.endpoint = exports.resource = exports.association = exports.OrmMetadata = exports.Entity = exports.Repository = exports.DefaultRepository = undefined;
+  exports.ValidationGroup = exports.HasAssociationValidationRule = exports.EntityManager = exports.validatedResource = exports.type = exports.validation = exports.jsonRoot = exports.repository = exports.name = exports.endpoint = exports.resource = exports.association = exports.OrmMetadata = exports.Entity = exports.Repository = exports.DefaultRepository = undefined;
   Object.defineProperty(exports, 'DefaultRepository', {
     enumerable: true,
     get: function () {
@@ -57,6 +57,12 @@ define(['exports', './default-repository', './repository', './entity', './orm-me
     enumerable: true,
     get: function () {
       return _repository2.repository;
+    }
+  });
+  Object.defineProperty(exports, 'jsonRoot', {
+    enumerable: true,
+    get: function () {
+      return _jsonRoot.jsonRoot;
     }
   });
   Object.defineProperty(exports, 'validation', {

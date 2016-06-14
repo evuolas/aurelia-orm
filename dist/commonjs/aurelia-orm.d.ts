@@ -283,49 +283,6 @@ declare module 'aurelia-orm' {
        */
     asJson(shallow?: any): any;
   }
-  export {
-    DefaultRepository
-  } from 'aurelia-orm/default-repository';
-  export {
-    Repository
-  } from 'aurelia-orm/repository';
-  export {
-    Entity
-  } from 'aurelia-orm/entity';
-  export {
-    OrmMetadata
-  } from 'aurelia-orm/orm-metadata';
-  export {
-    EntityManager
-  } from 'aurelia-orm/entity-manager';
-  export {
-    association
-  } from 'aurelia-orm/decorator/association';
-  export {
-    resource
-  } from 'aurelia-orm/decorator/resource';
-  export {
-    endpoint
-  } from 'aurelia-orm/decorator/endpoint';
-  export {
-    name
-  } from 'aurelia-orm/decorator/name';
-  export {
-    repository
-  } from 'aurelia-orm/decorator/repository';
-  export {
-    jsonRoot
-  } from 'aurelia-orm/decorator/json-root';
-  export {
-    validation
-  } from 'aurelia-orm/decorator/validation';
-  export {
-    type
-  } from 'aurelia-orm/decorator/type';
-  export {
-    validatedResource
-  } from 'aurelia-orm/decorator/validated-resource';
-  export function configure(aurelia?: any, configCallback?: any): any;
   export class OrmMetadata {
     static forTarget(target?: any): any;
   }
