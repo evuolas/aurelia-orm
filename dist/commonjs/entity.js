@@ -353,18 +353,13 @@ function _asObject(entity, shallow) {
       return;
     }
 
-    if (shallow && (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object' && value.id && associationMeta.includeOnlyIds) {
-      pojo[propertyName + 'Id'] = value.id;
-      return;
-    }
-
     if (shallow) {
       if (associationMeta.type === 'collection') {
         return;
       }
 
-      if (value.id) {
-        pojo[propertyName] = value.id;
+      if (value.id && associationMeta.includeOnlyIds) {
+        pojo[propertyName + 'Id'] = value.id;
       } else if (value instanceof Entity) {
         pojo[propertyName] = value.asObject();
       } else if (['string', 'number', 'boolean'].indexOf(typeof value === 'undefined' ? 'undefined' : _typeof(value)) > -1 || value.constructor === Object) {
