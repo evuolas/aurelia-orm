@@ -102,11 +102,7 @@ define(['exports', 'aurelia-validation', 'aurelia-dependency-injection', './orm-
       }
 
       if (this.isClean()) {
-        return this.saveCollections().then(function () {
-          return _this2.markClean();
-        }).then(function () {
-          return null;
-        });
+        return Promise.resolve(null);
       }
 
       var repository = this.getRepository();
@@ -357,19 +353,16 @@ define(['exports', 'aurelia-validation', 'aurelia-dependency-injection', './orm-
       }
 
       if (shallow) {
-        if (associationMeta.type === 'collection') {
-          return;
-        }
-
         if (value.id && associationMeta.includeOnlyIds) {
           pojo[propertyName + 'Id'] = value.id;
+          return;
         } else if (value instanceof Entity) {
           pojo[propertyName] = value.asObject();
+          return;
         } else if (['string', 'number', 'boolean'].indexOf(typeof value === 'undefined' ? 'undefined' : _typeof(value)) > -1 || value.constructor === Object) {
           pojo[propertyName] = value;
+          return;
         }
-
-        return;
       }
 
       if (!Array.isArray(value)) {

@@ -138,10 +138,7 @@ export class Entity {
 
     // We're clean, no need to update.
     if (this.isClean()) {
-      // Always save collections (might have new).
-      return this.saveCollections()
-        .then(() => this.markClean())
-        .then(() => null);
+      return Promise.resolve(null);
     }
 
     let repository = this.getRepository();
@@ -515,19 +512,16 @@ function asObject(entity, shallow) {
 
     // When shallow, we only assign toOne associations.
     if (shallow) {
-      if (associationMeta.type === 'collection') {
-        return;
-      }
-
       if (value.id && associationMeta.includeOnlyIds) {
         pojo[`${propertyName}Id`] = value.id;
+        return;
       } else if (value instanceof Entity) {
         pojo[propertyName] = value.asObject();
+        return;
       } else if (['string', 'number', 'boolean'].indexOf(typeof value) > -1 || value.constructor === Object) {
         pojo[propertyName] = value;
+        return;
       }
-
-      return;
     }
 
     // Array, treat children as potential entities.
