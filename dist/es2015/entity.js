@@ -76,7 +76,7 @@ export let Entity = (_dec = transient(), _dec2 = inject(Validation), _dec(_class
     }
 
     if (this.isClean()) {
-      return this.saveCollections().then(() => this.markClean()).then(() => null);
+      return Promise.resolve(null);
     }
 
     let repository = this.getRepository();
@@ -315,19 +315,16 @@ function asObject(entity, shallow) {
     }
 
     if (shallow) {
-      if (associationMeta.type === 'collection') {
-        return;
-      }
-
       if (value.id && associationMeta.includeOnlyIds) {
         pojo[`${ propertyName }Id`] = value.id;
+        return;
       } else if (value instanceof Entity) {
         pojo[propertyName] = value.asObject();
+        return;
       } else if (['string', 'number', 'boolean'].indexOf(typeof value) > -1 || value.constructor === Object) {
         pojo[propertyName] = value;
+        return;
       }
-
-      return;
     }
 
     if (!Array.isArray(value)) {
