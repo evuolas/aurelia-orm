@@ -93,20 +93,21 @@ define(['exports', 'aurelia-dependency-injection', 'aurelia-api', './utils', 'ty
       return jsonRoot ? jsonRoot : this.resource;
     };
 
-    Repository.prototype.find = function find(criteria, raw) {
-      return this.findPath(this.resource, criteria, raw);
+    Repository.prototype.find = function find(criteria, raw, options) {
+      return this.findPath(this.resource, criteria, raw, false, options);
     };
 
-    Repository.prototype.search = function search(criteria, raw) {
-      return this.findPath(this.resource, criteria, raw, true);
+    Repository.prototype.search = function search(criteria, raw, options) {
+      return this.findPath(this.resource, criteria, raw, true, options);
     };
 
     Repository.prototype.findPath = function findPath(path, criteria, raw) {
       var _this = this;
 
       var collection = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+      var options = arguments.length <= 4 || arguments[4] === undefined ? {} : arguments[4];
 
-      var findQuery = this.getTransport().find(path, criteria);
+      var findQuery = this.getTransport().find(path, criteria, options);
 
       if (raw) {
         return findQuery;

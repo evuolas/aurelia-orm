@@ -64,16 +64,16 @@ export let Repository = (_dec = inject(Config), _dec(_class = class Repository {
     return jsonRoot ? jsonRoot : this.resource;
   }
 
-  find(criteria, raw) {
-    return this.findPath(this.resource, criteria, raw);
+  find(criteria, raw, options) {
+    return this.findPath(this.resource, criteria, raw, false, options);
   }
 
-  search(criteria, raw) {
-    return this.findPath(this.resource, criteria, raw, true);
+  search(criteria, raw, options) {
+    return this.findPath(this.resource, criteria, raw, true, options);
   }
 
-  findPath(path, criteria, raw, collection = false) {
-    let findQuery = this.getTransport().find(path, criteria);
+  findPath(path, criteria, raw, collection = false, options = {}) {
+    let findQuery = this.getTransport().find(path, criteria, options);
 
     if (raw) {
       return findQuery;

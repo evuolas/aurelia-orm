@@ -99,39 +99,41 @@ export class Repository {
   /**
    * Perform a find query.
    *
-   * @param {null|{}|Number} criteria Criteria to add to the query.
-   * @param {boolean}        [raw]    Set to true to get a POJO in stead of populated entities.
+   * @param {null|{}|Number} criteria  Criteria to add to the query.
+   * @param {boolean}        [raw]     Set to true to get a POJO in stead of populated entities.
+   * @param {{}}             [options] Extra fetch options.
    *
    * @return {Promise}
    */
-  find(criteria, raw) {
-    return this.findPath(this.resource, criteria, raw);
+  find(criteria, raw, options) {
+    return this.findPath(this.resource, criteria, raw, false, options);
   }
 
   /**
    * Perform a search query.
    *
-   * @param {null|{}|Number} criteria Criteria to add to the query.
-   * @param {boolean}        [raw]    Set to true to get a POJO in stead of populated entities.
+   * @param {null|{}|Number} criteria  Criteria to add to the query.
+   * @param {boolean}        [raw]     Set to true to get a POJO in stead of populated entities.
+   * @param {{}}             [options] Extra fetch options.
    *
    * @return {Promise}
    */
-
-  search(criteria, raw) {
-    return this.findPath(this.resource, criteria, raw, true);
+  search(criteria, raw, options) {
+    return this.findPath(this.resource, criteria, raw, true, options);
   }
 
   /**
    * Perform a find query for `path`.
    *
    * @param {string}         path
-   * @param {null|{}|Number} criteria   Criteria to add to the query.
-   * @param {boolean}        [raw]      Set to true to get a POJO in stead of populated entities.
-   * @param {boolean}        collection Set to true if you except result contain collection.
+   * @param {null|{}|Number} criteria     Criteria to add to the query.
+   * @param {boolean}        [raw]        Set to true to get a POJO in stead of populated entities.
+   * @param {boolean}        [collection] Set to true if you except result contain collection.
+   * @param {{}}             [options]    Extra fetch options.
    * @return {Promise}
    */
-  findPath(path, criteria, raw, collection = false) {
-    let findQuery = this.getTransport().find(path, criteria);
+  findPath(path, criteria, raw, collection = false, options = {}) {
+    let findQuery = this.getTransport().find(path, criteria, options);
 
     if (raw) {
       return findQuery;

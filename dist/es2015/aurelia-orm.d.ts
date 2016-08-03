@@ -392,33 +392,36 @@ declare module 'aurelia-orm' {
     /**
        * Perform a find query.
        *
-       * @param {null|{}|Number} criteria Criteria to add to the query.
-       * @param {boolean}        [raw]    Set to true to get a POJO in stead of populated entities.
+       * @param {null|{}|Number} criteria  Criteria to add to the query.
+       * @param {boolean}        [raw]     Set to true to get a POJO in stead of populated entities.
+       * @param {{}}             [options] Extra fetch options.
        *
        * @return {Promise}
        */
-    find(criteria?: any, raw?: any): any;
+    find(criteria?: any, raw?: any, options?: any): any;
     
     /**
        * Perform a search query.
        *
-       * @param {null|{}|Number} criteria Criteria to add to the query.
-       * @param {boolean}        [raw]    Set to true to get a POJO in stead of populated entities.
+       * @param {null|{}|Number} criteria  Criteria to add to the query.
+       * @param {boolean}        [raw]     Set to true to get a POJO in stead of populated entities.
+       * @param {{}}             [options] Extra fetch options.
        *
        * @return {Promise}
        */
-    search(criteria?: any, raw?: any): any;
+    search(criteria?: any, raw?: any, options?: any): any;
     
     /**
        * Perform a find query for `path`.
        *
        * @param {string}         path
-       * @param {null|{}|Number} criteria   Criteria to add to the query.
-       * @param {boolean}        [raw]      Set to true to get a POJO in stead of populated entities.
-       * @param {boolean}        collection Set to true if you except result contain collection.
+       * @param {null|{}|Number} criteria     Criteria to add to the query.
+       * @param {boolean}        [raw]        Set to true to get a POJO in stead of populated entities.
+       * @param {boolean}        [collection] Set to true if you except result contain collection.
+       * @param {{}}             [options]    Extra fetch options.
        * @return {Promise}
        */
-    findPath(path?: any, criteria?: any, raw?: any, collection?: any): any;
+    findPath(path?: any, criteria?: any, raw?: any, collection?: any, options?: any): any;
     
     /**
        * Perform a count.
