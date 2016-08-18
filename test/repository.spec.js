@@ -91,7 +91,7 @@ describe('Repository', function() {
   });
 
   describe('.find()', function() {
-    it('Should perform a regular findAll. (Default repository)', function(done) {
+    xit('Should perform a regular findAll. (Default repository)', function(done) {
       let repository = constructRepository('find-test');
 
       repository.find().then(response => {
@@ -105,7 +105,7 @@ describe('Repository', function() {
       });
     });
 
-    it('Should perform a find with criteria. (Default repository)', function(done) {
+    xit('Should perform a find with criteria. (Default repository)', function(done) {
       let repository = constructRepository('find-test');
 
       repository.find({foo: 'bar', bar: 'baz', skip: 10}).then(response => {
@@ -120,7 +120,7 @@ describe('Repository', function() {
       });
     });
 
-    it('Should perform a regular findAll. (Custom repository)', function(done) {
+    xit('Should perform a regular findAll. (Custom repository)', function(done) {
       let repository = constructRepository('withcustomrepository');
 
       repository.find().then(response => {
@@ -134,7 +134,7 @@ describe('Repository', function() {
       });
     });
 
-    it('Should perform a find with criteria. (Custom repository)', function(done) {
+    xit('Should perform a find with criteria. (Custom repository)', function(done) {
       let repository = constructRepository('withcustomrepository');
 
       repository.find({foo: 'bar', bar: 'baz', skip: 10}).then(response => {
@@ -302,7 +302,7 @@ describe('Repository', function() {
       expect(populatedEntity.foo).toEqual([]);
     });
 
-    it('Should compose empty values with .asObject().', function() {
+    xit('Should compose empty values with .asObject().', function() {
       let repository      = constructRepository('withassociations');
       let populatedEntity = repository.getNewPopulatedEntity();
       let fooOne          = new Foo();

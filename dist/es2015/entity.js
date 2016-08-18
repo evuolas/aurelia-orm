@@ -318,6 +318,9 @@ function asObject(entity, shallow) {
       if (value.id && associationMeta.includeOnlyIds) {
         pojo[`${ propertyName }Id`] = value.id;
         return;
+      } else if (Array.isArray(value) && associationMeta.includeOnlyIds) {
+        pojo[`${ propertyName.replace(/s$/, '') }Ids`] = value.map(v => v.id);
+        return;
       } else if (value instanceof Entity) {
         pojo[propertyName] = value.asObject();
         return;
