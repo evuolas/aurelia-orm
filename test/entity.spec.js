@@ -98,12 +98,12 @@ describe('Entity', function() {
   });
 
   describe('.save()', function() {
-    xit('Should call .create on REST without an ID. (custom entity)', function(done) {
+    it('Should call .create on REST without an ID. (custom entity)', function(done) {
       let entity = constructEntity(WithResource);
       entity.foo = 'bar';
 
       entity.save().then(response => {
-        expect(response.body).toEqual({foo: 'bar'});
+        expect(response.body).toEqual({'with-resource': {foo: 'bar'}});
         expect(response.path).toEqual('/with-resource');
         expect(response.method).toEqual('POST');
 
@@ -166,13 +166,13 @@ describe('Entity', function() {
       });
     });
 
-    xit('Should call .create with the full body.', function(done) {
+    it('Should call .create with the full body.', function(done) {
       let entity  = constructEntity(WithResource);
       entity.foo  = 'bar';
       entity.city = {awesome: true};
 
       entity.save().then(response => {
-        expect(response.body).toEqual({foo: 'bar', city: {awesome: true}});
+        expect(response.body).toEqual({'with-resource': {foo: 'bar', city: {awesome: true}}});
         expect(response.path).toEqual('/with-resource');
         expect(response.method).toEqual('POST');
 
@@ -180,13 +180,13 @@ describe('Entity', function() {
       });
     });
 
-    xit('Should call .update on REST with an ID. (custom entity)', function(done) {
+    it('Should call .update on REST with an ID. (custom entity)', function(done) {
       let entity = constructEntity(WithResource);
       entity.foo = 'bar';
       entity.id  = 1337;
 
       entity.save().then(response => {
-        expect(response.body).toEqual({foo: 'bar'});
+        expect(response.body).toEqual({'with-resource': {foo: 'bar', id: 1337}});
         expect(response.path).toEqual('/with-resource/1337');
         expect(response.method).toEqual('PUT');
 
@@ -194,7 +194,7 @@ describe('Entity', function() {
       });
     });
 
-    xit('Should call .create on REST without an ID. (default entity)', function(done) {
+    it('Should call .create on REST without an ID. (default entity)', function(done) {
       let container = getContainer();
 
       container.registerInstance(Rest);
@@ -205,7 +205,7 @@ describe('Entity', function() {
       entity.bacon = 'great!';
 
       entity.save().then(response => {
-        expect(response.body).toEqual({bacon: 'great!'});
+        expect(response.body).toEqual({'default-entity': {bacon: 'great!'}});
         expect(response.path).toEqual('/default-entity');
         expect(response.method).toEqual('POST');
 

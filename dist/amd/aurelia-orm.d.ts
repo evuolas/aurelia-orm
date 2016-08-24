@@ -116,11 +116,14 @@ declare module 'aurelia-orm' {
     
     /**
        * Persist the entity's state to the server.
-       * Either creates a new record (POST) or updates an existing one (PUT) based on the entity's state,
+       * Either creates a new record (POST) or updates an existing one (PUT) based on the entity's state.
+       *
+       * @param {string} [path]    Override the default path.
+       * @param {{}}     [options] Extra fetch options.
        *
        * @return {Promise}
        */
-    save(path?: any): any;
+    save(path?: any, options?: any): any;
     
     /**
        * Persist the changes made to this entity to the server.
@@ -131,7 +134,7 @@ declare module 'aurelia-orm' {
        *
        * @throws {Error}
        */
-    update(path?: any): any;
+    update(path?: any, options?: any): any;
     
     /**
        * Add an entity to a collection (persist).

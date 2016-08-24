@@ -4,6 +4,21 @@ System.register(['./entity-manager', './validator/has-association', 'aurelia-val
   "use strict";
 
   var EntityManager, HasAssociationValidationRule, ValidationGroup;
+  function configure(aurelia, configCallback) {
+    var entityManagerInstance = aurelia.container.get(EntityManager);
+
+    configCallback(entityManagerInstance);
+
+    ValidationGroup.prototype.hasAssociation = function () {
+      return this.isNotEmpty().passesRule(new HasAssociationValidationRule());
+    };
+
+    aurelia.globalResources('./component/association-select');
+    aurelia.globalResources('./component/paged');
+  }
+
+  _export('configure', configure);
+
   return {
     setters: [function (_entityManager) {
       EntityManager = _entityManager.EntityManager;
@@ -78,21 +93,6 @@ System.register(['./entity-manager', './validator/has-association', 'aurelia-val
       _export(_exportObj13);
     }],
     execute: function () {
-      function configure(aurelia, configCallback) {
-        var entityManagerInstance = aurelia.container.get(EntityManager);
-
-        configCallback(entityManagerInstance);
-
-        ValidationGroup.prototype.hasAssociation = function () {
-          return this.isNotEmpty().passesRule(new HasAssociationValidationRule());
-        };
-
-        aurelia.globalResources('./component/association-select');
-        aurelia.globalResources('./component/paged');
-      }
-
-      _export('configure', configure);
-
       _export('EntityManager', EntityManager);
 
       _export('HasAssociationValidationRule', HasAssociationValidationRule);

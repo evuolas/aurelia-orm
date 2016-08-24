@@ -29,8 +29,7 @@ gulp.task('tdd',  function(done) {
   server.start(function() {
     var karmaServer = new KarmaServer({
       configFile: __dirname + '/../../karma.conf.js',
-      singleRun: false,
-      browsers: ['Chrome']
+      singleRun: false
     }, function(exitCode) {
       server.stop(function() {
         done();

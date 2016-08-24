@@ -84,11 +84,14 @@ export class Entity {
 
   /**
    * Persist the entity's state to the server.
-   * Either creates a new record (POST) or updates an existing one (PUT) based on the entity's state,
+   * Either creates a new record (POST) or updates an existing one (PUT) based on the entity's state.
+   *
+   * @param {string} [path]    Override the default path.
+   * @param {{}}     [options] Extra fetch options.
    *
    * @return {Promise}
    */
-  save(path) {
+  save(path, options) {
     if (!this.isNew()) {
       return this.update();
     }
@@ -110,14 +113,13 @@ export class Entity {
     }
 
     return this.getTransport()
-      .create(path, requestBody)
+      .create(path, requestBody, options)
       .then((created) => {
         const data = rootObject ? created[repository.jsonRootObjectSingle] : created;
         repository.getPopulatedEntity(data, this);
 
         response = created;
       })
-      //.then(() => this.saveCollections())
       .then(() => this.markClean())
       .then(() => response);
   }
@@ -131,7 +133,7 @@ export class Entity {
    *
    * @throws {Error}
    */
-  update(path) {
+  update(path, options) {
     if (this.isNew()) {
       throw new Error('Required value "id" missing on entity.');
     }
@@ -160,14 +162,13 @@ export class Entity {
     }
 
     return this.getTransport()
-      .update(path, this.id, requestBody)
+      .update(path, this.id, requestBody, options)
       .then((updated) => {
         const data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
         repository.getPopulatedEntity(data, this);
 
         response = updated;
       })
-      //.then(() => this.saveCollections())
       .then(() => this.markClean())
       .then(() => response);
   }
