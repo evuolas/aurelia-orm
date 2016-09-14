@@ -218,12 +218,12 @@ export let Entity = (_dec = transient(), _dec2 = inject(Validation), _dec(_class
     return this.define('__resource', resource);
   }
 
-  destroy() {
+  destroy(options) {
     if (!this.id) {
       throw new Error('Required value "id" missing on entity.');
     }
 
-    return this.getTransport().destroy(this.getResource(), this.id);
+    return this.getTransport().destroy(this.getResource(), this.id, options);
   }
 
   getName() {

@@ -219,9 +219,11 @@ declare module 'aurelia-orm' {
     /**
        * Destroy this entity (DELETE request to the server).
        *
+       * @param {{}} [options] Extra fetch options.
+       *
        * @return {Promise}
        */
-    destroy(): any;
+    destroy(options?: any): any;
     
     /**
        * Get the name of the entity. This is useful for labels in texts.

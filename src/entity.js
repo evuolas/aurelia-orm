@@ -354,14 +354,16 @@ export class Entity {
   /**
    * Destroy this entity (DELETE request to the server).
    *
+   * @param {{}} [options] Extra fetch options.
+   *
    * @return {Promise}
    */
-  destroy() {
+  destroy(options) {
     if (!this.id) {
       throw new Error('Required value "id" missing on entity.');
     }
 
-    return this.getTransport().destroy(this.getResource(), this.id);
+    return this.getTransport().destroy(this.getResource(), this.id, options);
   }
 
   /**

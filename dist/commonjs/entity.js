@@ -251,12 +251,12 @@ var Entity = exports.Entity = (_dec = (0, _aureliaDependencyInjection.transient)
     return this.define('__resource', resource);
   };
 
-  Entity.prototype.destroy = function destroy() {
+  Entity.prototype.destroy = function destroy(options) {
     if (!this.id) {
       throw new Error('Required value "id" missing on entity.');
     }
 
-    return this.getTransport().destroy(this.getResource(), this.id);
+    return this.getTransport().destroy(this.getResource(), this.id, options);
   };
 
   Entity.prototype.getName = function getName() {
