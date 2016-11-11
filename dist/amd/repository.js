@@ -17,7 +17,7 @@ define(['exports', 'aurelia-dependency-injection', 'aurelia-api', './utils', 'ty
   var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
     return typeof obj;
   } : function (obj) {
-    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
   };
 
   function _classCallCheck(instance, Constructor) {
@@ -104,8 +104,8 @@ define(['exports', 'aurelia-dependency-injection', 'aurelia-api', './utils', 'ty
     Repository.prototype.findPath = function findPath(path, criteria, raw) {
       var _this = this;
 
-      var collection = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
-      var options = arguments.length <= 4 || arguments[4] === undefined ? {} : arguments[4];
+      var collection = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+      var options = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
 
       var findQuery = this.getTransport().find(path, criteria, options);
 

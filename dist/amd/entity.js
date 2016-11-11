@@ -9,7 +9,7 @@ define(['exports', 'aurelia-validation', 'aurelia-dependency-injection', './orm-
   var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
     return typeof obj;
   } : function (obj) {
-    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
   };
 
   function _classCallCheck(instance, Constructor) {
@@ -59,11 +59,11 @@ define(['exports', 'aurelia-validation', 'aurelia-dependency-injection', './orm-
       return this.__meta;
     };
 
-    Entity.prototype.save = function save(path, options) {
+    Entity.prototype.save = function save(path, criteria, options) {
       var _this = this;
 
       if (!this.isNew()) {
-        return this.update();
+        return this.update(path, criteria, options);
       }
 
       var repository = this.getRepository();
@@ -82,7 +82,7 @@ define(['exports', 'aurelia-validation', 'aurelia-dependency-injection', './orm-
         path = this.getResource();
       }
 
-      return this.getTransport().create(path, requestBody, options).then(function (created) {
+      return this.getTransport().create(path, criteria, requestBody, options).then(function (created) {
         var data = rootObject ? created[repository.jsonRootObjectSingle] : created;
         repository.getPopulatedEntity(data, _this);
 
@@ -94,7 +94,7 @@ define(['exports', 'aurelia-validation', 'aurelia-dependency-injection', './orm-
       });
     };
 
-    Entity.prototype.update = function update(path, options) {
+    Entity.prototype.update = function update(path, criteria, options) {
       var _this2 = this;
 
       if (this.isNew()) {
@@ -123,7 +123,7 @@ define(['exports', 'aurelia-validation', 'aurelia-dependency-injection', './orm-
         path = this.getResource();
       }
 
-      return this.getTransport().update(path, this.id, requestBody, options).then(function (updated) {
+      return this.getTransport().update(path, criteria || this.id, requestBody, options).then(function (updated) {
         var data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
         repository.getPopulatedEntity(data, _this2);
 

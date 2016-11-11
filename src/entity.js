@@ -86,14 +86,15 @@ export class Entity {
    * Persist the entity's state to the server.
    * Either creates a new record (POST) or updates an existing one (PUT) based on the entity's state.
    *
-   * @param {string} [path]    Override the default path.
-   * @param {{}}     [options] Extra fetch options.
+   * @param {string}         [path]     Override the default path.
+   * @param {null|{}|Number} [criteria] Criteria to add to the query.
+   * @param {{}}             [options]  Extra fetch options.
    *
    * @return {Promise}
    */
-  save(path, options) {
+  save(path, criteria, options) {
     if (!this.isNew()) {
-      return this.update();
+      return this.update(path, criteria, options);
     }
 
     let repository = this.getRepository();
@@ -113,7 +114,7 @@ export class Entity {
     }
 
     return this.getTransport()
-      .create(path, requestBody, options)
+      .create(path, criteria, requestBody, options)
       .then((created) => {
         const data = rootObject ? created[repository.jsonRootObjectSingle] : created;
         repository.getPopulatedEntity(data, this);
@@ -133,7 +134,7 @@ export class Entity {
    *
    * @throws {Error}
    */
-  update(path, options) {
+  update(path, criteria, options) {
     if (this.isNew()) {
       throw new Error('Required value "id" missing on entity.');
     }
@@ -162,7 +163,7 @@ export class Entity {
     }
 
     return this.getTransport()
-      .update(path, this.id, requestBody, options)
+      .update(path, criteria || this.id, requestBody, options)
       .then((updated) => {
         const data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
         repository.getPopulatedEntity(data, this);
