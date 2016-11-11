@@ -83,6 +83,47 @@ export class Entity {
   }
 
   /**
+   * Get the id property name for this entity.
+   *
+   * @return {string}
+   */
+  getIdProperty() {
+    return 'id';
+  }
+
+  /**
+   * Get the id property name of the entity (static).
+   *
+   * @return {string}
+   */
+  static getIdProperty() {
+    return 'id';
+  }
+
+  /**
+   * Get the Id value for this entity.
+   *
+   * @return {number|string}
+   */
+  getId() {
+    return this[this.getIdProperty()];
+  }
+
+  /**
+   * Set the Id value for this entity.
+   *
+   * @param {number|string} id
+   *
+   * @return {Entity}  this
+   * @chainable
+   */
+  setId(id) {
+    this[this.getIdProperty()] = id;
+
+    return this;
+  }
+
+  /**
    * Persist the entity's state to the server.
    * Either creates a new record (POST) or updates an existing one (PUT) based on the entity's state.
    *
@@ -320,7 +361,7 @@ export class Entity {
    * @return {boolean}
    */
   isNew() {
-    return typeof this.id === 'undefined';
+    return !this.getId();
   }
 
   /**

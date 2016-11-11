@@ -59,6 +59,24 @@ define(['exports', 'aurelia-validation', 'aurelia-dependency-injection', './orm-
       return this.__meta;
     };
 
+    Entity.prototype.getIdProperty = function getIdProperty() {
+      return 'id';
+    };
+
+    Entity.getIdProperty = function getIdProperty() {
+      return 'id';
+    };
+
+    Entity.prototype.getId = function getId() {
+      return this[this.getIdProperty()];
+    };
+
+    Entity.prototype.setId = function setId(id) {
+      this[this.getIdProperty()] = id;
+
+      return this;
+    };
+
     Entity.prototype.save = function save(path, criteria, options) {
       var _this = this;
 
@@ -239,7 +257,7 @@ define(['exports', 'aurelia-validation', 'aurelia-dependency-injection', './orm-
     };
 
     Entity.prototype.isNew = function isNew() {
-      return typeof this.id === 'undefined';
+      return !this.getId();
     };
 
     Entity.getResource = function getResource() {

@@ -41,6 +41,24 @@ export let Entity = (_dec = transient(), _dec2 = inject(Validation), _dec(_class
     return this.__meta;
   }
 
+  getIdProperty() {
+    return 'id';
+  }
+
+  static getIdProperty() {
+    return 'id';
+  }
+
+  getId() {
+    return this[this.getIdProperty()];
+  }
+
+  setId(id) {
+    this[this.getIdProperty()] = id;
+
+    return this;
+  }
+
   save(path, criteria, options) {
     if (!this.isNew()) {
       return this.update(path, criteria, options);
@@ -203,7 +221,7 @@ export let Entity = (_dec = transient(), _dec2 = inject(Validation), _dec(_class
   }
 
   isNew() {
-    return typeof this.id === 'undefined';
+    return !this.getId();
   }
 
   static getResource() {

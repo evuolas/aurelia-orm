@@ -115,6 +115,37 @@ declare module 'aurelia-orm' {
     getMeta(): any;
     
     /**
+       * Get the id property name for this entity.
+       *
+       * @return {string}
+       */
+    getIdProperty(): any;
+    
+    /**
+       * Get the id property name of the entity (static).
+       *
+       * @return {string}
+       */
+    static getIdProperty(): any;
+    
+    /**
+       * Get the Id value for this entity.
+       *
+       * @return {number|string}
+       */
+    getId(): any;
+    
+    /**
+       * Set the Id value for this entity.
+       *
+       * @param {number|string} id
+       *
+       * @return {Entity}  this
+       * @chainable
+       */
+    setId(id?: any): any;
+    
+    /**
        * Persist the entity's state to the server.
        * Either creates a new record (POST) or updates an existing one (PUT) based on the entity's state.
        *

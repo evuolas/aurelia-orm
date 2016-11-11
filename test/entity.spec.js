@@ -328,11 +328,15 @@ describe('Entity', function() {
 
   describe('.isNew()', function() {
     it('Should properly return if the entity is new.', function() {
-      let entity = new WithResource(new Validation());
+      let entity = constructEntity(WithResource);
 
       expect(entity.isNew()).toBe(true);
       entity.setData({id: 667}).markClean();
       expect(entity.isNew()).toBe(false);
+      entity.setData({id: null});
+      expect(entity.isNew()).toBe(true);
+      entity.setData({id: false});
+      expect(entity.isNew()).toBe(true);
     });
   });
 
@@ -441,6 +445,38 @@ describe('Entity', function() {
       let instance = new WithResource();
 
       expect(instance.getMeta() instanceof Metadata).toBe(true);
+    });
+  });
+
+  describe('.getIdProperty()', function() {
+    it('Should return the entity\'s id property', function() {
+      let instance = new WithResource();
+
+      expect(instance.getIdProperty()).toBe('id');
+    });
+  });
+
+  describe('static .getIdProperty()', function() {
+    it('Should return the entity id property name.', function() {
+      expect(Entity.getIdProperty()).toEqual('id');
+    });
+  });
+
+  describe('.getId()', function() {
+    it('Should return the entity\'s id', function() {
+      let instance = new WithResource();
+      instance.id = 1;
+
+      expect(instance.getId()).toBe(1);
+    });
+  });
+
+  describe('.setId()', function() {
+    it('Should set the entity\'s id', function() {
+      let instance = new WithResource();
+      instance.setId(1);
+
+      expect(instance.id).toBe(1);
     });
   });
 
