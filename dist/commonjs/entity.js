@@ -74,11 +74,11 @@ var Entity = exports.Entity = (_dec = (0, _aureliaDependencyInjection.transient)
     return this;
   };
 
-  Entity.prototype.save = function save(path, criteria, options) {
+  Entity.prototype.save = function save(path, options) {
     var _this = this;
 
     if (!this.isNew()) {
-      return this.update(path, criteria, options);
+      return this.update();
     }
 
     var repository = this.getRepository();
@@ -97,7 +97,7 @@ var Entity = exports.Entity = (_dec = (0, _aureliaDependencyInjection.transient)
       path = this.getResource();
     }
 
-    return this.getTransport().create(path, criteria, requestBody, options).then(function (created) {
+    return this.getTransport().create(path, requestBody, options).then(function (created) {
       var data = rootObject ? created[repository.jsonRootObjectSingle] : created;
       repository.getPopulatedEntity(data, _this);
 
@@ -109,7 +109,7 @@ var Entity = exports.Entity = (_dec = (0, _aureliaDependencyInjection.transient)
     });
   };
 
-  Entity.prototype.update = function update(path, criteria, options) {
+  Entity.prototype.update = function update(path, options) {
     var _this2 = this;
 
     if (this.isNew()) {
@@ -138,7 +138,7 @@ var Entity = exports.Entity = (_dec = (0, _aureliaDependencyInjection.transient)
       path = this.getResource();
     }
 
-    return this.getTransport().update(path, criteria || this.id, requestBody, options).then(function (updated) {
+    return this.getTransport().update(path, this.id, requestBody, options).then(function (updated) {
       var data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
       repository.getPopulatedEntity(data, _this2);
 
