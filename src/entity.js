@@ -134,7 +134,7 @@ export class Entity {
    */
   save(path, options) {
     if (!this.isNew()) {
-      return this.update();
+      return this.update(path, options);
     }
 
     let repository = this.getRepository();

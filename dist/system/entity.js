@@ -228,7 +228,7 @@ System.register(['aurelia-validation', 'aurelia-dependency-injection', './orm-me
           var _this = this;
 
           if (!this.isNew()) {
-            return this.update();
+            return this.update(path, options);
           }
 
           var repository = this.getRepository();

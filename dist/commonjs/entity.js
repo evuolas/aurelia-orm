@@ -78,7 +78,7 @@ var Entity = exports.Entity = (_dec = (0, _aureliaDependencyInjection.transient)
     var _this = this;
 
     if (!this.isNew()) {
-      return this.update();
+      return this.update(path, options);
     }
 
     var repository = this.getRepository();

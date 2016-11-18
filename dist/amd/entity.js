@@ -81,7 +81,7 @@ define(['exports', 'aurelia-validation', 'aurelia-dependency-injection', './orm-
       var _this = this;
 
       if (!this.isNew()) {
-        return this.update();
+        return this.update(path, options);
       }
 
       var repository = this.getRepository();
