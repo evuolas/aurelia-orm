@@ -539,13 +539,15 @@ function asObject(entity, shallow) {
       return;
     }
 
-    // If property is defined as date and moment object found, convert it to
-    // ISO string.
-    if (typeMeta === 'date' && value && typeof value === 'object' &&
-        typeof value.toISOString === 'function') {
-      pojo[propertyName] = value.toISOString();
-
-      return;
+    // Convert moment properties to strings
+    if (value && typeof value === 'object') {
+      if (typeMeta === 'datetime' && typeof value.toISOString === 'function') {
+        pojo[propertyName] = value.toISOString();
+        return;
+      } else if (typeMeta === 'date' && typeof value.format === 'function') {
+        pojo[propertyName] = value.format('YYYY-MM-DD');
+        return;
+      }
     }
 
     if (!associationMeta || !value) {

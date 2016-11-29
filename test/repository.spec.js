@@ -240,7 +240,7 @@ describe('Repository', function() {
       expect(populated instanceof Entity).toBe(true);
       expect(populated.created).toEqual(new Date('2016-02-22T18:00:00.000Z'));
       expect(populated.asObject()).toEqual({
-        created: new Date('2016-02-22T18:00:00.000Z'),
+        created: '2016-02-22T18:00:00.000Z',
         disabled: false,
         age: 24,
         titanic: 500.00

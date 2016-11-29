@@ -358,10 +358,14 @@ define(['exports', 'aurelia-validation', 'aurelia-dependency-injection', './orm-
         return;
       }
 
-      if (typeMeta === 'date' && value && (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object' && typeof value.toISOString === 'function') {
-        pojo[propertyName] = value.toISOString();
-
-        return;
+      if (value && (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object') {
+        if (typeMeta === 'datetime' && typeof value.toISOString === 'function') {
+          pojo[propertyName] = value.toISOString();
+          return;
+        } else if (typeMeta === 'date' && typeof value.format === 'function') {
+          pojo[propertyName] = value.format('YYYY-MM-DD');
+          return;
+        }
       }
 
       if (!associationMeta || !value) {
