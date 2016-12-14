@@ -214,8 +214,10 @@ define(['exports', 'aurelia-dependency-injection', 'aurelia-api', './utils', 'ty
       key: 'jsonRootObjectSingle',
       get: function get() {
         var jsonRoot = this.getJsonRootObject();
-        jsonRoot = (typeof jsonRoot === 'undefined' ? 'undefined' : _typeof(jsonRoot)) === 'object' ? jsonRoot.single : jsonRoot;
 
+        if ((typeof jsonRoot === 'undefined' ? 'undefined' : _typeof(jsonRoot)) === 'object') {
+          return (0, _utils.stringToCamelCase)(jsonRoot.single);
+        }
         return (0, _utils.stringToCamelCase)(jsonRoot.replace(/s$/, ''));
       }
     }, {

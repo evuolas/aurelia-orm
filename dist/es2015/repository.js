@@ -44,9 +44,11 @@ export let Repository = (_dec = inject(Config), _dec(_class = class Repository {
   }
 
   get jsonRootObjectSingle() {
-    let jsonRoot = this.getJsonRootObject();
-    jsonRoot = typeof jsonRoot === 'object' ? jsonRoot.single : jsonRoot;
+    const jsonRoot = this.getJsonRootObject();
 
+    if (typeof jsonRoot === 'object') {
+      return stringToCamelCase(jsonRoot.single);
+    }
     return stringToCamelCase(jsonRoot.replace(/s$/, ''));
   }
 

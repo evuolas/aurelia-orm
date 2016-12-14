@@ -214,8 +214,10 @@ System.register(['aurelia-dependency-injection', 'aurelia-api', './utils', 'type
           key: 'jsonRootObjectSingle',
           get: function get() {
             var jsonRoot = this.getJsonRootObject();
-            jsonRoot = (typeof jsonRoot === 'undefined' ? 'undefined' : _typeof(jsonRoot)) === 'object' ? jsonRoot.single : jsonRoot;
 
+            if ((typeof jsonRoot === 'undefined' ? 'undefined' : _typeof(jsonRoot)) === 'object') {
+              return stringToCamelCase(jsonRoot.single);
+            }
             return stringToCamelCase(jsonRoot.replace(/s$/, ''));
           }
         }, {
