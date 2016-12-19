@@ -1,20 +1,97 @@
-<a name"3.0.0-rc4"></a>
-### 3.0.0-rc4 (2016-06-09)
+<a name="3.0.1"></a>
+## [3.0.1](https://github.com/SpoonX/aurelia-orm/compare/3.0.0...v3.0.1) (2016-11-01)
 
 
-#### Bug Fixes
+### Bug Fixes
 
-* **depend:** fix paged dependencies, move components docs ([89b5b35a](https://github.com/SpoonX/aurelia-orm/commit/89b5b35a))
-
-
-#### Features
-
-* **association-select:** Added resource attribute (no more need for a repository) ([8badedca](https://github.com/SpoonX/aurelia-orm/commit/8badedca))
-* **component:** add paged component ([23df688b](https://github.com/SpoonX/aurelia-orm/commit/23df688b))
+* **component:** always parse association-select placeholder as html ([fcbee42](https://github.com/SpoonX/aurelia-orm/commit/fcbee42))
 
 
-<a name"3.0.0-rc3"></a>
-### 3.0.0-rc3 (2016-06-02)
+
+<a name="3.0.0"></a>
+# [3.0.0](https://github.com/SpoonX/aurelia-orm/compare/3.0.0-rc7...v3.0.0) (2016-10-05)
+
+
+### Bug Fixes
+
+* **association-select:** use resource instead of property, check for all falsy values in isNew instead only undefined ([8063c11](https://github.com/SpoonX/aurelia-orm/commit/8063c11))
+* **bundle:** re-add imports for bundling ([07b4544](https://github.com/SpoonX/aurelia-orm/commit/07b4544))
+* **entitiy.manager:** throw when trying to register non-entity ([46c6bdb](https://github.com/SpoonX/aurelia-orm/commit/46c6bdb))
+* **entity-manager:** revert entity prototype test. gives false positives in ts ([b44de7f](https://github.com/SpoonX/aurelia-orm/commit/b44de7f))
+* **repository:** findPath now returns null when the server doesn't return data ([63044a0](https://github.com/SpoonX/aurelia-orm/commit/63044a0))
+
+
+### Features
+
+* **property-decorators:** make properties configurable if needed ([aa6e94e](https://github.com/SpoonX/aurelia-orm/commit/aa6e94e))
+* **validation:** move to aurelia-validation 0.12+ ([e211ffb](https://github.com/SpoonX/aurelia-orm/commit/e211ffb))
+* **validation:** optionally set Validator class ([76328ac](https://github.com/SpoonX/aurelia-orm/commit/76328ac))
+
+
+### BREAKING CHANGES
+
+* validation: Update to aurelia-validation@^0.12.3 See the changed documenation on validation of usage
+
+
+
+<a name="3.0.0-rc7"></a>
+## [3.0.0-rc7](https://github.com/SpoonX/aurelia-orm/compare/3.0.0-rc6...v3.0.0-rc7) (2016-08-03)
+
+
+### Features
+
+* **translation:** add optional i18n translation to association-select ([301101d](https://github.com/SpoonX/aurelia-orm/commit/301101d))
+
+
+
+<a name="3.0.0-rc6"></a>
+## [3.0.0-rc6](https://github.com/SpoonX/aurelia-orm/compare/3.0.0-rc5...v3.0.0-rc6) (2016-07-26)
+
+
+### Bug Fixes
+
+* **association-select:** use custom id property ([5e4b49d](https://github.com/SpoonX/aurelia-orm/commit/5e4b49d))
+* **components:** update criteria ([37fe2d9](https://github.com/SpoonX/aurelia-orm/commit/37fe2d9))
+* **paged:** change content to slot, allow resource+repository, enable error feedback ([5027799](https://github.com/SpoonX/aurelia-orm/commit/5027799))
+
+
+### Features
+
+* **association-select:** enable error feedback ([d741a0c](https://github.com/SpoonX/aurelia-orm/commit/d741a0c))
+
+
+### BREAKING CHANGES
+
+* paged: resource appropiately renamed to respository
+
+
+
+<a name="3.0.0-rc5"></a>
+## [3.0.0-rc5](https://github.com/SpoonX/aurelia-orm/compare/3.0.0-rc2...v33.0.0-rc5) (2016-07-22)
+
+
+### Bug Fixes
+
+* **aurelia-orm:** export Repository ([c99d4c6](https://github.com/SpoonX/aurelia-orm/commit/c99d4c6))
+* **component:** association select has bindable resource property ([e037efa](https://github.com/SpoonX/aurelia-orm/commit/e037efa))
+* **component:** association select\'s resource bindable  can also reference repo instance ([48ae57a](https://github.com/SpoonX/aurelia-orm/commit/48ae57a))
+* **component:** bindable multiple for association select component ([ad68275](https://github.com/SpoonX/aurelia-orm/commit/ad68275))
+* **decorators:** no return ([2274878](https://github.com/SpoonX/aurelia-orm/commit/2274878))
+* **depend:** fix paged dependencies, move components docs ([89b5b35](https://github.com/SpoonX/aurelia-orm/commit/89b5b35))
+* **entity:** fix reset and test ([51dd588](https://github.com/SpoonX/aurelia-orm/commit/51dd588))
+* **entity:** use getId for collections ([224cade](https://github.com/SpoonX/aurelia-orm/commit/224cade))
+
+
+### Features
+
+* **association-select:** Added resource attribute (no more need for a repository) ([8badedc](https://github.com/SpoonX/aurelia-orm/commit/8badedc))
+* **component:** add paged component ([23df688](https://github.com/SpoonX/aurelia-orm/commit/23df688))
+* **component:** association select with identifier bindable ([9f67554](https://github.com/SpoonX/aurelia-orm/commit/9f67554))
+* **decorators:** data decorator for generic entity property data ([c7faf9e](https://github.com/SpoonX/aurelia-orm/commit/c7faf9e))
+* **entity:** added entity.reset(shallow) ([b237d67](https://github.com/SpoonX/aurelia-orm/commit/b237d67))
+* **entity:** allow custom id property names. Use [@idProperty](https://github.com/idProperty)() decorator to set a custom id property name ([6d2f9b1](https://github.com/SpoonX/aurelia-orm/commit/6d2f9b1))
+* **entity:** prevent accidental infinite loops ([2cb9527](https://github.com/SpoonX/aurelia-orm/commit/2cb9527))
+* **entity:** setData with optional markClean ([ee01480](https://github.com/SpoonX/aurelia-orm/commit/ee01480))
 
 
 <a name"3.0.0-rc2"></a>

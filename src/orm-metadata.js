@@ -7,6 +7,10 @@ export class OrmMetadata {
   }
 }
 
+/**
+ * The MetaData class for Entity and Repository
+ *
+ */
 export class Metadata {
   // The key used to identify this specific metadata
   static key = 'spoonx:orm:metadata';
@@ -16,10 +20,11 @@ export class Metadata {
    */
   constructor() {
     this.metadata = {
-      repository: DefaultRepository,
-      resource: null,
-      endpoint: null,
-      name: null,
+      repository  : DefaultRepository,
+      resource    : null,
+      endpoint    : null,
+      name        : null,
+      idProperty  : 'id',
       associations: {}
     };
   }
@@ -30,8 +35,9 @@ export class Metadata {
    * @param {string} key
    * @param {*} value
    *
-   * @return {Metadata}
-   */
+   * @return {Metadata} itself
+   * @chainable
+*/
   addTo(key, value) {
     if (typeof this.metadata[key] === 'undefined') {
       this.metadata[key] = [];
@@ -51,7 +57,8 @@ export class Metadata {
    * @param {string|*} valueOrNestedKey
    * @param {null|*} [valueOrNull]
    *
-   * @return {Metadata}
+   * @return {Metadata} itself
+   * @chainable
    */
   put(key, valueOrNestedKey, valueOrNull) {
     if (!valueOrNull) {

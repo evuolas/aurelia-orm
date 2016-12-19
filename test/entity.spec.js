@@ -1,53 +1,58 @@
-import {EntityManager} from '../src/aurelia-orm';
+import {EntityManager} from '../src/entity-manager';
 import {Metadata} from '../src/orm-metadata';
 import {WithResource} from './resources/entity/with-resource';
 import {WithValidation} from './resources/entity/with-validation';
+import {WithAssociationValidation} from './resources/entity/with-association-validation';
+import {WithCustomValidator, CustomValidator} from './resources/entity/with-custom-validator';
 import {Foo} from './resources/entity/foo';
 import {Custom} from './resources/entity/custom';
 import {WithAssociations} from './resources/entity/with-associations';
 import {WithName} from './resources/entity/with-name';
 import {Entity} from '../src/entity';
-import {Container} from 'aurelia-dependency-injection';
 import {Config, Rest} from 'aurelia-api';
-import {Validation} from 'aurelia-validation';
-
-function getContainer() {
-  let container = new Container();
-  let config    = container.get(Config);
-
-  config
-    .registerEndpoint('sx/default', 'http://localhost:1927/')
-    .setDefaultEndpoint('sx/default');
-
-  return container;
-}
-
-function constructEntity(entity) {
-  let container     = getContainer();
-  let entityManager = new EntityManager(container);
-
-  return entityManager.registerEntity(entity).getEntity(entity.getResource());
-}
+import {StandardValidator, ValidationRules, ValidationError} from 'aurelia-validation';
+import {bootstrap} from 'aurelia-bootstrapper';
 
 describe('Entity', function() {
+  let container;
+
+  function constructEntity(entity) {
+    let entityManager = container.get(EntityManager);
+
+    return entityManager.registerEntity(entity).getEntity(entity.getResource());
+  }
+
+  beforeEach(done => {
+    bootstrap(aurelia => {
+      container = aurelia.container;
+
+      container.get(Config)
+        .registerEndpoint('sx/default', 'http://localhost:1927/')
+        .setDefaultEndpoint('sx/default');
+
+      aurelia.use
+        .standardConfiguration()
+        .plugin('aurelia-validation');
+
+      return aurelia.start();
+    }).then(done);
+  });
+
   describe('.constructor()', function() {
     it('Should set the meta data.', function() {
-      let validation = new Validation();
-      let entity     = new WithValidation(validation);
+      let entity = constructEntity(WithValidation);
 
       expect(entity.__meta).not.toBe(undefined);
     });
 
     it('Should set the validator constructor.', function() {
-      let validation = new Validation();
-      let entity     = new WithValidation(validation);
+      let entity = constructEntity(WithValidation);
 
-      expect(entity.__validator).toBe(validation);
+      expect(entity.__validator instanceof StandardValidator).toBe(true);
     });
 
     it('Should not set the validator constructor.', function() {
-      let validation = new Validation();
-      let entity     = new WithResource(validation);
+      let entity = constructEntity(WithResource);
 
       expect(entity.__validator).toBe(undefined);
     });
@@ -55,7 +60,6 @@ describe('Entity', function() {
 
   describe('.addCollectionAssociation()', function() {
     xit('Should properly add collectionAssociations when requested.', function(done) {
-      let container     = getContainer();
       let entityManager = new EntityManager(container);
       let testPromises  = [];
 
@@ -112,7 +116,6 @@ describe('Entity', function() {
     });
 
     xit('Should add and remove collection associations.', function(done) {
-      let container     = getContainer();
       let entityManager = new EntityManager(container);
 
       entityManager.registerEntities([WithAssociations, Foo, Custom]);
@@ -183,7 +186,7 @@ describe('Entity', function() {
     it('Should call .update on REST with an ID. (custom entity)', function(done) {
       let entity = constructEntity(WithResource);
       entity.foo = 'bar';
-      entity.id  = 1337;
+      entity.idTag  = 1337;
 
       entity.save().then(response => {
         expect(response.body).toEqual({'with-resource': {foo: 'bar', id: 1337}});
@@ -195,8 +198,6 @@ describe('Entity', function() {
     });
 
     it('Should call .create on REST without an ID. (default entity)', function(done) {
-      let container = getContainer();
-
       container.registerInstance(Rest);
 
       let entityManager = new EntityManager(container);
@@ -214,7 +215,6 @@ describe('Entity', function() {
     });
 
     xit('Should call .create on REST with nested body (associations).', function(done) {
-      let container     = getContainer();
       let entityManager = new EntityManager(container);
 
       entityManager.registerEntities([WithAssociations, Foo, Custom]);
@@ -236,20 +236,12 @@ describe('Entity', function() {
       });
 
       parentEntity.save().then(response => {
-        let idBar = response.bar.id;
-        let idParent = response.id;
-
-        expect(typeof idParent).toEqual('number');
-        expect(typeof idBar).toEqual('number');
-
-        expect(response).toEqual({bar: {baby: 'steps', id: idBar}, test: 'case', id: idParent});
+        expect(response.body).toEqual({bar: {baby: 'steps'}, test: 'case'});
         done();
       });
     });
 
     xit('Should call .update on REST with an ID. (default entity)', function(done) {
-      let container = getContainer();
-
       container.registerInstance(Rest);
 
       let entityManager = new EntityManager(container);
@@ -270,7 +262,7 @@ describe('Entity', function() {
 
   describe('.define()', function() {
     it('Should define a non-enumerable property on the entity.', function() {
-      let entity = new WithResource(new Validation());
+      let entity = constructEntity(WithResource);
 
       entity.define('__test', 'value');
       entity.define('__testWritable', 'value', true);
@@ -292,7 +284,7 @@ describe('Entity', function() {
 
   describe('.isDirty()', function() {
     it('Should properly return if the entity is dirty.', function() {
-      let entity = new WithResource(new Validation());
+      let entity = constructEntity(WithResource);
 
       entity.setData({
         id: 667,
@@ -310,7 +302,7 @@ describe('Entity', function() {
 
   describe('.isClean()', function() {
     it('Should properly return if the entity is clean.', function() {
-      let entity = new WithResource(new Validation());
+      let entity = constructEntity(WithResource);
 
       entity.setData({
         id: 667,
@@ -331,21 +323,75 @@ describe('Entity', function() {
       let entity = constructEntity(WithResource);
 
       expect(entity.isNew()).toBe(true);
-      entity.setData({id: 667}).markClean();
+      entity.setData({idTag: 667}).markClean();
       expect(entity.isNew()).toBe(false);
-      entity.setData({id: null});
+      entity.setData({idTag: null});
       expect(entity.isNew()).toBe(true);
-      entity.setData({id: false});
+      entity.setData({idTag: false});
       expect(entity.isNew()).toBe(true);
+    });
+  });
+
+  describe('.reset()', function() {
+    it('Should properly reset the entity to the clean status including associations', function() {
+      let entity = constructEntity(WithAssociations);
+
+      entity.setData({
+        id: 667,
+        foo: [{id: 1, value: 'baz'}],
+        bar: {buz: true}
+      }).markClean();
+
+      let checksum = entity.__cleanValues.checksum;
+
+      expect(entity.isDirty()).toBe(false);
+
+      entity.what = 'You dirty, dirty boy.';
+      entity.foo[0].value = 'bazzing';
+
+      expect(entity.isDirty()).toBe(true);
+
+      entity.reset();
+
+      expect(entity.isDirty()).toBe(false);
+      expect(entity.id).toBe(667);
+      expect(entity.bar.buz).toBe(true);
+      expect(entity.__cleanValues.checksum).toBe(checksum);
+    });
+
+    it('Should properly reset the entity to the clean status excluding associations', function() {
+      let entity = constructEntity(WithAssociations);
+
+      entity.setData({
+        id: 667,
+        foo: [{id: 1, value: 'baz'}],
+        bar: {buz: true}
+      }).markClean();
+      let checksum = entity.__cleanValues.checksum;
+
+      expect(entity.isDirty()).toBe(false);
+
+      entity.what = 'You dirty, dirty boy.';
+      entity.foo[0].value = 'bazzing';
+
+      expect(entity.isDirty()).toBe(true);
+
+      entity.reset(true);
+
+      expect(entity.isDirty()).toBe(false);
+      expect(entity.id).toBe(667);
+      expect(entity.foo[0].value).toBe('bazzing');
+      expect(entity.bar.buz).toBe(true);
+      expect(entity.__cleanValues.checksum).toBe(checksum);
     });
   });
 
   describe('.markClean()', function() {
     it('Should properly mark the entity as clean.', function() {
-      let entity = new WithResource(new Validation());
+      let entity = constructEntity(WithResource);
 
       entity.setData({
-        id: 667,
+        idTag: 667,
         foo: 'bar',
         city: {awesome: true}
       }).markClean();
@@ -365,7 +411,7 @@ describe('Entity', function() {
   describe('.update()', function() {
     xit('Should call .update with complete body.', function(done) {
       let entity  = constructEntity(WithResource);
-      entity.id   = 666;
+      entity.idTag   = 666;
       entity.foo  = 'bar';
       entity.city = {awesome: true};
 
@@ -381,7 +427,7 @@ describe('Entity', function() {
     it('Should not send a PUT request for .update when clean.', function(done) {
       let entity = constructEntity(WithResource);
       entity.setData({
-        id: 667,
+        idTag: 667,
         foo: 'bar',
         city: {awesome: true}
       }).markClean();
@@ -403,7 +449,6 @@ describe('Entity', function() {
     });
 
     xit('Should call .update on REST with nested body (associations).', function(done) {
-      let container     = getContainer();
       let entityManager = new EntityManager(container);
 
       entityManager.registerEntities([WithAssociations, Foo, Custom]);
@@ -452,20 +497,24 @@ describe('Entity', function() {
     it('Should return the entity\'s id property', function() {
       let instance = new WithResource();
 
-      expect(instance.getIdProperty()).toBe('id');
+      expect(instance.getIdProperty()).toBe('idTag');
     });
   });
 
   describe('static .getIdProperty()', function() {
-    it('Should return the entity id property name.', function() {
+    it('Should return the entity id property name. (Default)', function() {
       expect(Entity.getIdProperty()).toEqual('id');
+    });
+
+    it('Should return the entity id property name. (Custom)', function() {
+      expect(WithResource.getIdProperty()).toEqual('idTag');
     });
   });
 
   describe('.getId()', function() {
     it('Should return the entity\'s id', function() {
       let instance = new WithResource();
-      instance.id = 1;
+      instance.idTag = 1;
 
       expect(instance.getId()).toBe(1);
     });
@@ -476,7 +525,7 @@ describe('Entity', function() {
       let instance = new WithResource();
       instance.setId(1);
 
-      expect(instance.id).toBe(1);
+      expect(instance.idTag).toBe(1);
     });
   });
 
@@ -545,7 +594,7 @@ describe('Entity', function() {
   describe('.destroy()', function() {
     it('Should call .destroy.', function(done) {
       let entity = constructEntity(WithResource);
-      entity.id  = 666;
+      entity.idTag  = 666;
 
       entity.destroy().then(response => {
         expect(response.path).toEqual('/with-resource/666');
@@ -575,98 +624,115 @@ describe('Entity', function() {
       expect(entity.cake).toEqual('delicious');
       expect(entity.but).toEqual('So is bacon');
       expect(entity.asObject()).toEqual({cake: 'delicious', but: 'So is bacon'});
-    });
-  });
-
-  describe('.enableValidation()', function() {
-    it('Should enable validation on the entity.', function() {
-      let mockValidator = {
-        on: function() {
-          return {};
-        }
-      };
-
-      spyOn(mockValidator, 'on');
-
-      let entity = new WithValidation(mockValidator);
-
-      entity.enableValidation();
-
-      expect(mockValidator.on).toHaveBeenCalled();
+      expect(entity.isDirty()).toEqual(true);
     });
 
-    it('Should throw an error when called with validation disabled', function() {
-      let entity = new WithResource({});
+    it('Should set data on an entity and mark clean.', function() {
+      let entity = new Entity();
 
-      expect(function() {
-        entity.enableValidation();
-      }).toThrowError(Error, 'Entity not marked as validated. Did you forget the @validation() decorator?');
-    });
+      entity.setResource('unittest .setDate');
 
-    it('Should not enable validation on the entity more than once.', function() {
-      let mockValidatorMultiple = {
-        on: function() {
-          return {};
-        }
-      };
+      entity.setData({cake: 'delicious', but: 'So is bacon'}, true);
 
-      spyOn(mockValidatorMultiple, 'on').and.callThrough();
-
-      let entity = new WithValidation(mockValidatorMultiple);
-
-      entity.enableValidation();
-
-      expect(mockValidatorMultiple.on).toHaveBeenCalled();
-
-      entity.enableValidation();
-      entity.enableValidation();
-      entity.enableValidation();
-
-      expect(mockValidatorMultiple.on.calls.count()).toBe(1);
-    });
-  });
-
-  describe('.getValidation()', function() {
-    it('Should return null if validation meta is not true.', function() {
-      let entity = new WithResource('space camp');
-
-      expect(entity.getValidation()).toBe(null);
-    });
-
-    it('Should return validation for the entity (and create the instance).', function() {
-      let mockValidator = {
-        on: function() {
-          return 'The validator. But, not really.';
-        }
-      };
-
-      let entity = new WithValidation(mockValidator);
-
-      // Instance
-      expect(entity.getValidation()).toEqual('The validator. But, not really.');
-
-      // Cached
-      expect(entity.getValidation()).toEqual('The validator. But, not really.');
+      expect(entity.cake).toEqual('delicious');
+      expect(entity.but).toEqual('So is bacon');
+      expect(entity.asObject()).toEqual({cake: 'delicious', but: 'So is bacon'});
+      expect(entity.isDirty()).toEqual(false);
     });
   });
 
   describe('.hasValidation()', function() {
     it('Should return entity has validation disabled.', function() {
-      let entity = new WithResource({});
+      let entity = constructEntity(WithResource);
 
       expect(entity.hasValidation()).toEqual(false);
     });
 
     it('Should return entity has validation enabled.', function() {
-      let entity = new WithValidation({});
+      let entity = constructEntity(WithValidation);
 
       expect(entity.hasValidation()).toEqual(true);
     });
   });
 
+  describe('.getValidator()', function() {
+    it('Should return null if validation meta is not true.', function() {
+      let entity = constructEntity(WithResource);
+
+      expect(entity.getValidator()).toBe(null);
+    });
+
+    it('Should return standard validator for the entity (and create the instance).', function() {
+      let entity = constructEntity(WithValidation);
+
+      expect(entity.getValidator() instanceof StandardValidator).toBe(true);
+    });
+
+    it('Should return custom validator for the entity (and create the instance).', function() {
+      let entity = constructEntity(WithCustomValidator);
+
+      expect(entity.getValidator() instanceof CustomValidator).toBe(true);
+    });
+  });
+
+  describe('.validate()', function() {
+    it('Should return true if validation meta is not true.', function(done) {
+      let entity = constructEntity(WithResource);
+
+      entity.validate().then(res=>expect(res.length).toBe(0)).then(done);
+    });
+
+    it('Should use validator with object rules', function(done) {
+      let entity = constructEntity(WithValidation);
+
+      entity.validate().then(res => {
+        expect(res.length).not.toBe(0);
+        expect(res[0] instanceof ValidationError).toBe(true);
+        expect(res[0].message).toBe('Foo is required.');
+      }).then(done);
+    });
+
+    it('Should use validator with object rules on property', function(done) {
+      let entity = constructEntity(WithValidation);
+
+      entity.validate('bar').then(res => {
+        expect(res.length).toBe(0);
+      }).then(done);
+    });
+
+    it('Should use validator with custom rules on property', function(done) {
+      let entity = constructEntity(WithValidation);
+
+      entity.validate('bar', ValidationRules.ensure('bar').required().rules).then(res => {
+        expect(res.length).not.toBe(0);
+        expect(res[0] instanceof ValidationError).toBe(true);
+        expect(res[0].message).toBe('Bar is required.');
+      }).then(done);
+    });
+
+    it('Should use validator with custom rules "hasAssociation" with error', function(done) {
+      let entity = constructEntity(WithAssociationValidation);
+
+      entity.validate().then(res => {
+        expect(res.length).not.toBe(0);
+        expect(res[0] instanceof ValidationError).toBe(true);
+        expect(res[0].message).toBe('Foo must be an association.');
+      }).then(done);
+    });
+
+    it('Should use validator with custom rules "hasAssociation" without error', function(done) {
+      let entity = constructEntity(WithAssociationValidation);
+      entity.foo = 1;
+
+      entity.validate().then(res => {
+        expect(res.length).toBe(0);
+      }).then(done);
+    });
+  });
+
   describe('.asObject()', function() {
     it('Should return a POJO (simple).', function() {
-      let entity     = new Entity();
+      let entity = new Entity();
       let entityData = {
         foo: 'bar',
         some: 'properties',
@@ -681,7 +747,7 @@ describe('Entity', function() {
     });
 
     it('Should return a POJO (complex).', function() {
-      let entity     = new Entity();
+      let entity = new Entity();
       let entityData = {
         foo: 'bar',
         some: 'properties',
@@ -781,7 +847,7 @@ describe('Entity', function() {
 
   describe('.asJson()', function() {
     it('Should return a JSON string (simple).', function() {
-      let entity     = new Entity();
+      let entity = new Entity();
       let entityData = {
         foo: 'bar',
         some: 'properties',
@@ -795,7 +861,7 @@ describe('Entity', function() {
     });
 
     it('Should return a JSON string (complex).', function() {
-      let entity     = new Entity();
+      let entity = new Entity();
       let entityData = {
         foo: 'bar',
         some: 'properties',

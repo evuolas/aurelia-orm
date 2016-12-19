@@ -1,4 +1,4 @@
-import {EntityManager} from '../src/aurelia-orm';
+import {EntityManager} from '../src/entity-manager';
 import {Container} from 'aurelia-dependency-injection';
 import {WithResource} from './resources/entity/with-resource';
 import {WithCustomRepository} from './resources/entity/with-custom-repository';
@@ -36,6 +36,23 @@ describe('EntityManager', function() {
       entityManager.registerEntity(WithResource);
 
       expect(entityManager.entities).toEqual({'with-resource': WithResource});
+    });
+
+    xit('Should throw when register with non-Entity', function() {
+      let entityManager = new EntityManager(new Container());
+      class Wrong {}
+
+      let failClass   = () => entityManager.registerEntity(Wrong);
+      let failObject  = () => entityManager.registerEntity({type: 'not an entity'});
+      let failBoolean = () => entityManager.registerEntity(true);
+      let failNumber  = () => entityManager.registerEntity(1);
+      let failString  = () => entityManager.registerEntity('string');
+
+      expect(failClass).toThrow();
+      expect(failObject).toThrow();
+      expect(failBoolean).toThrow();
+      expect(failNumber).toThrow();
+      expect(failString).toThrow();
     });
   });
 

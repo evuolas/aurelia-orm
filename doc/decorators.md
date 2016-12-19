@@ -14,18 +14,18 @@ import {CustomRepository} from 'repository/custom-repository';
 @resource('my-endpoint')
 @repository(CustomRepository)
 @validation()
-export class MyEntity extends Entity {
+export class Order extends Entity {
   @ensure(it => it.isNotEmpty().hasLengthBetween(3, 20))
   @type('string')
   name = null;
 
-  // Will use string 'onetoone' as resource name.
+  // Will use string 'contact' as resource name. One-to-one.
   @association()
-  oneToOne = null
+  contact = null
 
-  // Will use 'multiple' as resource name.
-  @association('multiple')
-  oneManyToMany = null
+  // Will use 'lineItem' as resource name. One-to-Many
+  @association('lineItem')
+  lineItems = null
 }
 ```
 
@@ -45,7 +45,7 @@ class HelloWorld {}
 
 ## @resource()
 
-This decorator is probably the most important one. Without it, aurelia-orm won't know what your **custom entity** is all about. The resource maps to the API endpoint it represents. Simply put, resouce `foo` maps to `/foo`.
+This decorator is probably the most important one. Without it, aurelia-orm won't know what your **custom entity** is all about. The resource maps to the API endpoint it represents. Simply put, resource `foo` maps to `/foo`.
 
 When left empty, the name of the class (.toLowerCase()) will be used as the resource name. This is usually fine.
 
@@ -57,6 +57,18 @@ class HelloWorld {}
 // Sets the resource to "i-want-bacon"
 @resource('i-want-bacon')
 class HelloWorld {}
+```
+
+## @idProperty()
+
+Usually, you won't need the `@idProperty()` decorator. Orm uses 'id' as default property for the id, but you can use this decorator to define a different property as the id property.
+
+```js
+import {Entity, idProperty} from 'aurelia-orm';
+
+@resource()
+@idProperty('userId')
+export class User extends Entity {}
 ```
 
 ## @repository()
@@ -73,19 +85,74 @@ export class MyEntity extends Entity {}
 
 ## @validation()
 
-Use this decorator if you wish to enable validation on your entity. This makes use of [aurelia-validation](https://github.com/aurelia/validation) and exposes a `.getValidation()` method on the entity.
+Use this decorator if you wish to enable validation on your entity. This makes use of the StandardValidator of [aurelia-validation](https://github.com/aurelia/validation) and exposes a `.validate()` method on the entity.
+
+```js
+import {Entity, validation} from 'aurelia-orm';
+
+@validation()
+export class MyEntity extends Entity {}
+```
+
+You can also set your own validator
+
+```js
+import {Entity, validation} from 'aurelia-orm';
+import {CustomValidator} from 'custom-validator';
+
+@validation(CustomValidator)
+export class MyEntity extends Entity {}
+```
 
 ## @validatedResource()
 
 Usually when making a custom entity, it's to add validation. This method simply combines @validation() and @resource() into one simple decorator. It's sugar :)
+
+```js
+import {Entity, validatedResource} from 'aurelia-orm';
+
+@validatedResource()
+export class MyEntity extends Entity {}
+```
+
+You can also set your own resource and/or validator
+
+```js
+import {Entity, validatedResource} from 'aurelia-orm';
+import {CustomValidator} from 'custom-validator';
+
+@validatedResource('i-want-bacon', CustomValidator)
+export class MyEntity extends Entity {}
+```
 
 ## @association()
 
 Use this decorator to indicate that a property has a relationship with another entity and thus should be treated as an entity. This decorator has the following effects:
 
 * It will tell aurelia-orm to populate children (nested) upon fetching data from the server.
+* It will look for the property name in the server requests. Thus, make sure you use the same name here as on your server for your model.
 * It will make sure that calling .asObject() on the entity recursively converts all children to simple objects.
 * It will make sure that upon calling .update(), all children get converted to IDs.
+
+### Example
+
+```js
+import {Entity, association} from 'aurelia-orm';
+
+export class MyEntity extends Entity {
+  @association()  // uses the property name to link to entity 'name'. (toOne)
+  name = null;
+
+  @association('date') // links to entity 'date'. (toOne)
+  created = null;
+
+  @association({entity: 'update'}) // links to entity 'update'. (toOne)
+  update = null;
+
+  @association({collection: 'foo'}) // links to collection of 'foo' entities.  (toMany)
+  foo = false;
+}
+```
 
 ## @type()
 
@@ -154,17 +221,24 @@ export class Weather extends Entity {}
 
 ### Bonus: validation
 
-Aurelia-orm extends aurelia-validate, and adds validation for your associations.
+Aurelia-orm supports aurelia-validation, and adds validation for your associations.
 To add validation for associations, simply use the .hasAssociation() rule like so:
 
 ```js
-import {ensure} from 'aurelia-validation';
+import {ValidationRules} from 'aurelia-validation';
 import {association, validatedResource, Entity} from 'aurelia-orm';
 
 @validatedResource()
 export class SomeEntity extends Entity {
   @association('manufacturer')
-  @ensure(it => it.hasAssociation())
   manufacturer = null;
+
+  constructor() {
+    super();
+
+    ValidationRules
+      .ensure('manufacturer').satisfiesRule('hasAssociation')
+      .on(this);  
+  }
 }
 ```

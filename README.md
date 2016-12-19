@@ -26,31 +26,82 @@ This library plays nice with the [Sails.js framework](http://sailsjs.org).
 
 We've simplified installation and usage! This plugin should now be installed using `jspm i aurelia-orm` or (for webpack) `npm i aurelia-orm --save`. Make sure you update all references to `spoonx/aurelia-orm` and `spoonx/aurelia-api` and remove the `spoonx/` prefix (don't forget your config.js, package.json, imports and bundles).
 
-## Installation
-
-### Jspm/SytemJs
-
-Run `jspm i aurelia-orm` from your project root.
-
-### Webpack
-
-Run `npm i aurelia-orm --save` from your project root.
-
-Aurelia-orm has several submodules. So you need to add it to the AureliaWebpackPlugin includeSubModules list.
-
-```js
-AureliaWebpackPlugin({
-    includeSubModules: [
-      { moduleId: 'aurelia-orm' }
-    ]
-  }),
-```
-
 ## Documentation
 
 You can find usage examples and the documentation at [aurelia-orm-doc](http://aurelia-orm.spoonx.org/).
 
 The [changelog](doc/changelog.md) provides you with information about important changes.
+
+## Uses
+
+* [aurelia-api](https://www.npmjs.com/package/aurelia-api)
+* `aurelia-validation@^0.12.3`
+
+## Used by
+
+* [aurelia-datatable](https://www.npmjs.com/package/aurelia-datatable).
+
+## Installation
+
+Aurelia-orm needs an installation of [aurelia-api](https://www.npmjs.com/package/aurelia-api) and `aurelia-validation@^0.12.3`.
+
+### Aureli-Cli
+
+Run `npm i aurelia-orm --save` from your project root.
+
+It also has submodules and makes use of `get-prop`. So, add following to the `build.bundles.dependencies` section of `aurelia-project/aurelia.json`.
+
+```js
+"dependencies": [
+  // ...
+  "get-prop",
+  {
+    "name": "aurelia-orm",
+    "path": "../node_modules/aurelia-orm/dist/amd",
+    "main": "aurelia-orm",
+    "resources": [
+      "component/association-select.html",
+      "component/paged.html"
+    ]
+  },
+  {
+    "name": "aurelia-validation",
+    "path": "../node_modules/aurelia-validation/dist/amd",
+    "main": "index"
+  },
+  // ...
+],
+```
+
+### Jspm
+
+Run `jspm i aurelia-orm npm:get-prop`
+
+And add following to the `bundles.dist.aurelia.includes` section of `build/bundles.js`:
+
+```js
+  "get-prop",
+  "aurelia-orm",
+  "[aurelia-orm/**/*.js]",
+  "aurelia-orm/**/*.html!text",
+```
+
+If the installation results in having forks, try resolving them by running:
+
+```sh
+jspm inspect --forks
+jspm resolve --only registry:package-name@version
+```
+
+### Webpack
+
+Run `npm i aurelia-orm --save` from your project root.
+
+Add `aurelia-orm` in the `coreBundles.aurelia section` of your `webpack.config.js`.
+
+### Typescript
+
+Npm-based installations pick up the typings automatically. For Jspm-based installations, run `typings i github:spoonx/aurelia-orm` or add `"aurelia-orm": "github:spoonx/aurelia-orm",` to your `typings.json` and run `typings i`.
 
 ## Example
 
@@ -60,18 +111,21 @@ Here's a snippet to give you an idea of what this module does.
 
 ```javascript
 import {Entity, validatedResource} from 'aurelia-orm';
-import {ensure} from 'aurelia-validation';
+import {ValidationRules} from 'aurelia-validation';
 
 @validatedResource('user')
 export class UserEntity extends Entity {
-  @ensure(it => it.isNotEmpty().containsOnlyAlpha().hasLengthBetween(3, 20))
-  username = null;
-
-  @ensure(it => it.isNotEmpty().isStrongPassword())
+  email    = null;
   password = null;
 
-  @ensure(it => it.isNotEmpty().isEmail())
-  email = null;
+  constructor() {
+    super();
+
+    ValidationRules
+      .ensure('email').required().email()
+      .ensure('password').required().minLength(8).maxLength(20)
+      .on(this);  
+  }
 }
 ```
 
@@ -93,14 +147,22 @@ export class Create {
   create () {
     this.requestInFlight = true;
 
-    this.entity.save()
-      .then(result => {
+    this.entity.validate()
+      .then(validationErrors => {
+        if (validationErrors.length !== 0) {
+          console.error(error);
+          throw validationErrors[0];
+        }
+
+        return this.entity.save();
+      }).then(result => {
         this.requestInFlight = false;
 
         console.log('User created successfully');
       })
       .catch(error => {
-        console.error(error);
+        this.requestInFlight = false;
+        // notify of the error?
       });
   }
 }
@@ -118,3 +180,8 @@ For instance, `@resource()` would use the module's name to set the resource.
 
 So keep in mind: When using aurelia-orm in a bundled application, you must specify a value for your decorators.
 For instance, `@decorator('category')`.
+
+
+## Known hacks
+
+- The association-select always parses the `placeholderText` as html (`t="[html]${placeholderText}"`) due a [aurelia-i18n binding issue](https://github.com/aurelia/i18n/issues/147).

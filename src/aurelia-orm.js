@@ -1,34 +1,33 @@
+import {getLogger} from 'aurelia-logging';
 import {EntityManager} from './entity-manager';
-import {HasAssociationValidationRule} from './validator/has-association';
-import {ValidationGroup} from 'aurelia-validation';
-import './component/association-select';
-import './component/paged';
-export {DefaultRepository} from './default-repository';
-export {Repository} from './repository';
-export {Entity} from './entity';
-export {OrmMetadata} from './orm-metadata';
-export {association} from './decorator/association';
-export {resource} from './decorator/resource';
-export {endpoint} from './decorator/endpoint';
-export {name} from './decorator/name';
-export {repository} from './decorator/repository';
-export {jsonRoot} from './decorator/json-root';
-export {validation} from './decorator/validation';
-export {type} from './decorator/type';
-export {validatedResource} from './decorator/validated-resource';
+import {ValidationRules} from 'aurelia-validation';
+import {Entity} from './entity';
 
-export function configure(aurelia, configCallback) {
-  let entityManagerInstance = aurelia.container.get(EntityManager);
+// added for bundling
+import {AssociationSelect} from './component/association-select'; // eslint-disable-line no-unused-vars
+import {Paged} from './component/paged'; // eslint-disable-line no-unused-vars
+
+/**
+ * Plugin configure
+ *
+ * @export
+ * @param {*} frameworkConfig
+ * @param {*} configCallback
+ */
+export function configure(frameworkConfig, configCallback) {
+  // add hasAssociation custom validation rule
+  ValidationRules.customRule(
+    'hasAssociation',
+    value => !!((value instanceof Entity && typeof value.id === 'number') || typeof value === 'number'),
+    `\${$displayName} must be an association.`    // eslint-disable-line quotes
+  );
+
+  let entityManagerInstance = frameworkConfig.container.get(EntityManager);
 
   configCallback(entityManagerInstance);
 
-  ValidationGroup.prototype.hasAssociation = function() {
-    return this.isNotEmpty().passesRule(new HasAssociationValidationRule());
-  };
-
-
-  aurelia.globalResources('./component/association-select');
-  aurelia.globalResources('./component/paged');
+  frameworkConfig.globalResources('./component/association-select');
+  frameworkConfig.globalResources('./component/paged');
 }
 
-export {EntityManager, HasAssociationValidationRule, ValidationGroup};
+export const logger = getLogger('aurelia-orm');

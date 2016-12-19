@@ -3,6 +3,9 @@ import {DefaultRepository} from './default-repository';
 import {Container, inject} from 'aurelia-dependency-injection';
 import {OrmMetadata} from './orm-metadata';
 
+/**
+ * The EntityManager class
+ */
 @inject(Container)
 export class EntityManager {
   repositories = {};
@@ -11,39 +14,40 @@ export class EntityManager {
   /**
    * Construct a new EntityManager.
    *
-   * @param {Container} container aurelia-dependency-injection container
+   * @param {Container} container
    */
   constructor(container) {
     this.container = container;
   }
 
   /**
-   * Register an array of entity references.
+   * Register an array of entity classes.
    *
-   * @param {Entity[]|Entity} entities Array or object of entities.
+   * @param {function[]|function} EntityClasses Array or object of Entity constructors.
    *
-   * @return {EntityManager}
+   * @return {EntityManager} itself
+   * @chainable
    */
-  registerEntities(entities) {
-    for (let reference in entities) {
-      if (!entities.hasOwnProperty(reference)) {
-        continue;
+  registerEntities(EntityClasses) {
+    for (let property in EntityClasses) {
+      if (EntityClasses.hasOwnProperty(property)) {
+        this.registerEntity(EntityClasses[property]);
       }
-      this.registerEntity(entities[reference]);
     }
 
     return this;
   }
 
   /**
-   * Register an Entity reference.
+   * Register an Entity class.
    *
-   * @param {Entity} entity
+   * @param {function} EntityClass
    *
-   * @return {EntityManager}
+   * @return {EntityManager} itself
+   * @chainable
    */
-  registerEntity(entity) {
-    this.entities[OrmMetadata.forTarget(entity).fetch('resource')] = entity;
+  registerEntity(EntityClass) {
+    this.entities[OrmMetadata.forTarget(EntityClass).fetch('resource')] = EntityClass;
 
     return this;
   }
@@ -54,7 +58,6 @@ export class EntityManager {
    * @param {Entity|string} entity
    *
    * @return {Repository}
-   *
    * @throws {Error}
    */
   getRepository(entity) {
@@ -137,6 +140,13 @@ export class EntityManager {
       }
 
       resource = entity;
+    }
+
+    // Set the validator.
+    if (instance.hasValidation() && !(instance.getValidator())) {
+      let validator = this.container.get(OrmMetadata.forTarget(reference).fetch('validation'));
+
+      instance.setValidator(validator);
     }
 
     return instance.setResource(resource).setRepository(this.getRepository(resource));

@@ -1,21 +1,61 @@
-# Installing
+# Installation
 
-Install aurelia-orm and [aurelia-api](https://github.com/SpoonX/aurelia-api).
+Aurelia-orm needs an installation of [aurelia-api](https://www.npmjs.com/package/aurelia-api) and `aurelia-validation@0.6.6`.
 
-## Jspm/SytemJs
+## Aureli-Cli
 
-Run `jspm i aurelia-api aurelia-orm` from your project root.
+Run `npm i aurelia-orm --save` from your project root.
+
+It also has submodules and makes use of `get-prop`. So, add following to the `build.bundles.dependencies` section of `aurelia-project/aurelia.json`.
+
+```js
+"dependencies": [
+  // ...
+  "get-prop",
+  {
+    "name": "aurelia-orm",
+    "path": "../node_modules/aurelia-orm/dist/amd",
+    "main": "aurelia-orm",
+    "resources": [
+      "component/association-select.html",
+      "component/paged.html"
+    ]
+  },
+  {
+    "name": "aurelia-validation",
+    "path": "../node_modules/aurelia-validation/dist/amd",
+    "main": "index"
+  },
+  // ...
+],
+```
+
+## Jspm
+
+Run `jspm i aurelia-orm npm:get-prop`
+
+And add following to the `bundles.dist.aurelia.includes` section of `build/bundles.js`:
+
+```js
+  "get-prop",
+  "aurelia-orm",
+  "[aurelia-orm/**/*.js]",
+  "aurelia-orm/**/*.html!text",
+```
+
+If the installation results in having forks, try resolving them by running:
+
+```sh
+jspm inspect --forks
+jspm resolve --only registry:package-name@version
+```
 
 ## Webpack
 
-Run `npm i aureia-api aurelia-orm --save` from your project root.
+Run `npm i aurelia-orm --save` from your project root.
 
-Aurelia-orm has several submodules. So you need to add it to the AureliaWebpackPlugin includeSubModules list.
+Add `aurelia-orm` in the `coreBundles.aurelia section` of your `webpack.config.js`.
 
-```js
-AureliaWebpackPlugin({
-    includeSubModules: [
-      { moduleId: 'aurelia-orm' }
-    ]
-  }),
-```
+## Typescript
+
+Npm-based installations pick up the typings automatically. For Jspm-based installations, run `typings i github:spoonx/aurelia-orm` or add `"aurelia-orm": "github:spoonx/aurelia-orm",` to your `typings.json` and run `typings i`.

@@ -1,4 +1,6 @@
-import {EntityManager, Repository, Entity} from '../src/aurelia-orm';
+import {EntityManager} from '../src/entity-manager';
+import {Repository} from '../src/repository';
+import {Entity} from '../src/entity';
 import {WithResource} from './resources/entity/with-resource';
 import {WithAssociations} from './resources/entity/with-associations';
 import {WithCustomRepository} from './resources/entity/with-custom-repository';
@@ -159,6 +161,16 @@ describe('Repository', function() {
 
         done();
       });
+    });
+
+    it('Should not fail if no data was returned', function(done) {
+      let repository = constructRepository('find-test');
+      repository.getTransport().find = () => Promise.resolve(null);
+
+      repository.find()
+        .then(data => expect(data).toBe(null))
+        .catch(err => expect(true).toBe(false))
+        .then(done);
     });
   });
 

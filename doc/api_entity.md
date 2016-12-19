@@ -212,13 +212,13 @@ Check if entity has validation enabled.
 
 ### Returns
 
-A boolean indicating if validation is enabled or not.
+A boolean indicating if validation is enabled or not. This will enable the StandardValidator on the entity.
 
 ---------
 
-## .getValidation()
+## .getValidator()
 
-When enabled, this method returns the validation instance.
+When validation is enabled, this method returns the used Validator instance.
 
 ### Parameters
 
@@ -226,7 +226,41 @@ When enabled, this method returns the validation instance.
 
 ### Returns
 
-An instance of [aurelia-validation](https://github.com/aurelia/validation).
+An instance of the validator. See [aurelia-validation](http://aurelia.io/hub.html#/doc/article/aurelia/validation).
+
+---------
+
+## .setValidator(validator)
+
+Set the validator. Per default the StandardValidator is used if validation is enabled, but you can set a different Validator implementation if needed.
+
+### Parameters
+
+| Parameter | Type            | Description                              |
+| --------- | --------------- | ---------------------------------------- |
+| validator | Validator       | An instance of a Validator implemenation |
+
+### Returns
+
+Itself
+
+---------
+
+## .validate(propertyName?, rules?)
+
+Calls the validator on the entity. Per default all properties and all rules on the entity are tested, but one can optionally select the propertyName and/or pass the rules to be tested.
+If validation is not enabled on the entity, it is considered valid.  
+
+### Parameters
+
+| Parameter     | Type            | Description                          |
+| ------------- | --------------- | ------------------------------------ |
+| propertyName  | string          | (optional) The property to be tested |
+| rules         | ValidationRules | (optional) The rules to test         | 
+
+### Returns
+
+Promise<[ValidationError]>
 
 ---------
 
@@ -250,7 +284,7 @@ Itself to allow chaining.
 
 Get the resource this entity belongs to.
 
-**Note:** Also works when called statically on custom entities.
+**Note:** Also works when called statically on an Entity class.
 
 ### Parameters
 
@@ -266,7 +300,7 @@ The resource it belongs to (string).
 
 Get the name of this entity.
 
-**Note:** Also works when called statically on custom entities.
+**Note:** Also works when called statically on an Entity class.
 
 ### Parameters
 
@@ -279,15 +313,62 @@ Defaults to the resource name (or null when also not set).
 
 ---------
 
-## .setData(data)
+## .getIdProperty()
+
+Get the id property name of this entity.
+
+**Note:** Also works when called statically on an Entity class.
+
+### Parameters
+
+* None
+
+### Returns
+
+The id property name of the entity. Defaults to 'id' or as configured using the `@idProperty` decorator.
+
+---------
+
+## .setId(id)
+
+Set the id for this entity.
+
+### Parameters
+
+| Parameter | Type          | Description           |
+| --------- | ------------- | --------------------- |
+| id        | string|number | The id of the entity. |
+
+### Returns
+
+Itself to allow chaining.
+
+---------
+
+## .getId()
+
+Get the id of this entity.
+
+### Parameters
+
+* None
+
+### Returns
+
+The id of the entity instance.
+
+---------
+
+## .setData(data, markClean)
 
 Set the values of the entity.
 
 ### Parameters
 
-| Parameter | Type   | Description                                |
-| --------- | ------ | ------------------------------------------ |
-| data      | object | An object of data to assign to the entity. |
+| Parameter | Type    | Description                                |
+| --------- | ------- | ------------------------------------------ |
+| data      | object  | An object of data to assign to the entity. |
+| markClean | boolean | Optionally, marks entity as clean          |
 
 ### Returns
 

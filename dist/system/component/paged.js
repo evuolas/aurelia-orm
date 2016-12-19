@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['aurelia-binding', 'aurelia-templating'], function (_export, _context) {
+System.register(['../aurelia-orm', 'aurelia-binding', 'aurelia-templating'], function (_export, _context) {
   "use strict";
 
-  var bindingMode, bindable, customElement, _dec, _dec2, _dec3, _class, _desc, _value, _class2, _descriptor, _descriptor2, _descriptor3, _descriptor4, _descriptor5, Paged;
+  var logger, bindingMode, bindable, customElement, _typeof, _dec, _dec2, _dec3, _dec4, _class, _desc, _value, _class2, _descriptor, _descriptor2, _descriptor3, _descriptor4, _descriptor5, _descriptor6, _descriptor7, Paged;
 
   function _initDefineProp(target, property, descriptor, context) {
     if (!descriptor) return;
@@ -15,11 +15,7 @@ System.register(['aurelia-binding', 'aurelia-templating'], function (_export, _c
     });
   }
 
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
+  
 
   function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
     var desc = {};
@@ -55,26 +51,38 @@ System.register(['aurelia-binding', 'aurelia-templating'], function (_export, _c
   }
 
   return {
-    setters: [function (_aureliaBinding) {
+    setters: [function (_aureliaOrm) {
+      logger = _aureliaOrm.logger;
+    }, function (_aureliaBinding) {
       bindingMode = _aureliaBinding.bindingMode;
     }, function (_aureliaTemplating) {
       bindable = _aureliaTemplating.bindable;
       customElement = _aureliaTemplating.customElement;
     }],
     execute: function () {
-      _export('Paged', Paged = (_dec = customElement('paged'), _dec2 = bindable({ defaultBindingMode: bindingMode.twoWay }), _dec3 = bindable({ defaultBindingMode: bindingMode.twoWay }), _dec(_class = (_class2 = function () {
+      _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+        return typeof obj;
+      } : function (obj) {
+        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+      };
+
+      _export('Paged', Paged = (_dec = customElement('paged'), _dec2 = bindable({ defaultBindingMode: bindingMode.twoWay }), _dec3 = bindable({ defaultBindingMode: bindingMode.twoWay }), _dec4 = bindable({ defaultBindingMode: bindingMode.twoWay }), _dec(_class = (_class2 = function () {
         function Paged() {
-          _classCallCheck(this, Paged);
+          
 
           _initDefineProp(this, 'data', _descriptor, this);
 
           _initDefineProp(this, 'page', _descriptor2, this);
 
-          _initDefineProp(this, 'criteria', _descriptor3, this);
+          _initDefineProp(this, 'error', _descriptor3, this);
 
-          _initDefineProp(this, 'resource', _descriptor4, this);
+          _initDefineProp(this, 'criteria', _descriptor4, this);
 
-          _initDefineProp(this, 'limit', _descriptor5, this);
+          _initDefineProp(this, 'repository', _descriptor5, this);
+
+          _initDefineProp(this, 'resource', _descriptor6, this);
+
+          _initDefineProp(this, 'limit', _descriptor7, this);
         }
 
         Paged.prototype.attached = function attached() {
@@ -93,12 +101,20 @@ System.register(['aurelia-binding', 'aurelia-templating'], function (_export, _c
           this.getData();
         };
 
-        Paged.prototype.isChanged = function isChanged(newVal, oldVal) {
-          return !this.resource || !newVal || newVal === oldVal;
+        Paged.prototype.isChanged = function isChanged(property, newVal, oldVal) {
+          return !this[property] || !newVal || newVal === oldVal;
         };
 
         Paged.prototype.pageChanged = function pageChanged(newVal, oldVal) {
-          if (this.isChanged(newVal, oldVal)) {
+          if (this.isChanged('resource', newVal, oldVal) || this.isChanged('criteria', newVal, oldVal)) {
+            return;
+          }
+
+          this.reloadData();
+        };
+
+        Paged.prototype.resourceChanged = function resourceChanged(newVal, oldVal) {
+          if (this.isChanged('resource', newVal, oldVal)) {
             return;
           }
 
@@ -106,23 +122,34 @@ System.register(['aurelia-binding', 'aurelia-templating'], function (_export, _c
         };
 
         Paged.prototype.criteriaChanged = function criteriaChanged(newVal, oldVal) {
-          if (this.isChanged(newVal, oldVal)) {
+          if (this.isChanged('criteria', newVal, oldVal)) {
             return;
           }
 
           this.reloadData();
         };
 
+        Paged.prototype.resourceChanged = function resourceChanged(resource) {
+          if (!resource) {
+            logger.error('resource is ' + (typeof resource === 'undefined' ? 'undefined' : _typeof(resource)) + '. It should be a string or a reference');
+          }
+
+          this.repository = this.entityManager.getRepository(resource);
+        };
+
         Paged.prototype.getData = function getData() {
           var _this = this;
 
-          this.criteria.skip = this.page * this.limit - this.limit;
-          this.criteria.limit = this.limit;
+          var criteria = JSON.parse(JSON.stringify(this.criteria));
 
-          this.resource.find(this.criteria, true).then(function (result) {
+          criteria.skip = this.page * this.limit - this.limit;
+          criteria.limit = this.limit;
+          this.error = null;
+
+          this.repository.find(criteria, true).then(function (result) {
             _this.data = result;
           }).catch(function (error) {
-            console.error('Something went wrong.', error);
+            _this.error = error;
           });
         };
 
@@ -137,17 +164,21 @@ System.register(['aurelia-binding', 'aurelia-templating'], function (_export, _c
         initializer: function initializer() {
           return 1;
         }
-      }), _descriptor3 = _applyDecoratedDescriptor(_class2.prototype, 'criteria', [bindable], {
+      }), _descriptor3 = _applyDecoratedDescriptor(_class2.prototype, 'error', [_dec4], {
         enumerable: true,
-        initializer: function initializer() {
-          return {};
-        }
-      }), _descriptor4 = _applyDecoratedDescriptor(_class2.prototype, 'resource', [bindable], {
+        initializer: null
+      }), _descriptor4 = _applyDecoratedDescriptor(_class2.prototype, 'criteria', [bindable], {
+        enumerable: true,
+        initializer: null
+      }), _descriptor5 = _applyDecoratedDescriptor(_class2.prototype, 'repository', [bindable], {
         enumerable: true,
         initializer: function initializer() {
           return null;
         }
-      }), _descriptor5 = _applyDecoratedDescriptor(_class2.prototype, 'limit', [bindable], {
+      }), _descriptor6 = _applyDecoratedDescriptor(_class2.prototype, 'resource', [bindable], {
+        enumerable: true,
+        initializer: null
+      }), _descriptor7 = _applyDecoratedDescriptor(_class2.prototype, 'limit', [bindable], {
         enumerable: true,
         initializer: function initializer() {
           return 30;

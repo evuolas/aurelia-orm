@@ -1,30 +1,23 @@
-import {Validation} from 'aurelia-validation';
-import {transient, inject} from 'aurelia-dependency-injection';
+/* eslint-disable max-lines */
+import {transient} from 'aurelia-dependency-injection';
 import {OrmMetadata} from './orm-metadata';
 
+/**
+ * The Entity basis class
+ * @transient
+ */
 @transient()
-@inject(Validation)
 export class Entity {
 
   /**
    * Construct a new entity.
    *
-   * @param {Validation} validator
-   *
-   * @return {Entity}
+   * @param {Validator} validator
    */
-  constructor(validator) {
+  constructor() {
     this
       .define('__meta', OrmMetadata.forTarget(this.constructor))
       .define('__cleanValues', {}, true);
-
-    // No validation? No need to set the validator.
-    if (!this.hasValidation()) {
-      return this;
-    }
-
-    // Set the validator.
-    return this.define('__validator', validator);
   }
 
   /**
@@ -46,9 +39,12 @@ export class Entity {
   }
 
   /**
+   * Set reference to the repository.
+   *
    * @param {Repository} repository
    *
-   * @return {Entity}
+   * @return {Entity} this
+   * @chainable
    */
   setRepository(repository) {
     return this.define('__repository', repository);
@@ -60,13 +56,15 @@ export class Entity {
    * @param {string}  property
    * @param {*}       value
    * @param {boolean} [writable]
+   * @chainable
    *
-   * @return {Entity}
+   * @return {Entity} this
+   * @chainable
    */
   define(property, value, writable) {
     Object.defineProperty(this, property, {
-      value: value,
-      writable: !!writable,
+      value     : value,
+      writable  : !!writable,
       enumerable: false
     });
 
@@ -76,7 +74,7 @@ export class Entity {
   /**
    * Get the metadata for this entity.
    *
-   * return {Metadata}
+   * @return {Metadata}
    */
   getMeta() {
     return this.__meta;
@@ -88,7 +86,7 @@ export class Entity {
    * @return {string}
    */
   getIdProperty() {
-    return 'id';
+    return this.getMeta().fetch('idProperty');
   }
 
   /**
@@ -97,7 +95,9 @@ export class Entity {
    * @return {string}
    */
   static getIdProperty() {
-    return 'id';
+    let idProperty = OrmMetadata.forTarget(this).fetch('idProperty');
+
+    return idProperty;
   }
 
   /**
@@ -157,10 +157,10 @@ export class Entity {
       .create(path, requestBody, options)
       .then((created) => {
         const data = rootObject ? created[repository.jsonRootObjectSingle] : created;
-        repository.getPopulatedEntity(data, this);
-
-        response = created;
+        this.setId(data[this.getIdProperty()]);
+        response = data;
       })
+      .then(() => this.saveCollections())
       .then(() => this.markClean())
       .then(() => response);
   }
@@ -196,20 +196,19 @@ export class Entity {
       requestBody = bodyWithRoot;
     }
 
-    delete requestBody.id;
+    delete requestBody[this.getIdProperty()];
 
     if (!path) {
       path = this.getResource();
     }
 
     return this.getTransport()
-      .update(path, this.id, requestBody, options)
+      .update(path, this.getId(), requestBody, options)
       .then((updated) => {
         const data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
-        repository.getPopulatedEntity(data, this);
-
-        response = updated;
+        response = data;
       })
+      .then(() => this.saveCollections())
       .then(() => this.markClean())
       .then(() => response);
   }
@@ -226,7 +225,7 @@ export class Entity {
    */
   addCollectionAssociation(entity, property) {
     property = property || getPropertyForAssociation(this, entity);
-    let url  = [this.getResource(), this.id, property];
+    let url  = [this.getResource(), this.getId(), property];
 
     if (this.isNew()) {
       throw new Error('Cannot add association to entity that does not have an id.');
@@ -244,25 +243,29 @@ export class Entity {
 
       if (!relation || relation.type !== 'entity') {
         // Many relation, create and then link.
-        return entity.save().then(() => {
-          return this.addCollectionAssociation(entity, property);
-        });
+        return entity.save()
+          .then(() => {
+            if (entity.isNew()) {
+              throw new Error('Entity did not return return an id on saving.');
+            }
+
+            return this.addCollectionAssociation(entity, property);
+          });
       }
 
       // toOne relation, pass in ID to prevent extra request. Something something performance.
-      entity[associationProperty] = this.id;
+      entity[associationProperty] = this.getId();
 
-      return entity.save().then(() => {
-        return entity;
-      });
+      return entity.save()
+        .then(() => entity);
     }
 
     // Entity isn't new, just add id to url.
-    url.push(entity.id);
+    url.push(entity.getId());
 
-    return this.getTransport().create(url.join('/')).then(() => {
-      return entity;
-    });
+    return this.getTransport()
+      .create(url.join('/'))
+      .then(() => entity);
   }
 
   /**
@@ -278,20 +281,20 @@ export class Entity {
     let idToRemove = entity;
 
     if (entity instanceof Entity) {
-      if (!entity.id) {
+      if (!entity.getId()) {
         return Promise.resolve(null);
       }
 
-      idToRemove = entity.id;
+      idToRemove = entity.getId();
     }
 
-    return this.getTransport().destroy([this.getResource(), this.id, property, idToRemove].join('/'));
+    return this.getTransport().destroy([this.getResource(), this.getId(), property, idToRemove].join('/'));
   }
 
   /**
    * Persist the collections on the entity.
    *
-   * @return {Promise}
+   * @return {Promise} itself
    */
   saveCollections() {
     let tasks              = [];
@@ -324,13 +327,15 @@ export class Entity {
   /**
    * Mark this entity as clean, in its current state.
    *
-   * @return {Entity}
+   * @return {Entity} itself
+   * @chainable
    */
   markClean() {
     let cleanValues    = getFlat(this);
+
     this.__cleanValues = {
       checksum: JSON.stringify(cleanValues),
-      data: cleanValues
+      data    : cleanValues
     };
 
     return this;
@@ -364,6 +369,66 @@ export class Entity {
   }
 
   /**
+   * Resets the entity to the clean state
+   *
+   * @param {boolean} [shallow]
+   *
+   * @return {Entity} itself
+   */
+  reset(shallow) {
+    let pojo     = {};
+    let metadata = this.getMeta();
+
+    Object.keys(this).forEach(propertyName => {
+      let value       = this[propertyName];
+      let association = metadata.fetch('associations', propertyName);
+
+      // No meta data, no value or no association property: simple assignment.
+      if (!association || !value) {
+        pojo[propertyName] = value;
+
+        return;
+      }
+    });
+
+    if (this.isClean()) {
+      return this;
+    }
+
+    let isNew        = this.isNew();
+    let associations = this.getMeta().fetch('associations');
+
+    Object.keys(this).forEach(propertyName => {
+      if (Object.getOwnPropertyNames(associations).indexOf(propertyName) === -1) {
+        delete this[propertyName];
+      }
+    });
+
+    if (isNew) {
+      return this.markClean();
+    }
+
+    this.setData(this.__cleanValues.data.entity);
+
+    if (shallow) {
+      return this.markClean();
+    }
+
+    let collections = this.__cleanValues.data.collections;
+
+    Object.getOwnPropertyNames(collections).forEach(index => {
+      this[index] = [];
+      collections[index].forEach(entity => {
+        if (typeof entity === 'number') {
+          this[index].push(entity);
+        }
+      });
+    });
+
+    return this.markClean();
+  }
+
+  /**
    * Get the resource name of this entity's reference (static).
    *
    * @return {string|null}
@@ -386,7 +451,8 @@ export class Entity {
    *
    * @param {string} resource
    *
-   * @return {Entity} Fluent interface
+   * @return {Entity} itself
+   * @chainable
    */
   setResource(resource) {
     return this.define('__resource', resource);
@@ -399,12 +465,12 @@ export class Entity {
    *
    * @return {Promise}
    */
-  destroy(options) {
-    if (!this.id) {
+  destroy() {
+    if (!this.getId()) {
       throw new Error('Required value "id" missing on entity.');
     }
 
-    return this.getTransport().destroy(this.getResource(), this.id, options);
+    return this.getTransport().destroy(this.getResource(), this.getId());
   }
 
   /**
@@ -441,48 +507,44 @@ export class Entity {
    * Set data on this entity.
    *
    * @param {{}} data
-   * @return {Entity}
+   * @param {boolean} markClean
+   * @return {Entity} itself
+   * @chainable
    */
-  setData(data) {
+  setData(data, markClean) {
     Object.assign(this, data);
+
+    if (markClean) {
+      this.markClean();
+    }
 
     return this;
   }
 
   /**
-   * Enable validation for this entity.
+   * Set the validator instance.
    *
-   * @return {Entity}
-   *
-   * @throws {Error}
+   * @param {Validator} validator
+   * @return {Entity} itself
+   * @chainable
    */
-  enableValidation() {
-    if (!this.hasValidation()) {
-      throw new Error('Entity not marked as validated. Did you forget the @validation() decorator?');
-    }
+  setValidator(validator) {
+    this.define('__validator', validator);
 
-    if (this.__validation) {
-      return this;
-    }
-
-    return this.define('__validation', this.__validator.on(this));
+    return this;
   }
 
   /**
-   * Get the validation instance.
+   * Get the validator instance.
    *
-   * @return {Validation}
+   * @return {Validator}
    */
-  getValidation() {
+  getValidator() {
     if (!this.hasValidation()) {
       return null;
     }
 
-    if (!this.__validation) {
-      this.enableValidation();
-    }
-
-    return this.__validation;
+    return this.__validator;
   }
 
   /**
@@ -492,6 +554,25 @@ export class Entity {
    */
   hasValidation() {
     return !!this.getMeta().fetch('validation');
+  }
+
+  /**
+   * Validates the entity
+   *
+   * @param {string|null} propertyName Optional. The name of the property to validate. If unspecified,
+   * all properties will be validated.
+   * @param {Rule<*, *>[]|null} rules Optional. If unspecified, the rules will be looked up using
+   * the metadata for the object created by ValidationRules....on(class/object)
+   * @return {Promise<ValidationError[]>}
+   */
+  validate(propertyName, rules) {
+    // entities without validation are to be considered valid
+    if (!this.hasValidation()) {
+      return Promise.resolve([]);
+    }
+
+    return propertyName ? this.getValidator().validateProperty(this, propertyName, rules)
+                        : this.getValidator().validateObject(this, rules);
   }
 
   /**
@@ -571,6 +652,24 @@ function asObject(entity, shallow) {
         pojo[propertyName] = value;
         return;
       }
+
+      if (value instanceof Entity && value.getId()) {
+        pojo[propertyName] = value.getId();
+
+        return;
+      }
+
+      if (value instanceof Entity) {
+        pojo[propertyName] = value.asObject();
+
+        return;
+      }
+
+      if (['string', 'number', 'boolean'].indexOf(typeof value) > -1 || value.constructor === Object) {
+        pojo[propertyName] = value;
+
+        return;
+      }
     }
 
     // Array, treat children as potential entities.
@@ -594,7 +693,10 @@ function asObject(entity, shallow) {
         return;
       }
 
-      asObjects.push(childValue.asObject(shallow));
+      // If shallow, we don't handle toMany.
+      if (!shallow || (typeof childValue === 'object' && !childValue.getId())) {
+        asObjects.push(childValue.asObject(shallow));
+      }
     });
 
     // We don't send along empty arrays.
@@ -646,7 +748,6 @@ function getCollectionsCompact(forEntity, includeNew) {
     }
 
     collections[index] = [];
-
     if (!Array.isArray(forEntity[index])) {
       return;
     }
@@ -658,10 +759,20 @@ function getCollectionsCompact(forEntity, includeNew) {
         return;
       }
 
-      if (entity.id) {
-        collections[index].push(entity.id);
-      } else if (includeNew && entity instanceof Entity) {
+      if (!(entity instanceof Entity)) {
+        return;
+      }
+
+      if (entity.getId()) {
+        collections[index].push(entity.getId());
+
+        return;
+      }
+
+      if (includeNew) {
         collections[index].push(entity);
+
+        return;
       }
     });
   });
@@ -675,11 +786,11 @@ function getCollectionsCompact(forEntity, includeNew) {
  * @param {Entity}  entity
  * @param {boolean} [json]
  *
- * @return {{entity, collections}}
+ * @return {{}} {entity, collections}
  */
 function getFlat(entity, json) {
   let flat = {
-    entity: asObject(entity, true),
+    entity     : asObject(entity, true),
     collections: getCollectionsCompact(entity)
   };
 
