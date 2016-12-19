@@ -156,6 +156,7 @@ define(['exports', 'typer', 'aurelia-dependency-injection', 'aurelia-api', 'aure
       return findQuery.then(function (response) {
         if (_this.enableRootObjects) {
           var rootObject = collection ? _this.jsonRootObjectPlural : _this.jsonRootObjectSingle;
+
           response = response[rootObject];
         }
 
@@ -265,12 +266,14 @@ define(['exports', 'typer', 'aurelia-dependency-injection', 'aurelia-api', 'aure
         if ((typeof jsonRoot === 'undefined' ? 'undefined' : _typeof(jsonRoot)) === 'object') {
           return stringToCamelCase(jsonRoot.single);
         }
+
         return stringToCamelCase(jsonRoot.replace(/s$/, ''));
       }
     }, {
       key: 'jsonRootObjectPlural',
       get: function get() {
         var jsonRoot = this.getJsonRootObject();
+
         jsonRoot = (typeof jsonRoot === 'undefined' ? 'undefined' : _typeof(jsonRoot)) === 'object' ? jsonRoot.plural : jsonRoot;
 
         return stringToCamelCase(jsonRoot);
@@ -435,6 +438,7 @@ define(['exports', 'typer', 'aurelia-dependency-injection', 'aurelia-api', 'aure
 
       if (rootObject) {
         var bodyWithRoot = {};
+
         bodyWithRoot[repository.jsonRootObjectSingle] = requestBody;
         requestBody = bodyWithRoot;
       }
@@ -445,6 +449,7 @@ define(['exports', 'typer', 'aurelia-dependency-injection', 'aurelia-api', 'aure
 
       return this.getTransport().create(path, requestBody, options).then(function (created) {
         var data = rootObject ? created[repository.jsonRootObjectSingle] : created;
+
         _this4.setId(data[_this4.getIdProperty()]);
         response = data;
       }).then(function () {
@@ -475,6 +480,7 @@ define(['exports', 'typer', 'aurelia-dependency-injection', 'aurelia-api', 'aure
 
       if (rootObject) {
         var bodyWithRoot = {};
+
         bodyWithRoot[repository.jsonRootObjectSingle] = requestBody;
         requestBody = bodyWithRoot;
       }
@@ -487,6 +493,7 @@ define(['exports', 'typer', 'aurelia-dependency-injection', 'aurelia-api', 'aure
 
       return this.getTransport().update(path, this.getId(), requestBody, options).then(function (updated) {
         var data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
+
         response = data;
       }).then(function () {
         return _this5.saveCollections();
@@ -766,9 +773,11 @@ define(['exports', 'typer', 'aurelia-dependency-injection', 'aurelia-api', 'aure
       if (value && (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object') {
         if (typeMeta === 'datetime' && typeof value.toISOString === 'function') {
           pojo[propertyName] = value.toISOString();
+
           return;
         } else if (typeMeta === 'date' && typeof value.format === 'function') {
           pojo[propertyName] = value.format('YYYY-MM-DD');
+
           return;
         }
       }
@@ -782,17 +791,21 @@ define(['exports', 'typer', 'aurelia-dependency-injection', 'aurelia-api', 'aure
       if (shallow) {
         if (value.id && associationMeta.includeOnlyIds) {
           pojo[propertyName + 'Id'] = value.id;
+
           return;
         } else if (Array.isArray(value) && associationMeta.includeOnlyIds) {
           pojo[propertyName.replace(/s$/, '') + 'Ids'] = value.map(function (v) {
             return v.id;
           });
+
           return;
         } else if (value instanceof Entity) {
           pojo[propertyName] = value.asObject();
+
           return;
         } else if (['string', 'number', 'boolean'].indexOf(typeof value === 'undefined' ? 'undefined' : _typeof(value)) > -1 || value.constructor === Object) {
           pojo[propertyName] = value;
+
           return;
         }
 
