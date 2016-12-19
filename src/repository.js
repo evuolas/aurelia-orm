@@ -84,11 +84,13 @@ export class Repository {
     if (typeof jsonRoot === 'object') {
       return stringToCamelCase(jsonRoot.single);
     }
+
     return stringToCamelCase(jsonRoot.replace(/s$/, ''));
   }
 
   get jsonRootObjectPlural() {
     let jsonRoot = this.getJsonRootObject();
+
     jsonRoot = typeof jsonRoot === 'object' ? jsonRoot.plural : jsonRoot;
 
     return stringToCamelCase(jsonRoot);
@@ -149,6 +151,7 @@ export class Repository {
       .then(response => {
         if (this.enableRootObjects) {
           let rootObject = collection ? this.jsonRootObjectPlural : this.jsonRootObjectSingle;
+
           response = response[rootObject];
         }
 

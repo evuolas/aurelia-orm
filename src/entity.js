@@ -145,6 +145,7 @@ export class Entity {
 
     if (rootObject) {
       let bodyWithRoot = {};
+
       bodyWithRoot[repository.jsonRootObjectSingle] = requestBody;
       requestBody = bodyWithRoot;
     }
@@ -157,6 +158,7 @@ export class Entity {
       .create(path, requestBody, options)
       .then((created) => {
         const data = rootObject ? created[repository.jsonRootObjectSingle] : created;
+
         this.setId(data[this.getIdProperty()]);
         response = data;
       })
@@ -192,6 +194,7 @@ export class Entity {
 
     if (rootObject) {
       let bodyWithRoot = {};
+
       bodyWithRoot[repository.jsonRootObjectSingle] = requestBody;
       requestBody = bodyWithRoot;
     }
@@ -206,6 +209,7 @@ export class Entity {
       .update(path, this.getId(), requestBody, options)
       .then((updated) => {
         const data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
+
         response = data;
       })
       .then(() => this.saveCollections())
@@ -624,9 +628,11 @@ function asObject(entity, shallow) {
     if (value && typeof value === 'object') {
       if (typeMeta === 'datetime' && typeof value.toISOString === 'function') {
         pojo[propertyName] = value.toISOString();
+
         return;
       } else if (typeMeta === 'date' && typeof value.format === 'function') {
         pojo[propertyName] = value.format('YYYY-MM-DD');
+
         return;
       }
     }
@@ -641,15 +647,19 @@ function asObject(entity, shallow) {
     if (shallow) {
       if (value.id && associationMeta.includeOnlyIds) {
         pojo[`${propertyName}Id`] = value.id;
+
         return;
       } else if (Array.isArray(value) && associationMeta.includeOnlyIds) {
         pojo[`${propertyName.replace(/s$/, '')}Ids`] = value.map(v => v.id);
+
         return;
       } else if (value instanceof Entity) {
         pojo[propertyName] = value.asObject();
+
         return;
       } else if (['string', 'number', 'boolean'].indexOf(typeof value) > -1 || value.constructor === Object) {
         pojo[propertyName] = value;
+
         return;
       }
 
