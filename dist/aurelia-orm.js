@@ -1,299 +1,41 @@
 import typer from 'typer';
-import {inject,transient,Container} from 'aurelia-dependency-injection';
-import {Config} from 'aurelia-api';
-import {metadata} from 'aurelia-metadata';
-import {Validator,ValidationRules} from 'aurelia-validation';
+import getProp from 'get-prop';
 import {getLogger} from 'aurelia-logging';
+import {ValidationRules,Validator} from 'aurelia-validation';
+import {transient,Container,inject} from 'aurelia-dependency-injection';
+import {metadata} from 'aurelia-metadata';
+import {Config} from 'aurelia-api';
+import {bindingMode,BindingEngine} from 'aurelia-binding';
+import {bindable,customElement} from 'aurelia-templating';
 
-import {AssociationSelect} from './component/association-select';
-import {Paged} from './component/paged';
-
-export function stringToCamelCase(str) {
-  return str.replace(/(_\w)/g, function(m) {
-    return m[1].toUpperCase();
-  });
-}
+// added for bundling
+// eslint-disable-line no-unused-vars
+// eslint-disable-line no-unused-vars
 
 /**
- * The Repository basis class
+ * Plugin configure
+ *
+ * @export
+ * @param {*} frameworkConfig
+ * @param {*} configCallback
  */
-@inject(Config)
-export class Repository {
-  enableRootObjects = true;
-  transport = null;
+export function configure(frameworkConfig, configCallback) {
+  // add hasAssociation custom validation rule
+  ValidationRules.customRule(
+    'hasAssociation',
+    value => !!((value instanceof Entity && typeof value.id === 'number') || typeof value === 'number'),
+    `\${$displayName} must be an association.`    // eslint-disable-line quotes
+  );
 
-  /**
-   * Construct.
-   *
-   * @param {Config} clientConfig
-   *
-   * @constructor
-   */
-  constructor(clientConfig) {
-    this.clientConfig = clientConfig;
-  }
+  let entityManagerInstance = frameworkConfig.container.get(EntityManager);
 
-  /**
-   * Get the transport for the resource this repository represents.
-   *
-   * @return {Rest}
-   */
-  getTransport() {
-    if (this.transport === null) {
-      this.transport = this.clientConfig.getEndpoint(this.getMeta().fetch('endpoint'));
+  configCallback(entityManagerInstance);
 
-      if (!this.transport) {
-        throw new Error(`No transport found for '${this.getMeta().fetch('endpoint') || 'default'}'.`);
-      }
-    }
-
-    return this.transport;
-  }
-
-  /**
-   * Set the associated entity's meta data
-   *
-   * @param {{}} meta
-   */
-  setMeta(meta) {
-    this.meta = meta;
-  }
-
-  /**
-   * Get the associated entity's meta data.
-   * @return {{}}
-   */
-  getMeta() {
-    return this.meta;
-  }
-
-  /**
-   * Set the resource
-   *
-   * @param {string} resource
-   * @return {Repository} this
-   * @chainable
-   */
-  setResource(resource) {
-    this.resource = resource;
-
-    return this;
-  }
-
-  /**
-   * Get the resource
-   *
-   * @return {string|null}
-   */
-  getResource() {
-    return this.resource;
-  }
-
-  get jsonRootObjectSingle() {
-    const jsonRoot = this.getJsonRootObject();
-
-    if (typeof jsonRoot === 'object') {
-      return stringToCamelCase(jsonRoot.single);
-    }
-
-    return stringToCamelCase(jsonRoot.replace(/s$/, ''));
-  }
-
-  get jsonRootObjectPlural() {
-    let jsonRoot = this.getJsonRootObject();
-
-    jsonRoot = typeof jsonRoot === 'object' ? jsonRoot.plural : jsonRoot;
-
-    return stringToCamelCase(jsonRoot);
-  }
-
-  getJsonRootObject() {
-    let entity   = this.getNewEntity();
-    let jsonRoot = entity.getMeta().fetch('jsonRoot');
-
-    return jsonRoot ? jsonRoot : this.resource;
-  }
-
-  /**
-   * Perform a find query and populate entities with the retrieved data.
-   *
-   * @param {{}|number|string} criteria Criteria to add to the query. A plain string or number will be used as relative path.
-   * @param {boolean}          [raw]    Set to true to get a POJO in stead of populated entities.
-   * @param {{}}               [options] Extra fetch options.
-   *
-   * @return {Promise<Entity|[Entity]>}
-   */
-  find(criteria, raw, options) {
-    return this.findPath(this.resource, criteria, raw, false, options);
-  }
-
-  /**
-   * Perform a search query.
-   *
-   * @param {null|{}|Number} criteria  Criteria to add to the query.
-   * @param {boolean}        [raw]     Set to true to get a POJO in stead of populated entities.
-   * @param {{}}             [options] Extra fetch options.
-   *
-   * @return {Promise}
-   */
-  search(criteria, raw, options) {
-    return this.findPath(this.resource, criteria, raw, true, options);
-  }
-
-  /**
-   * Perform a find query for `path` and populate entities with the retrieved data.
-   *
-   * @param {string}           path
-   * @param {{}|number|string} criteria     Criteria to add to the query. A plain string or number will be used as relative path.
-   * @param {boolean}          [raw]        Set to true to get a POJO in stead of populated entities.
-   * @param {boolean}          [collection] Set to true if you except result contain collection.
-   * @param {{}}               [options]    Extra fetch options.
-   *
-   * @return {Promise<Entity|[Entity]>}
-   */
-  findPath(path, criteria, raw, collection = false, options = {}) {
-    let findQuery = this.getTransport().find(path, criteria, options);
-
-    if (raw) {
-      return findQuery;
-    }
-
-    return findQuery
-      .then(response => {
-        if (this.enableRootObjects) {
-          let rootObject = collection ? this.jsonRootObjectPlural : this.jsonRootObjectSingle;
-
-          response = response[rootObject];
-        }
-
-        return this.populateEntities(response);
-      })
-      .then(populated => {
-        if (!populated) {
-          return null;
-        }
-
-        if (!Array.isArray(populated)) {
-          return populated.markClean();
-        }
-
-        populated.forEach(entity => entity.markClean());
-
-        return populated;
-      });
-  }
-
-  /**
-   * Perform a count on the resource.
-   *
-   * @param {null|{}} criteria
-   *
-   * @return {Promise<number>}
-   */
-  count(criteria) {
-    return this.getTransport().find(this.resource + '/count', criteria);
-  }
-
-  /**
-   * Get new populated entity or entities based on supplied data including associations
-   *
-   * @param {{}|[{}]} data|[data] The data to populate with
-   *
-   * @return {Entity|[Entity]}
-   */
-  populateEntities(data) {
-    if (!data) {
-      return null;
-    }
-
-    if (!Array.isArray(data)) {
-      return this.getPopulatedEntity(data);
-    }
-
-    let collection = [];
-
-    data.forEach(source => {
-      collection.push(this.getPopulatedEntity(source));
-    });
-
-    return collection;
-  }
-
-  /**
-   * Populate a (new) entity including associations
-   *
-   * @param {{}}     data The data to populate with
-   * @param {Entity} [entity] optional. if not set, a new entity is returned
-   *
-   * @return {Entity}
-   */
-  getPopulatedEntity(data, entity) {
-    entity             = entity || this.getNewEntity();
-    let entityMetadata = entity.getMeta();
-    let populatedData  = {};
-    let key;
-
-    for (key in data) {
-      if (!data.hasOwnProperty(key)) {
-        continue;
-      }
-
-      let value = data[key];
-
-      if (entityMetadata.has('types', key)) {
-        populatedData[key] = typer.cast(value, entityMetadata.fetch('types', key));
-
-        continue;
-      }
-
-      if (!entityMetadata.has('associations', key) || typeof value !== 'object') {
-        // Not an association, or not an object. clean copy.
-        populatedData[key] = value;
-
-        continue;
-      }
-
-      let repository = this.entityManager.getRepository(entityMetadata.fetch('associations', key).entity);
-
-      populatedData[key] = repository.populateEntities(value);
-    }
-
-    return entity.setData(populatedData);
-  }
-
-  /**
-   * Get a new instance for entityReference.
-   *
-   * @return {Entity}
-   */
-  getNewEntity() {
-    return this.entityManager.getEntity(this.resource);
-  }
-
-  /**
-   * Populate a new entity with the empty associations set.
-   *
-   * @return {Entity}
-   */
-  getNewPopulatedEntity() {
-    let entity       = this.getNewEntity();
-    let associations = entity.getMeta().fetch('associations');
-
-    for (let property in associations) {
-      if (associations.hasOwnProperty(property)) {
-        let assocMeta = associations[property];
-
-        if (assocMeta.type !== 'entity' || !assocMeta.populateOnCreate) {
-          continue;
-        }
-
-        entity[property] = this.entityManager.getRepository(assocMeta.entity).getNewEntity();
-      }
-    }
-
-    return entity;
-  }
+  frameworkConfig.globalResources('./component/association-select');
+  frameworkConfig.globalResources('./component/paged');
 }
+
+export const logger = getLogger('aurelia-orm');
 
 /**
  * The DefaultRepository class
@@ -303,115 +45,153 @@ export class Repository {
 export class DefaultRepository extends Repository {
 }
 
-export class OrmMetadata {
-  static forTarget(target) {
-    return metadata.getOrCreateOwn(Metadata.key, Metadata, target, target.name);
-  }
-}
-
 /**
- * The MetaData class for Entity and Repository
- *
+ * The EntityManager class
  */
-export class Metadata {
-  // The key used to identify this specific metadata
-  static key = 'spoonx:orm:metadata';
+@inject(Container)
+export class EntityManager {
+  repositories = {};
+  entities     = {};
 
   /**
-   * Construct metadata with sensible defaults (so we can make assumptions in the code).
+   * Construct a new EntityManager.
+   *
+   * @param {Container} container
    */
-  constructor() {
-    this.metadata = {
-      repository  : DefaultRepository,
-      resource    : null,
-      endpoint    : null,
-      name        : null,
-      idProperty  : 'id',
-      associations: {}
-    };
+  constructor(container) {
+    this.container = container;
   }
 
   /**
-   * Add a value to an array.
+   * Register an array of entity classes.
    *
-   * @param {string} key
-   * @param {*} value
+   * @param {function[]|function} EntityClasses Array or object of Entity constructors.
    *
-   * @return {Metadata} itself
+   * @return {EntityManager} itself
    * @chainable
-*/
-  addTo(key, value) {
-    if (typeof this.metadata[key] === 'undefined') {
-      this.metadata[key] = [];
-    } else if (!Array.isArray(this.metadata[key])) {
-      this.metadata[key] = [this.metadata[key]];
+   */
+  registerEntities(EntityClasses) {
+    for (let property in EntityClasses) {
+      if (EntityClasses.hasOwnProperty(property)) {
+        this.registerEntity(EntityClasses[property]);
+      }
     }
-
-    this.metadata[key].push(value);
 
     return this;
   }
 
   /**
-   * Set a value for key, or one level deeper (key.key).
+   * Register an Entity class.
    *
-   * @param {string} key
-   * @param {string|*} valueOrNestedKey
-   * @param {null|*} [valueOrNull]
+   * @param {function} EntityClass
    *
-   * @return {Metadata} itself
+   * @return {EntityManager} itself
    * @chainable
    */
-  put(key, valueOrNestedKey, valueOrNull) {
-    if (!valueOrNull) {
-      this.metadata[key] = valueOrNestedKey;
-
-      return this;
-    }
-
-    if (typeof this.metadata[key] !== 'object') {
-      this.metadata[key] = {};
-    }
-
-    this.metadata[key][valueOrNestedKey] = valueOrNull;
+  registerEntity(EntityClass) {
+    this.entities[OrmMetadata.forTarget(EntityClass).fetch('resource')] = EntityClass;
 
     return this;
   }
 
   /**
-   * Check if key, or key.nested exists.
+   * Get a repository instance.
    *
-   * @param {string} key
-   * @param {string} [nested]
+   * @param {Entity|string} entity
    *
-   * @return {boolean}
+   * @return {Repository}
+   * @throws {Error}
    */
-  has(key, nested) {
-    if (typeof nested === 'undefined') {
-      return typeof this.metadata[key] !== 'undefined';
+  getRepository(entity) {
+    let reference = this.resolveEntityReference(entity);
+    let resource  = entity;
+
+    if (typeof reference.getResource === 'function') {
+      resource = reference.getResource() || resource;
     }
 
-    return typeof this.metadata[key] !== 'undefined' && typeof this.metadata[key][nested] !== 'undefined';
+    if (typeof resource !== 'string') {
+      throw new Error('Unable to find resource for entity.');
+    }
+
+    // Cached instance available. Return.
+    if (this.repositories[resource]) {
+      return this.repositories[resource];
+    }
+
+    // Get instance of repository
+    let metaData   = OrmMetadata.forTarget(reference);
+    let repository = metaData.fetch('repository');
+    let instance   = this.container.get(repository);
+
+    // Already setup instance? Return.
+    if (instance.meta && instance.resource && instance.entityManager) {
+      return instance;
+    }
+
+    // Tell the repository instance what resource it should use.
+    instance.setMeta(metaData);
+    instance.resource      = resource;
+    instance.entityManager = this;
+
+    if (instance instanceof DefaultRepository) {
+      // This is a default repository. We'll cache this instance.
+      this.repositories[resource] = instance;
+    }
+
+    return instance;
   }
 
   /**
-   * Fetch key or key.nested from metadata.
+   * Resolve given resource value to an entityReference
    *
-   * @param {string} key
-   * @param {string} [nested]
+   * @param {Entity|string} resource
    *
-   * @return {*}
+   * @return {Entity}
+   * @throws {Error}
    */
-  fetch(key, nested) {
-    if (!nested) {
-      return this.has(key) ? this.metadata[key] : null;
+  resolveEntityReference(resource) {
+    let entityReference = resource;
+
+    if (typeof resource === 'string') {
+      entityReference = this.entities[resource] || Entity;
     }
 
-    if (!this.has(key, nested)) {
-      return null;
+    if (typeof entityReference === 'function') {
+      return entityReference;
     }
 
-    return this.metadata[key][nested];
+    throw new Error('Unable to resolve to entity reference. Expected string or function.');
+  }
+
+  /**
+   * Get an instance for `entity`
+   *
+   * @param {string|Entity} entity
+   *
+   * @return {Entity}
+   */
+  getEntity(entity) {
+    let reference = this.resolveEntityReference(entity);
+    let instance  = this.container.get(reference);
+    let resource  = reference.getResource();
+
+    if (!resource) {
+      if (typeof entity !== 'string') {
+        throw new Error('Unable to find resource for entity.');
+      }
+
+      resource = entity;
+    }
+
+    // Set the validator.
+    if (instance.hasValidation() && !(instance.getValidator())) {
+      let validator = this.container.get(OrmMetadata.forTarget(reference).fetch('validation'));
+
+      instance.setValidator(validator);
+    }
+
+    return instance.setResource(resource).setRepository(this.getRepository(resource));
   }
 }
 
@@ -1219,6 +999,880 @@ function getPropertyForAssociation(forEntity, entity) {
   })[0];
 }
 
+export class OrmMetadata {
+  static forTarget(target) {
+    return metadata.getOrCreateOwn(Metadata.key, Metadata, target, target.name);
+  }
+}
+
+/**
+ * The MetaData class for Entity and Repository
+ *
+ */
+export class Metadata {
+  // The key used to identify this specific metadata
+  static key = 'spoonx:orm:metadata';
+
+  /**
+   * Construct metadata with sensible defaults (so we can make assumptions in the code).
+   */
+  constructor() {
+    this.metadata = {
+      repository  : DefaultRepository,
+      resource    : null,
+      endpoint    : null,
+      name        : null,
+      idProperty  : 'id',
+      associations: {}
+    };
+  }
+
+  /**
+   * Add a value to an array.
+   *
+   * @param {string} key
+   * @param {*} value
+   *
+   * @return {Metadata} itself
+   * @chainable
+*/
+  addTo(key, value) {
+    if (typeof this.metadata[key] === 'undefined') {
+      this.metadata[key] = [];
+    } else if (!Array.isArray(this.metadata[key])) {
+      this.metadata[key] = [this.metadata[key]];
+    }
+
+    this.metadata[key].push(value);
+
+    return this;
+  }
+
+  /**
+   * Set a value for key, or one level deeper (key.key).
+   *
+   * @param {string} key
+   * @param {string|*} valueOrNestedKey
+   * @param {null|*} [valueOrNull]
+   *
+   * @return {Metadata} itself
+   * @chainable
+   */
+  put(key, valueOrNestedKey, valueOrNull) {
+    if (!valueOrNull) {
+      this.metadata[key] = valueOrNestedKey;
+
+      return this;
+    }
+
+    if (typeof this.metadata[key] !== 'object') {
+      this.metadata[key] = {};
+    }
+
+    this.metadata[key][valueOrNestedKey] = valueOrNull;
+
+    return this;
+  }
+
+  /**
+   * Check if key, or key.nested exists.
+   *
+   * @param {string} key
+   * @param {string} [nested]
+   *
+   * @return {boolean}
+   */
+  has(key, nested) {
+    if (typeof nested === 'undefined') {
+      return typeof this.metadata[key] !== 'undefined';
+    }
+
+    return typeof this.metadata[key] !== 'undefined' && typeof this.metadata[key][nested] !== 'undefined';
+  }
+
+  /**
+   * Fetch key or key.nested from metadata.
+   *
+   * @param {string} key
+   * @param {string} [nested]
+   *
+   * @return {*}
+   */
+  fetch(key, nested) {
+    if (!nested) {
+      return this.has(key) ? this.metadata[key] : null;
+    }
+
+    if (!this.has(key, nested)) {
+      return null;
+    }
+
+    return this.metadata[key][nested];
+  }
+}
+
+/**
+ * The Repository basis class
+ */
+@inject(Config)
+export class Repository {
+  enableRootObjects = true;
+  transport = null;
+
+  /**
+   * Construct.
+   *
+   * @param {Config} clientConfig
+   *
+   * @constructor
+   */
+  constructor(clientConfig) {
+    this.clientConfig = clientConfig;
+  }
+
+  /**
+   * Get the transport for the resource this repository represents.
+   *
+   * @return {Rest}
+   */
+  getTransport() {
+    if (this.transport === null) {
+      this.transport = this.clientConfig.getEndpoint(this.getMeta().fetch('endpoint'));
+
+      if (!this.transport) {
+        throw new Error(`No transport found for '${this.getMeta().fetch('endpoint') || 'default'}'.`);
+      }
+    }
+
+    return this.transport;
+  }
+
+  /**
+   * Set the associated entity's meta data
+   *
+   * @param {{}} meta
+   */
+  setMeta(meta) {
+    this.meta = meta;
+  }
+
+  /**
+   * Get the associated entity's meta data.
+   * @return {{}}
+   */
+  getMeta() {
+    return this.meta;
+  }
+
+  /**
+   * Set the resource
+   *
+   * @param {string} resource
+   * @return {Repository} this
+   * @chainable
+   */
+  setResource(resource) {
+    this.resource = resource;
+
+    return this;
+  }
+
+  /**
+   * Get the resource
+   *
+   * @return {string|null}
+   */
+  getResource() {
+    return this.resource;
+  }
+
+  get jsonRootObjectSingle() {
+    const jsonRoot = this.getJsonRootObject();
+
+    if (typeof jsonRoot === 'object') {
+      return stringToCamelCase(jsonRoot.single);
+    }
+
+    return stringToCamelCase(jsonRoot.replace(/s$/, ''));
+  }
+
+  get jsonRootObjectPlural() {
+    let jsonRoot = this.getJsonRootObject();
+
+    jsonRoot = typeof jsonRoot === 'object' ? jsonRoot.plural : jsonRoot;
+
+    return stringToCamelCase(jsonRoot);
+  }
+
+  getJsonRootObject() {
+    let entity   = this.getNewEntity();
+    let jsonRoot = entity.getMeta().fetch('jsonRoot');
+
+    return jsonRoot ? jsonRoot : this.resource;
+  }
+
+  /**
+   * Perform a find query and populate entities with the retrieved data.
+   *
+   * @param {{}|number|string} criteria Criteria to add to the query. A plain string or number will be used as relative path.
+   * @param {boolean}          [raw]    Set to true to get a POJO in stead of populated entities.
+   * @param {{}}               [options] Extra fetch options.
+   *
+   * @return {Promise<Entity|[Entity]>}
+   */
+  find(criteria, raw, options) {
+    return this.findPath(this.resource, criteria, raw, false, options);
+  }
+
+  /**
+   * Perform a search query.
+   *
+   * @param {null|{}|Number} criteria  Criteria to add to the query.
+   * @param {boolean}        [raw]     Set to true to get a POJO in stead of populated entities.
+   * @param {{}}             [options] Extra fetch options.
+   *
+   * @return {Promise}
+   */
+  search(criteria, raw, options) {
+    return this.findPath(this.resource, criteria, raw, true, options);
+  }
+
+  /**
+   * Perform a find query for `path` and populate entities with the retrieved data.
+   *
+   * @param {string}           path
+   * @param {{}|number|string} criteria     Criteria to add to the query. A plain string or number will be used as relative path.
+   * @param {boolean}          [raw]        Set to true to get a POJO in stead of populated entities.
+   * @param {boolean}          [collection] Set to true if you except result contain collection.
+   * @param {{}}               [options]    Extra fetch options.
+   *
+   * @return {Promise<Entity|[Entity]>}
+   */
+  findPath(path, criteria, raw, collection = false, options = {}) {
+    let findQuery = this.getTransport().find(path, criteria, options);
+
+    if (raw) {
+      return findQuery;
+    }
+
+    return findQuery
+      .then(response => {
+        if (this.enableRootObjects) {
+          let rootObject = collection ? this.jsonRootObjectPlural : this.jsonRootObjectSingle;
+
+          response = response[rootObject];
+        }
+
+        return this.populateEntities(response);
+      })
+      .then(populated => {
+        if (!populated) {
+          return null;
+        }
+
+        if (!Array.isArray(populated)) {
+          return populated.markClean();
+        }
+
+        populated.forEach(entity => entity.markClean());
+
+        return populated;
+      });
+  }
+
+  /**
+   * Perform a count on the resource.
+   *
+   * @param {null|{}} criteria
+   *
+   * @return {Promise<number>}
+   */
+  count(criteria) {
+    return this.getTransport().find(this.resource + '/count', criteria);
+  }
+
+  /**
+   * Get new populated entity or entities based on supplied data including associations
+   *
+   * @param {{}|[{}]} data|[data] The data to populate with
+   *
+   * @return {Entity|[Entity]}
+   */
+  populateEntities(data) {
+    if (!data) {
+      return null;
+    }
+
+    if (!Array.isArray(data)) {
+      return this.getPopulatedEntity(data);
+    }
+
+    let collection = [];
+
+    data.forEach(source => {
+      collection.push(this.getPopulatedEntity(source));
+    });
+
+    return collection;
+  }
+
+  /**
+   * Populate a (new) entity including associations
+   *
+   * @param {{}}     data The data to populate with
+   * @param {Entity} [entity] optional. if not set, a new entity is returned
+   *
+   * @return {Entity}
+   */
+  getPopulatedEntity(data, entity) {
+    entity             = entity || this.getNewEntity();
+    let entityMetadata = entity.getMeta();
+    let populatedData  = {};
+    let key;
+
+    for (key in data) {
+      if (!data.hasOwnProperty(key)) {
+        continue;
+      }
+
+      let value = data[key];
+
+      if (entityMetadata.has('types', key)) {
+        populatedData[key] = typer.cast(value, entityMetadata.fetch('types', key));
+
+        continue;
+      }
+
+      if (!entityMetadata.has('associations', key) || typeof value !== 'object') {
+        // Not an association, or not an object. clean copy.
+        populatedData[key] = value;
+
+        continue;
+      }
+
+      let repository = this.entityManager.getRepository(entityMetadata.fetch('associations', key).entity);
+
+      populatedData[key] = repository.populateEntities(value);
+    }
+
+    return entity.setData(populatedData);
+  }
+
+  /**
+   * Get a new instance for entityReference.
+   *
+   * @return {Entity}
+   */
+  getNewEntity() {
+    return this.entityManager.getEntity(this.resource);
+  }
+
+  /**
+   * Populate a new entity with the empty associations set.
+   *
+   * @return {Entity}
+   */
+  getNewPopulatedEntity() {
+    let entity       = this.getNewEntity();
+    let associations = entity.getMeta().fetch('associations');
+
+    for (let property in associations) {
+      if (associations.hasOwnProperty(property)) {
+        let assocMeta = associations[property];
+
+        if (assocMeta.type !== 'entity' || !assocMeta.populateOnCreate) {
+          continue;
+        }
+
+        entity[property] = this.entityManager.getRepository(assocMeta.entity).getNewEntity();
+      }
+    }
+
+    return entity;
+  }
+}
+
+export function stringToCamelCase(str) {
+  return str.replace(/(_\w)/g, function(m) {
+    return m[1].toUpperCase();
+  });
+}
+
+@customElement('association-select')
+@inject(BindingEngine, EntityManager, Element)
+export class AssociationSelect {
+  @bindable criteria;
+
+  @bindable repository;
+
+  @bindable identifier = 'id';
+
+  @bindable property = 'name';
+
+  @bindable resource;
+
+  @bindable options;
+
+  @bindable association;
+
+  @bindable manyAssociation;
+
+  @bindable({defaultBindingMode: bindingMode.twoWay}) value;
+
+  @bindable({defaultBindingMode: bindingMode.twoWay}) error;
+
+  @bindable multiple = false;
+
+  @bindable hidePlaceholder = false;
+
+  @bindable selectablePlaceholder = false;
+
+  @bindable placeholderText;
+
+  matcher = (a, b) => a && b && a.id === b.id;
+
+  ownMeta;
+
+  /**
+   * Create a new select element.
+   *
+   * @param {BindingEngine} bindingEngine
+   * @param {EntityManager} entityManager
+   */
+  constructor(bindingEngine, entityManager) {
+    this._subscriptions = [];
+    this.bindingEngine  = bindingEngine;
+    this.entityManager  = entityManager;
+  }
+
+  /**
+   * (Re)Load the data for the select.
+   *
+   * @param {string|Array|{}} [reservedValue]
+   *
+   * @return {Promise}
+   */
+  load(reservedValue) {
+    return this.buildFind()
+      .then(options => {
+        let result   = options;
+
+        this.options = Array.isArray(result) ? result : [result];
+
+        this.setValue(reservedValue);
+      });
+  }
+
+  /**
+   * Set the value for the select.
+   *
+   * @param {string|Array|{}} value
+   */
+  setValue(value) {
+    if (!value) {
+      return;
+    }
+
+    if (!Array.isArray(value)) {
+      this.value = (typeof value === 'object') ? getProp(value, this.identifier) : value;
+
+      return;
+    }
+
+    let selectedValues = [];
+
+    value.forEach(selected => {
+      selectedValues.push(selected instanceof Entity ? selected.getId() : selected);
+    });
+
+    this.value = selectedValues;
+  }
+
+  /**
+   * Get criteria, or default to empty object.
+   *
+   * @return {{}}
+   */
+  getCriteria() {
+    if (typeof this.criteria !== 'object') {
+      return {};
+    }
+
+    return JSON.parse(JSON.stringify(this.criteria || {}));
+  }
+
+  /**
+   * Build the find that's going to fetch the option values for the select.
+   * This method works well with associations, and reloads when they change.
+   *
+   * @return {Promise}
+   */
+  buildFind() {
+    let repository    = this.repository;
+    let criteria      = this.getCriteria();
+    let findPath      = repository.getResource();
+
+    criteria.populate = false;
+
+    // Check if there are `many` associations. If so, the repository find path changes.
+    // the path will become `/:association/:id/:entity`.
+    if (this.manyAssociation) {
+      let assoc = this.manyAssociation;
+
+      // When disabling populate here, the API won't return any data.
+      delete criteria.populate;
+
+      findPath = `${assoc.getResource()}/${assoc.getId()}/${findPath}`;
+    } else if (this.association) {
+      let associations = Array.isArray(this.association) ? this.association : [this.association];
+
+      associations.forEach(association => {
+        criteria[this.propertyForResource(this.ownMeta, association.getResource())] = association.getId();
+      });
+    }
+
+    return repository.findPath(findPath, criteria, false, true)
+      .catch(error => {
+        this.error = error;
+
+        return error;
+      });
+  }
+
+  /**
+   * Check if all associations have values set.
+   *
+   * @return {boolean}
+   */
+  verifyAssociationValues() {
+    if (this.manyAssociation) {
+      return !!this.manyAssociation.getId();
+    }
+
+    if (this.association) {
+      let associations = Array.isArray(this.association) ? this.association : [this.association];
+
+      return !associations.some(association => {
+        return !association.getId();
+      });
+    }
+
+    return true;
+  }
+
+  /**
+   * Add a watcher to the list. Whenever given association changes, the select will reload its contents.
+   *
+   * @param {Entity|Array} association Entity or array of Entity instances.
+   *
+   * @return {AssociationSelect}
+   */
+  observe(association) {
+    if (Array.isArray(association)) {
+      association.forEach(assoc => this.observe(assoc));
+
+      return this;
+    }
+
+    this._subscriptions.push(this.bindingEngine.propertyObserver(association, association.getIdProperty()).subscribe(() => {
+      if (this.verifyAssociationValues()) {
+        return this.load();
+      }
+
+      this.options = undefined;
+
+      return Promise.resolve();
+    }));
+
+    return this;
+  }
+
+  /**
+   * Check if the element property has changed
+   *
+   * @param  {string}      property
+   * @param  {string|{}}   newVal
+   * @param  {string|{}}   oldVal
+   *
+   * @return {boolean}
+   */
+  isChanged(property, newVal, oldVal) {
+    return !this[property] || !newVal || (newVal === oldVal);
+  }
+
+  /**
+   * Changed resource handler
+   *
+   * @param  {string} resource
+   */
+  resourceChanged(resource) {
+    if (!resource) {
+      logger.error(`resource is ${typeof resource}. It should be a string or a reference`);
+    }
+
+    this.repository = this.entityManager.getRepository(resource);
+  }
+
+  /**
+   * Changed criteria handler
+   *
+   * @param  {{}} newVal
+   * @param  {{}} oldVal
+   */
+  criteriaChanged(newVal, oldVal) {
+    if (this.isChanged('criteria', newVal, oldVal)) {
+      return;
+    }
+
+    if (this.value) {
+      this.load(this.value);
+    }
+  }
+
+  /**
+   * When attached to the DOM, initialize the component.
+   */
+  attached() {
+    if (!this.association && !this.manyAssociation) {
+      this.load(this.value);
+
+      return;
+    }
+
+    this.ownMeta = OrmMetadata.forTarget(this.entityManager.resolveEntityReference(this.repository.getResource()));
+
+    if (this.manyAssociation) {
+      this.observe(this.manyAssociation);
+    }
+
+    if (this.association) {
+      this.observe(this.association);
+    }
+
+    if (this.value) {
+      this.load(this.value);
+    }
+  }
+
+  /**
+   * Find the name of the property in meta, reversed by resource.
+   *
+   * @param {Metadata} meta
+   * @param {string}   resource
+   *
+   * @return {string}
+   */
+  propertyForResource(meta, resource) {
+    let associations = meta.fetch('associations');
+
+    return Object.keys(associations).filter(key => {
+      return associations[key].entity === resource;
+    })[0];
+  }
+
+  /**
+   * Dispose all subscriptions on unbind.
+   */
+  unbind() {
+    this._subscriptions.forEach(subscription => subscription.dispose());
+  }
+}
+
+@customElement('paged')
+export class Paged {
+
+  // https://github.com/aurelia/templating/issues/73, you still had to set `data` on .two-way when global
+  @bindable({defaultBindingMode: bindingMode.twoWay}) data = [];
+  @bindable({defaultBindingMode: bindingMode.twoWay}) page = 1;
+  @bindable({defaultBindingMode: bindingMode.twoWay}) error;
+  @bindable criteria
+  @bindable repository                                     = null;
+  @bindable resource
+  @bindable limit                                          = 30;
+
+  /**
+   * Attach to view
+   */
+  attached() {
+    if (!this.page) {
+      this.page = 1;
+    }
+
+    if (!this.criteria) {
+      this.criteria = {};
+    }
+
+    this.reloadData();
+  }
+
+  /**
+   * Reload data
+   */
+  reloadData() {
+    this.getData();
+  }
+
+  /**
+   * Check if the element property has changed
+   *
+   * @param  {string}      property New element property
+   * @param  {string|{}}   newVal New value
+   * @param  {string|{}}   oldVal Old value
+   *
+   * @return {boolean}
+   */
+  isChanged(property, newVal, oldVal) {
+    return !this[property] || !newVal || (newVal === oldVal);
+  }
+
+  /**
+   * Changed page handler
+   *
+   * @param  {integer} newVal New page value
+   * @param  {integer} oldVal Old page value
+   */
+  pageChanged(newVal, oldVal) {
+    if (this.isChanged('resource', newVal, oldVal)
+      || this.isChanged('criteria', newVal, oldVal)
+    ) {
+      return;
+    }
+
+    this.reloadData();
+  }
+
+  /**
+   * Changed resource handler
+   *
+   * @param  {{}} newVal New resource value
+   * @param  {{}} oldVal Old resource value
+   */
+  resourceChanged(newVal, oldVal) {
+    if (this.isChanged('resource', newVal, oldVal)) {
+      return;
+    }
+
+    this.reloadData();
+  }
+
+  /**
+   * Changed criteria handler
+   *
+   * @param  {{}} newVal New criteria value
+   * @param  {{}} oldVal Old criteria value
+   */
+  criteriaChanged(newVal, oldVal) {
+    if (this.isChanged('criteria', newVal, oldVal)) {
+      return;
+    }
+
+    this.reloadData();
+  }
+
+  /**
+   * Changed resource handler
+   *
+   * @param  {string} resource New resource value
+   */
+  resourceChanged(resource) {
+    if (!resource) {
+      logger.error(`resource is ${typeof resource}. It should be a string or a reference`);
+    }
+
+    this.repository = this.entityManager.getRepository(resource);
+  }
+
+  /**
+   * Get data from repository
+   */
+  getData() {
+    let criteria = JSON.parse(JSON.stringify(this.criteria));
+
+    criteria.skip  = (this.page * this.limit) - this.limit;
+    criteria.limit = this.limit;
+    this.error     = null;
+
+    this.repository.find(criteria, true)
+      .then(result => {
+        this.data = result;
+      })
+      .catch(error => {
+        this.error = error;
+      });
+  }
+}
+
+/**
+ * Associate a property with an entity (toOne) or a collection (toMany)
+ *
+ * @param {undefined|string|{}} associationData undefined={entity:propertyName}, string={entity:string}, Object={entity: string, collection: string}
+ *
+ * @return {function}
+ *
+ * @decorator
+ */
+export function association(associationData) {
+  return function(target, propertyName, descriptor) {
+    ensurePropertyIsConfigurable(target, propertyName, descriptor);
+
+    if (!associationData) {
+      associationData = {entity: propertyName};
+    } else if (typeof associationData === 'string') {
+      associationData = {entity: associationData};
+    }
+
+    OrmMetadata.forTarget(target.constructor).put('associations', propertyName, {
+      type            : associationData.entity ? 'entity' : 'collection',
+      entity          : associationData.entity || associationData.collection,
+      includeOnlyIds  : associationData.hasOwnProperty('includeOnlyIds') ? associationData.includeOnlyIds : true,
+      ignoreOnSave    : associationData.hasOwnProperty('ignoreOnSave') ? associationData.ignoreOnSave : false,
+      populateOnCreate: associationData.hasOwnProperty('populateOnCreate') ? associationData.populateOnCreate : true
+    });
+  };
+}
+
+/**
+* Set generic 'data' metadata.
+*
+ * @param {{}} metaData The data to set
+ *
+ * @returns {function}
+ *
+ * @decorator
+ */
+export function data(metaData) {
+  /**
+   * @param {function} target
+   * @param {string} propertyName
+   */
+  return function(target, propertyName) {
+    if (typeof metaData !== 'object') {
+      logger.error('data must be an object, ' + typeof metaData + ' given.');
+    }
+
+    OrmMetadata.forTarget(target.constructor).put('data', propertyName, metaData);
+  };
+}
+
+/**
+ * Set the 'endpoint' metadta of an entity. Needs a set resource
+ *
+ * @param {string} entityEndpoint The endpoint name to use
+ *
+ * @return {function}
+ *
+ * @decorator
+ */
+export function endpoint(entityEndpoint) {
+  return function(target) {
+    if (!OrmMetadata.forTarget(target).fetch('resource')) {
+      logger.warn('Need to set the resource before setting the endpoint!');
+    }
+
+    OrmMetadata.forTarget(target).put('endpoint', entityEndpoint);
+  };
+}
+
 /**
  * Set the id property for en entity
  *
@@ -1286,167 +1940,30 @@ export function resource(resourceName) {
 }
 
 /**
- * Set the 'validation' metadata to 'true'
+ * Set the 'types' metadata on the entity
  *
- * @param {[function]} ValidatorClass = Validator
+ * @param {string} typeValue The type(text,string,date,datetime,integer,int,number,float,boolean,bool,smart,autodetect (based on value)) to use for this property using typer
  *
  * @return {function}
  *
  * @decorator
  */
-export function validation(ValidatorClass = Validator) {
-  return function(target) {
-    OrmMetadata.forTarget(target).put('validation', ValidatorClass);
+export function type(typeValue) {
+  return function(target, propertyName, descriptor) {
+    ensurePropertyIsConfigurable(target, propertyName, descriptor);
+
+    OrmMetadata.forTarget(target.constructor).put('types', propertyName, typeValue);
   };
 }
 
-/**
- * The EntityManager class
- */
-@inject(Container)
-export class EntityManager {
-  repositories = {};
-  entities     = {};
+// fix for babels property decorator
+export function ensurePropertyIsConfigurable(target, propertyName, descriptor) {
+  if (descriptor && descriptor.configurable === false) {
+    descriptor.configurable = true;
 
-  /**
-   * Construct a new EntityManager.
-   *
-   * @param {Container} container
-   */
-  constructor(container) {
-    this.container = container;
-  }
-
-  /**
-   * Register an array of entity classes.
-   *
-   * @param {function[]|function} EntityClasses Array or object of Entity constructors.
-   *
-   * @return {EntityManager} itself
-   * @chainable
-   */
-  registerEntities(EntityClasses) {
-    for (let property in EntityClasses) {
-      if (EntityClasses.hasOwnProperty(property)) {
-        this.registerEntity(EntityClasses[property]);
-      }
+    if (!Reflect.defineProperty(target, propertyName, descriptor)) {
+      logger.warn(`Cannot make configurable property '${propertyName}' of object`, target);
     }
-
-    return this;
-  }
-
-  /**
-   * Register an Entity class.
-   *
-   * @param {function} EntityClass
-   *
-   * @return {EntityManager} itself
-   * @chainable
-   */
-  registerEntity(EntityClass) {
-    this.entities[OrmMetadata.forTarget(EntityClass).fetch('resource')] = EntityClass;
-
-    return this;
-  }
-
-  /**
-   * Get a repository instance.
-   *
-   * @param {Entity|string} entity
-   *
-   * @return {Repository}
-   * @throws {Error}
-   */
-  getRepository(entity) {
-    let reference = this.resolveEntityReference(entity);
-    let resource  = entity;
-
-    if (typeof reference.getResource === 'function') {
-      resource = reference.getResource() || resource;
-    }
-
-    if (typeof resource !== 'string') {
-      throw new Error('Unable to find resource for entity.');
-    }
-
-    // Cached instance available. Return.
-    if (this.repositories[resource]) {
-      return this.repositories[resource];
-    }
-
-    // Get instance of repository
-    let metaData   = OrmMetadata.forTarget(reference);
-    let repository = metaData.fetch('repository');
-    let instance   = this.container.get(repository);
-
-    // Already setup instance? Return.
-    if (instance.meta && instance.resource && instance.entityManager) {
-      return instance;
-    }
-
-    // Tell the repository instance what resource it should use.
-    instance.setMeta(metaData);
-    instance.resource      = resource;
-    instance.entityManager = this;
-
-    if (instance instanceof DefaultRepository) {
-      // This is a default repository. We'll cache this instance.
-      this.repositories[resource] = instance;
-    }
-
-    return instance;
-  }
-
-  /**
-   * Resolve given resource value to an entityReference
-   *
-   * @param {Entity|string} resource
-   *
-   * @return {Entity}
-   * @throws {Error}
-   */
-  resolveEntityReference(resource) {
-    let entityReference = resource;
-
-    if (typeof resource === 'string') {
-      entityReference = this.entities[resource] || Entity;
-    }
-
-    if (typeof entityReference === 'function') {
-      return entityReference;
-    }
-
-    throw new Error('Unable to resolve to entity reference. Expected string or function.');
-  }
-
-  /**
-   * Get an instance for `entity`
-   *
-   * @param {string|Entity} entity
-   *
-   * @return {Entity}
-   */
-  getEntity(entity) {
-    let reference = this.resolveEntityReference(entity);
-    let instance  = this.container.get(reference);
-    let resource  = reference.getResource();
-
-    if (!resource) {
-      if (typeof entity !== 'string') {
-        throw new Error('Unable to find resource for entity.');
-      }
-
-      resource = entity;
-    }
-
-    // Set the validator.
-    if (instance.hasValidation() && !(instance.getValidator())) {
-      let validator = this.container.get(OrmMetadata.forTarget(reference).fetch('validation'));
-
-      instance.setValidator(validator);
-    }
-
-    return instance.setResource(resource).setRepository(this.getRepository(resource));
   }
 }
 
@@ -1467,130 +1984,17 @@ export function validatedResource(resourceName, ValidatorClass) {
   };
 }
 
-// added for bundling
-// eslint-disable-line no-unused-vars
-// eslint-disable-line no-unused-vars
-
 /**
- * Plugin configure
+ * Set the 'validation' metadata to 'true'
  *
- * @export
- * @param {*} frameworkConfig
- * @param {*} configCallback
- */
-export function configure(frameworkConfig, configCallback) {
-  // add hasAssociation custom validation rule
-  ValidationRules.customRule(
-    'hasAssociation',
-    value => !!((value instanceof Entity && typeof value.id === 'number') || typeof value === 'number'),
-    `\${$displayName} must be an association.`    // eslint-disable-line quotes
-  );
-
-  let entityManagerInstance = frameworkConfig.container.get(EntityManager);
-
-  configCallback(entityManagerInstance);
-
-  frameworkConfig.globalResources('./component/association-select');
-  frameworkConfig.globalResources('./component/paged');
-}
-
-export const logger = getLogger('aurelia-orm');
-
-/**
-* Set generic 'data' metadata.
-*
- * @param {{}} metaData The data to set
- *
- * @returns {function}
- *
- * @decorator
- */
-export function data(metaData) {
-  /**
-   * @param {function} target
-   * @param {string} propertyName
-   */
-  return function(target, propertyName) {
-    if (typeof metaData !== 'object') {
-      logger.error('data must be an object, ' + typeof metaData + ' given.');
-    }
-
-    OrmMetadata.forTarget(target.constructor).put('data', propertyName, metaData);
-  };
-}
-
-/**
- * Set the 'endpoint' metadta of an entity. Needs a set resource
- *
- * @param {string} entityEndpoint The endpoint name to use
+ * @param {[function]} ValidatorClass = Validator
  *
  * @return {function}
  *
  * @decorator
  */
-export function endpoint(entityEndpoint) {
+export function validation(ValidatorClass = Validator) {
   return function(target) {
-    if (!OrmMetadata.forTarget(target).fetch('resource')) {
-      logger.warn('Need to set the resource before setting the endpoint!');
-    }
-
-    OrmMetadata.forTarget(target).put('endpoint', entityEndpoint);
-  };
-}
-
-// fix for babels property decorator
-export function ensurePropertyIsConfigurable(target, propertyName, descriptor) {
-  if (descriptor && descriptor.configurable === false) {
-    descriptor.configurable = true;
-
-    if (!Reflect.defineProperty(target, propertyName, descriptor)) {
-      logger.warn(`Cannot make configurable property '${propertyName}' of object`, target);
-    }
-  }
-}
-
-/**
- * Associate a property with an entity (toOne) or a collection (toMany)
- *
- * @param {undefined|string|{}} associationData undefined={entity:propertyName}, string={entity:string}, Object={entity: string, collection: string}
- *
- * @return {function}
- *
- * @decorator
- */
-export function association(associationData) {
-  return function(target, propertyName, descriptor) {
-    ensurePropertyIsConfigurable(target, propertyName, descriptor);
-
-    if (!associationData) {
-      associationData = {entity: propertyName};
-    } else if (typeof associationData === 'string') {
-      associationData = {entity: associationData};
-    }
-
-    OrmMetadata.forTarget(target.constructor).put('associations', propertyName, {
-      type            : associationData.entity ? 'entity' : 'collection',
-      entity          : associationData.entity || associationData.collection,
-      includeOnlyIds  : associationData.hasOwnProperty('includeOnlyIds') ? associationData.includeOnlyIds : true,
-      ignoreOnSave    : associationData.hasOwnProperty('ignoreOnSave') ? associationData.ignoreOnSave : false,
-      populateOnCreate: associationData.hasOwnProperty('populateOnCreate') ? associationData.populateOnCreate : true
-    });
-  };
-}
-
-/**
- * Set the 'types' metadata on the entity
- *
- * @param {string} typeValue The type(text,string,date,datetime,integer,int,number,float,boolean,bool,smart,autodetect (based on value)) to use for this property using typer
- *
- * @return {function}
- *
- * @decorator
- */
-export function type(typeValue) {
-  return function(target, propertyName, descriptor) {
-    ensurePropertyIsConfigurable(target, propertyName, descriptor);
-
-    OrmMetadata.forTarget(target.constructor).put('types', propertyName, typeValue);
+    OrmMetadata.forTarget(target).put('validation', ValidatorClass);
   };
 }
