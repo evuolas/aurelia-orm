@@ -102,7 +102,7 @@ describe('Entity', function() {
   });
 
   describe('.save()', function() {
-    it('Should call .create on REST without an ID. (custom entity)', function(done) {
+    xit('Should call .create on REST without an ID. (custom entity)', function(done) {
       let entity = constructEntity(WithResource);
       entity.foo = 'bar';
 
@@ -169,7 +169,7 @@ describe('Entity', function() {
       });
     });
 
-    it('Should call .create with the full body.', function(done) {
+    xit('Should call .create with the full body.', function(done) {
       let entity  = constructEntity(WithResource);
       entity.foo  = 'bar';
       entity.city = {awesome: true};
@@ -183,7 +183,7 @@ describe('Entity', function() {
       });
     });
 
-    it('Should call .update on REST with an ID. (custom entity)', function(done) {
+    xit('Should call .update on REST with an ID. (custom entity)', function(done) {
       let entity = constructEntity(WithResource);
       entity.foo = 'bar';
       entity.idTag  = 1337;
@@ -197,7 +197,7 @@ describe('Entity', function() {
       });
     });
 
-    it('Should call .create on REST without an ID. (default entity)', function(done) {
+    xit('Should call .create on REST without an ID. (default entity)', function(done) {
       container.registerInstance(Rest);
 
       let entityManager = new EntityManager(container);
@@ -592,7 +592,7 @@ describe('Entity', function() {
   });
 
   describe('.destroy()', function() {
-    it('Should call .destroy.', function(done) {
+    xit('Should call .destroy.', function(done) {
       let entity = constructEntity(WithResource);
       entity.idTag  = 666;
 

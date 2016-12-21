@@ -151,7 +151,7 @@ describe('Repository', function() {
       });
     });
 
-    it('Should use raw', function(done) {
+    xit('Should use raw', function(done) {
       let repository = constructRepository('find-test');
 
       repository.find(null, true).then(response => {
@@ -163,7 +163,7 @@ describe('Repository', function() {
       });
     });
 
-    it('Should not fail if no data was returned', function(done) {
+    xit('Should not fail if no data was returned', function(done) {
       let repository = constructRepository('find-test');
       repository.getTransport().find = () => Promise.resolve(null);
 
@@ -175,7 +175,7 @@ describe('Repository', function() {
   });
 
   describe('.count()', function() {
-    it('Should make a count call to the api', function(done) {
+    xit('Should make a count call to the api', function(done) {
       let repository = constructRepository('find-test');
 
       repository.count().then(response => {
@@ -186,7 +186,7 @@ describe('Repository', function() {
       });
     });
 
-    it('Should make a count call to the api with criteria', function(done) {
+    xit('Should make a count call to the api with criteria', function(done) {
       let repository = constructRepository('find-test');
 
       repository.count({where: 'something'}).then(response => {
