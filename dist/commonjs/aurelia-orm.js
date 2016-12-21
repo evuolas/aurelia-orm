@@ -1,8 +1,6 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+exports.__esModule = true;
 exports.logger = exports.EntityManager = exports.Entity = exports.Metadata = exports.OrmMetadata = exports.DefaultRepository = exports.Repository = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -425,8 +423,6 @@ var Entity = exports.Entity = (_dec3 = (0, _aureliaDependencyInjection.transient
       _this4.setId(data[_this4.getIdProperty()]);
       response = data;
     }).then(function () {
-      return _this4.saveCollections();
-    }).then(function () {
       return _this4.markClean();
     }).then(function () {
       return response;
@@ -467,8 +463,6 @@ var Entity = exports.Entity = (_dec3 = (0, _aureliaDependencyInjection.transient
       var data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
 
       response = data;
-    }).then(function () {
-      return _this5.saveCollections();
     }).then(function () {
       return _this5.markClean();
     }).then(function () {
@@ -780,24 +774,6 @@ function _asObject(entity, shallow) {
 
         return;
       }
-
-      if (value instanceof Entity && value.getId()) {
-        pojo[propertyName] = value.getId();
-
-        return;
-      }
-
-      if (value instanceof Entity) {
-        pojo[propertyName] = value.asObject();
-
-        return;
-      }
-
-      if (['string', 'number', 'boolean'].indexOf(typeof value === 'undefined' ? 'undefined' : _typeof(value)) > -1 || value.constructor === Object) {
-        pojo[propertyName] = value;
-
-        return;
-      }
     }
 
     if (!Array.isArray(value)) {
@@ -819,9 +795,7 @@ function _asObject(entity, shallow) {
         return;
       }
 
-      if (!shallow || (typeof childValue === 'undefined' ? 'undefined' : _typeof(childValue)) === 'object' && !childValue.getId()) {
-        asObjects.push(childValue.asObject(shallow));
-      }
+      asObjects.push(childValue.asObject(shallow));
     });
 
     if (asObjects.length > 0) {
@@ -856,6 +830,7 @@ function getCollectionsCompact(forEntity, includeNew) {
     }
 
     collections[index] = [];
+
     if (!Array.isArray(forEntity[index])) {
       return;
     }

@@ -7,7 +7,7 @@ System.config({
   },
 
   map: {
-    "aurelia-api": "github:freska-fi/aurelia-api@v3",
+    "aurelia-api": "github:freska-fi/aurelia-api@3.1.0-freska.0.1.1",
     "aurelia-binding": "npm:aurelia-binding@1.0.6",
     "aurelia-bootstrapper": "npm:aurelia-bootstrapper@1.0.0",
     "aurelia-dependency-injection": "npm:aurelia-dependency-injection@1.0.0",
@@ -20,7 +20,7 @@ System.config({
     "fetch": "github:github/fetch@1.0.0",
     "get-prop": "npm:get-prop@0.0.10",
     "typer": "npm:typer@1.1.0",
-    "github:freska-fi/aurelia-api@v3": {
+    "github:freska-fi/aurelia-api@3.1.0-freska.0.1.1": {
       "aurelia-dependency-injection": "npm:aurelia-dependency-injection@1.0.0",
       "aurelia-fetch-client": "npm:aurelia-fetch-client@1.0.1",
       "aurelia-framework": "npm:aurelia-framework@1.0.5",

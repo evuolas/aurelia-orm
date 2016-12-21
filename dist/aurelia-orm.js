@@ -576,7 +576,6 @@ export class Entity {
         this.setId(data[this.getIdProperty()]);
         response = data;
       })
-      .then(() => this.saveCollections())
       .then(() => this.markClean())
       .then(() => response);
   }
@@ -626,7 +625,6 @@ export class Entity {
 
         response = data;
       })
-      .then(() => this.saveCollections())
       .then(() => this.markClean())
       .then(() => response);
   }
@@ -1076,24 +1074,6 @@ function asObject(entity, shallow) {
 
         return;
       }
-
-      if (value instanceof Entity && value.getId()) {
-        pojo[propertyName] = value.getId();
-
-        return;
-      }
-
-      if (value instanceof Entity) {
-        pojo[propertyName] = value.asObject();
-
-        return;
-      }
-
-      if (['string', 'number', 'boolean'].indexOf(typeof value) > -1 || value.constructor === Object) {
-        pojo[propertyName] = value;
-
-        return;
-      }
     }
 
     // Array, treat children as potential entities.
@@ -1117,10 +1097,7 @@ function asObject(entity, shallow) {
         return;
       }
 
-      // If shallow, we don't handle toMany.
-      if (!shallow || (typeof childValue === 'object' && !childValue.getId())) {
-        asObjects.push(childValue.asObject(shallow));
-      }
+      asObjects.push(childValue.asObject(shallow));
     });
 
     // We don't send along empty arrays.
@@ -1172,6 +1149,7 @@ function getCollectionsCompact(forEntity, includeNew) {
     }
 
     collections[index] = [];
+
     if (!Array.isArray(forEntity[index])) {
       return;
     }

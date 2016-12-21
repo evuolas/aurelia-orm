@@ -343,7 +343,7 @@ export let Entity = (_dec3 = transient(), _dec3(_class5 = class Entity {
 
       this.setId(data[this.getIdProperty()]);
       response = data;
-    }).then(() => this.saveCollections()).then(() => this.markClean()).then(() => response);
+    }).then(() => this.markClean()).then(() => response);
   }
 
   update(path, options) {
@@ -378,7 +378,7 @@ export let Entity = (_dec3 = transient(), _dec3(_class5 = class Entity {
       const data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
 
       response = data;
-    }).then(() => this.saveCollections()).then(() => this.markClean()).then(() => response);
+    }).then(() => this.markClean()).then(() => response);
   }
 
   addCollectionAssociation(entity, property) {
@@ -669,24 +669,6 @@ function asObject(entity, shallow) {
 
         return;
       }
-
-      if (value instanceof Entity && value.getId()) {
-        pojo[propertyName] = value.getId();
-
-        return;
-      }
-
-      if (value instanceof Entity) {
-        pojo[propertyName] = value.asObject();
-
-        return;
-      }
-
-      if (['string', 'number', 'boolean'].indexOf(typeof value) > -1 || value.constructor === Object) {
-        pojo[propertyName] = value;
-
-        return;
-      }
     }
 
     if (!Array.isArray(value)) {
@@ -708,9 +690,7 @@ function asObject(entity, shallow) {
         return;
       }
 
-      if (!shallow || typeof childValue === 'object' && !childValue.getId()) {
-        asObjects.push(childValue.asObject(shallow));
-      }
+      asObjects.push(childValue.asObject(shallow));
     });
 
     if (asObjects.length > 0) {
@@ -745,6 +725,7 @@ function getCollectionsCompact(forEntity, includeNew) {
     }
 
     collections[index] = [];
+
     if (!Array.isArray(forEntity[index])) {
       return;
     }

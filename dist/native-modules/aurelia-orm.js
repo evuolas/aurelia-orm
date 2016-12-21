@@ -1,108 +1,137 @@
+'use strict';
+
+exports.__esModule = true;
+exports.logger = exports.EntityManager = exports.Entity = exports.Metadata = exports.OrmMetadata = exports.DefaultRepository = exports.Repository = undefined;
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _dec, _class, _dec2, _class3, _class4, _temp, _dec3, _class5, _dec4, _class6;
 
-import typer from 'typer';
-import { inject, transient, Container } from 'aurelia-dependency-injection';
-import { Config } from 'aurelia-api';
-import { metadata } from 'aurelia-metadata';
-import { Validator, ValidationRules } from 'aurelia-validation';
-import { getLogger } from 'aurelia-logging';
+exports.stringToCamelCase = stringToCamelCase;
+exports.idProperty = idProperty;
+exports.jsonRoot = jsonRoot;
+exports.name = name;
+exports.repository = repository;
+exports.resource = resource;
+exports.validation = validation;
+exports.validatedResource = validatedResource;
+exports.configure = configure;
+exports.data = data;
+exports.endpoint = endpoint;
+exports.ensurePropertyIsConfigurable = ensurePropertyIsConfigurable;
+exports.association = association;
+exports.type = type;
 
-import { AssociationSelect } from './component/association-select';
-import { Paged } from './component/paged';
+var _typer = require('typer');
 
-export function stringToCamelCase(str) {
+var _typer2 = _interopRequireDefault(_typer);
+
+var _aureliaDependencyInjection = require('aurelia-dependency-injection');
+
+var _aureliaApi = require('aurelia-api');
+
+var _aureliaMetadata = require('aurelia-metadata');
+
+var _aureliaValidation = require('aurelia-validation');
+
+var _aureliaLogging = require('aurelia-logging');
+
+var _associationSelect = require('./component/association-select');
+
+var _paged = require('./component/paged');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+function stringToCamelCase(str) {
   return str.replace(/(_\w)/g, function (m) {
     return m[1].toUpperCase();
   });
 }
 
-export let Repository = (_dec = inject(Config), _dec(_class = class Repository {
-  constructor(clientConfig) {
+var Repository = exports.Repository = (_dec = (0, _aureliaDependencyInjection.inject)(_aureliaApi.Config), _dec(_class = function () {
+  function Repository(clientConfig) {
+    
+
     this.enableRootObjects = true;
     this.transport = null;
 
     this.clientConfig = clientConfig;
   }
 
-  getTransport() {
+  Repository.prototype.getTransport = function getTransport() {
     if (this.transport === null) {
       this.transport = this.clientConfig.getEndpoint(this.getMeta().fetch('endpoint'));
 
       if (!this.transport) {
-        throw new Error(`No transport found for '${ this.getMeta().fetch('endpoint') || 'default' }'.`);
+        throw new Error('No transport found for \'' + (this.getMeta().fetch('endpoint') || 'default') + '\'.');
       }
     }
 
     return this.transport;
-  }
+  };
 
-  setMeta(meta) {
+  Repository.prototype.setMeta = function setMeta(meta) {
     this.meta = meta;
-  }
+  };
 
-  getMeta() {
+  Repository.prototype.getMeta = function getMeta() {
     return this.meta;
-  }
+  };
 
-  setResource(resource) {
+  Repository.prototype.setResource = function setResource(resource) {
     this.resource = resource;
 
     return this;
-  }
+  };
 
-  getResource() {
+  Repository.prototype.getResource = function getResource() {
     return this.resource;
-  }
+  };
 
-  get jsonRootObjectSingle() {
-    const jsonRoot = this.getJsonRootObject();
-
-    if (typeof jsonRoot === 'object') {
-      return stringToCamelCase(jsonRoot.single);
-    }
-
-    return stringToCamelCase(jsonRoot.replace(/s$/, ''));
-  }
-
-  get jsonRootObjectPlural() {
-    let jsonRoot = this.getJsonRootObject();
-
-    jsonRoot = typeof jsonRoot === 'object' ? jsonRoot.plural : jsonRoot;
-
-    return stringToCamelCase(jsonRoot);
-  }
-
-  getJsonRootObject() {
-    let entity = this.getNewEntity();
-    let jsonRoot = entity.getMeta().fetch('jsonRoot');
+  Repository.prototype.getJsonRootObject = function getJsonRootObject() {
+    var entity = this.getNewEntity();
+    var jsonRoot = entity.getMeta().fetch('jsonRoot');
 
     return jsonRoot ? jsonRoot : this.resource;
-  }
+  };
 
-  find(criteria, raw, options) {
+  Repository.prototype.find = function find(criteria, raw, options) {
     return this.findPath(this.resource, criteria, raw, false, options);
-  }
+  };
 
-  search(criteria, raw, options) {
+  Repository.prototype.search = function search(criteria, raw, options) {
     return this.findPath(this.resource, criteria, raw, true, options);
-  }
+  };
 
-  findPath(path, criteria, raw, collection = false, options = {}) {
-    let findQuery = this.getTransport().find(path, criteria, options);
+  Repository.prototype.findPath = function findPath(path, criteria, raw) {
+    var _this = this;
+
+    var collection = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+    var options = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
+
+    var findQuery = this.getTransport().find(path, criteria, options);
 
     if (raw) {
       return findQuery;
     }
 
-    return findQuery.then(response => {
-      if (this.enableRootObjects) {
-        let rootObject = collection ? this.jsonRootObjectPlural : this.jsonRootObjectSingle;
+    return findQuery.then(function (response) {
+      if (_this.enableRootObjects) {
+        var rootObject = collection ? _this.jsonRootObjectPlural : _this.jsonRootObjectSingle;
 
         response = response[rootObject];
       }
 
-      return this.populateEntities(response);
-    }).then(populated => {
+      return _this.populateEntities(response);
+    }).then(function (populated) {
       if (!populated) {
         return null;
       }
@@ -111,17 +140,21 @@ export let Repository = (_dec = inject(Config), _dec(_class = class Repository {
         return populated.markClean();
       }
 
-      populated.forEach(entity => entity.markClean());
+      populated.forEach(function (entity) {
+        return entity.markClean();
+      });
 
       return populated;
     });
-  }
+  };
 
-  count(criteria) {
+  Repository.prototype.count = function count(criteria) {
     return this.getTransport().find(this.resource + '/count', criteria);
-  }
+  };
 
-  populateEntities(data) {
+  Repository.prototype.populateEntities = function populateEntities(data) {
+    var _this2 = this;
+
     if (!data) {
       return null;
     }
@@ -130,59 +163,59 @@ export let Repository = (_dec = inject(Config), _dec(_class = class Repository {
       return this.getPopulatedEntity(data);
     }
 
-    let collection = [];
+    var collection = [];
 
-    data.forEach(source => {
-      collection.push(this.getPopulatedEntity(source));
+    data.forEach(function (source) {
+      collection.push(_this2.getPopulatedEntity(source));
     });
 
     return collection;
-  }
+  };
 
-  getPopulatedEntity(data, entity) {
+  Repository.prototype.getPopulatedEntity = function getPopulatedEntity(data, entity) {
     entity = entity || this.getNewEntity();
-    let entityMetadata = entity.getMeta();
-    let populatedData = {};
-    let key;
+    var entityMetadata = entity.getMeta();
+    var populatedData = {};
+    var key = void 0;
 
     for (key in data) {
       if (!data.hasOwnProperty(key)) {
         continue;
       }
 
-      let value = data[key];
+      var value = data[key];
 
       if (entityMetadata.has('types', key)) {
-        populatedData[key] = typer.cast(value, entityMetadata.fetch('types', key));
+        populatedData[key] = _typer2.default.cast(value, entityMetadata.fetch('types', key));
 
         continue;
       }
 
-      if (!entityMetadata.has('associations', key) || typeof value !== 'object') {
+      if (!entityMetadata.has('associations', key) || (typeof value === 'undefined' ? 'undefined' : _typeof(value)) !== 'object') {
         populatedData[key] = value;
 
         continue;
       }
 
-      let repository = this.entityManager.getRepository(entityMetadata.fetch('associations', key).entity);
+      var _repository = this.entityManager.getRepository(entityMetadata.fetch('associations', key).entity);
 
-      populatedData[key] = repository.populateEntities(value);
+      populatedData[key] = _repository.populateEntities(value);
     }
 
     return entity.setData(populatedData);
-  }
+  };
 
-  getNewEntity() {
+  Repository.prototype.getNewEntity = function getNewEntity() {
     return this.entityManager.getEntity(this.resource);
-  }
+  };
 
-  getNewPopulatedEntity() {
-    let entity = this.getNewEntity();
-    let associations = entity.getMeta().fetch('associations');
+  Repository.prototype.getNewPopulatedEntity = function getNewPopulatedEntity() {
+    var entity = this.getNewEntity();
+    var associations = entity.getMeta().fetch('associations');
 
-    for (let property in associations) {
+    for (var property in associations) {
       if (associations.hasOwnProperty(property)) {
-        let assocMeta = associations[property];
+        var assocMeta = associations[property];
 
         if (assocMeta.type !== 'entity' || !assocMeta.populateOnCreate) {
           continue;
@@ -193,19 +226,60 @@ export let Repository = (_dec = inject(Config), _dec(_class = class Repository {
     }
 
     return entity;
+  };
+
+  _createClass(Repository, [{
+    key: 'jsonRootObjectSingle',
+    get: function get() {
+      var jsonRoot = this.getJsonRootObject();
+
+      if ((typeof jsonRoot === 'undefined' ? 'undefined' : _typeof(jsonRoot)) === 'object') {
+        return stringToCamelCase(jsonRoot.single);
+      }
+
+      return stringToCamelCase(jsonRoot.replace(/s$/, ''));
+    }
+  }, {
+    key: 'jsonRootObjectPlural',
+    get: function get() {
+      var jsonRoot = this.getJsonRootObject();
+
+      jsonRoot = (typeof jsonRoot === 'undefined' ? 'undefined' : _typeof(jsonRoot)) === 'object' ? jsonRoot.plural : jsonRoot;
+
+      return stringToCamelCase(jsonRoot);
+    }
+  }]);
+
+  return Repository;
+}()) || _class);
+var DefaultRepository = exports.DefaultRepository = (_dec2 = (0, _aureliaDependencyInjection.transient)(), _dec2(_class3 = function (_Repository) {
+  _inherits(DefaultRepository, _Repository);
+
+  function DefaultRepository() {
+    
+
+    return _possibleConstructorReturn(this, _Repository.apply(this, arguments));
   }
-}) || _class);
 
-export let DefaultRepository = (_dec2 = transient(), _dec2(_class3 = class DefaultRepository extends Repository {}) || _class3);
+  return DefaultRepository;
+}(Repository)) || _class3);
 
-export let OrmMetadata = class OrmMetadata {
-  static forTarget(target) {
-    return metadata.getOrCreateOwn(Metadata.key, Metadata, target, target.name);
+var OrmMetadata = exports.OrmMetadata = function () {
+  function OrmMetadata() {
+    
   }
-};
 
-export let Metadata = (_temp = _class4 = class Metadata {
-  constructor() {
+  OrmMetadata.forTarget = function forTarget(target) {
+    return _aureliaMetadata.metadata.getOrCreateOwn(Metadata.key, Metadata, target, target.name);
+  };
+
+  return OrmMetadata;
+}();
+
+var Metadata = exports.Metadata = (_temp = _class4 = function () {
+  function Metadata() {
+    
+
     this.metadata = {
       repository: DefaultRepository,
       resource: null,
@@ -216,7 +290,7 @@ export let Metadata = (_temp = _class4 = class Metadata {
     };
   }
 
-  addTo(key, value) {
+  Metadata.prototype.addTo = function addTo(key, value) {
     if (typeof this.metadata[key] === 'undefined') {
       this.metadata[key] = [];
     } else if (!Array.isArray(this.metadata[key])) {
@@ -226,33 +300,33 @@ export let Metadata = (_temp = _class4 = class Metadata {
     this.metadata[key].push(value);
 
     return this;
-  }
+  };
 
-  put(key, valueOrNestedKey, valueOrNull) {
+  Metadata.prototype.put = function put(key, valueOrNestedKey, valueOrNull) {
     if (!valueOrNull) {
       this.metadata[key] = valueOrNestedKey;
 
       return this;
     }
 
-    if (typeof this.metadata[key] !== 'object') {
+    if (_typeof(this.metadata[key]) !== 'object') {
       this.metadata[key] = {};
     }
 
     this.metadata[key][valueOrNestedKey] = valueOrNull;
 
     return this;
-  }
+  };
 
-  has(key, nested) {
+  Metadata.prototype.has = function has(key, nested) {
     if (typeof nested === 'undefined') {
       return typeof this.metadata[key] !== 'undefined';
     }
 
     return typeof this.metadata[key] !== 'undefined' && typeof this.metadata[key][nested] !== 'undefined';
-  }
+  };
 
-  fetch(key, nested) {
+  Metadata.prototype.fetch = function fetch(key, nested) {
     if (!nested) {
       return this.has(key) ? this.metadata[key] : null;
     }
@@ -262,27 +336,30 @@ export let Metadata = (_temp = _class4 = class Metadata {
     }
 
     return this.metadata[key][nested];
-  }
-}, _class4.key = 'spoonx:orm:metadata', _temp);
+  };
 
-export let Entity = (_dec3 = transient(), _dec3(_class5 = class Entity {
-  constructor() {
+  return Metadata;
+}(), _class4.key = 'spoonx:orm:metadata', _temp);
+var Entity = exports.Entity = (_dec3 = (0, _aureliaDependencyInjection.transient)(), _dec3(_class5 = function () {
+  function Entity() {
+    
+
     this.define('__meta', OrmMetadata.forTarget(this.constructor)).define('__cleanValues', {}, true);
   }
 
-  getTransport() {
+  Entity.prototype.getTransport = function getTransport() {
     return this.getRepository().getTransport();
-  }
+  };
 
-  getRepository() {
+  Entity.prototype.getRepository = function getRepository() {
     return this.__repository;
-  }
+  };
 
-  setRepository(repository) {
+  Entity.prototype.setRepository = function setRepository(repository) {
     return this.define('__repository', repository);
-  }
+  };
 
-  define(property, value, writable) {
+  Entity.prototype.define = function define(property, value, writable) {
     Object.defineProperty(this, property, {
       value: value,
       writable: !!writable,
@@ -290,45 +367,47 @@ export let Entity = (_dec3 = transient(), _dec3(_class5 = class Entity {
     });
 
     return this;
-  }
+  };
 
-  getMeta() {
+  Entity.prototype.getMeta = function getMeta() {
     return this.__meta;
-  }
+  };
 
-  getIdProperty() {
+  Entity.prototype.getIdProperty = function getIdProperty() {
     return this.getMeta().fetch('idProperty');
-  }
+  };
 
-  static getIdProperty() {
-    let idProperty = OrmMetadata.forTarget(this).fetch('idProperty');
+  Entity.getIdProperty = function getIdProperty() {
+    var idProperty = OrmMetadata.forTarget(this).fetch('idProperty');
 
     return idProperty;
-  }
+  };
 
-  getId() {
+  Entity.prototype.getId = function getId() {
     return this[this.getIdProperty()];
-  }
+  };
 
-  setId(id) {
+  Entity.prototype.setId = function setId(id) {
     this[this.getIdProperty()] = id;
 
     return this;
-  }
+  };
 
-  save(path, options) {
+  Entity.prototype.save = function save(path, options) {
+    var _this4 = this;
+
     if (!this.isNew()) {
       return this.update(path, options);
     }
 
-    let repository = this.getRepository();
-    let requestBody = this.asObject(true);
-    let response;
+    var repository = this.getRepository();
+    var requestBody = this.asObject(true);
+    var response = void 0;
 
-    const rootObject = repository.enableRootObjects;
+    var rootObject = repository.enableRootObjects;
 
     if (rootObject) {
-      let bodyWithRoot = {};
+      var bodyWithRoot = {};
 
       bodyWithRoot[repository.jsonRootObjectSingle] = requestBody;
       requestBody = bodyWithRoot;
@@ -338,15 +417,21 @@ export let Entity = (_dec3 = transient(), _dec3(_class5 = class Entity {
       path = this.getResource();
     }
 
-    return this.getTransport().create(path, requestBody, options).then(created => {
-      const data = rootObject ? created[repository.jsonRootObjectSingle] : created;
+    return this.getTransport().create(path, requestBody, options).then(function (created) {
+      var data = rootObject ? created[repository.jsonRootObjectSingle] : created;
 
-      this.setId(data[this.getIdProperty()]);
+      _this4.setId(data[_this4.getIdProperty()]);
       response = data;
-    }).then(() => this.saveCollections()).then(() => this.markClean()).then(() => response);
-  }
+    }).then(function () {
+      return _this4.markClean();
+    }).then(function () {
+      return response;
+    });
+  };
 
-  update(path, options) {
+  Entity.prototype.update = function update(path, options) {
+    var _this5 = this;
+
     if (this.isNew()) {
       throw new Error('Required value "id" missing on entity.');
     }
@@ -355,14 +440,14 @@ export let Entity = (_dec3 = transient(), _dec3(_class5 = class Entity {
       return Promise.resolve(null);
     }
 
-    let repository = this.getRepository();
-    let requestBody = this.asObject(true);
-    let response;
+    var repository = this.getRepository();
+    var requestBody = this.asObject(true);
+    var response = void 0;
 
-    const rootObject = repository.enableRootObjects;
+    var rootObject = repository.enableRootObjects;
 
     if (rootObject) {
-      let bodyWithRoot = {};
+      var bodyWithRoot = {};
 
       bodyWithRoot[repository.jsonRootObjectSingle] = requestBody;
       requestBody = bodyWithRoot;
@@ -374,16 +459,22 @@ export let Entity = (_dec3 = transient(), _dec3(_class5 = class Entity {
       path = this.getResource();
     }
 
-    return this.getTransport().update(path, this.getId(), requestBody, options).then(updated => {
-      const data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
+    return this.getTransport().update(path, this.getId(), requestBody, options).then(function (updated) {
+      var data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
 
       response = data;
-    }).then(() => this.saveCollections()).then(() => this.markClean()).then(() => response);
-  }
+    }).then(function () {
+      return _this5.markClean();
+    }).then(function () {
+      return response;
+    });
+  };
 
-  addCollectionAssociation(entity, property) {
+  Entity.prototype.addCollectionAssociation = function addCollectionAssociation(entity, property) {
+    var _this6 = this;
+
     property = property || getPropertyForAssociation(this, entity);
-    let url = [this.getResource(), this.getId(), property];
+    var url = [this.getResource(), this.getId(), property];
 
     if (this.isNew()) {
       throw new Error('Cannot add association to entity that does not have an id.');
@@ -396,32 +487,36 @@ export let Entity = (_dec3 = transient(), _dec3(_class5 = class Entity {
     }
 
     if (entity.isNew()) {
-      let associationProperty = getPropertyForAssociation(entity, this);
-      let relation = entity.getMeta().fetch('association', associationProperty);
+      var associationProperty = getPropertyForAssociation(entity, this);
+      var relation = entity.getMeta().fetch('association', associationProperty);
 
       if (!relation || relation.type !== 'entity') {
-        return entity.save().then(() => {
+        return entity.save().then(function () {
           if (entity.isNew()) {
             throw new Error('Entity did not return return an id on saving.');
           }
 
-          return this.addCollectionAssociation(entity, property);
+          return _this6.addCollectionAssociation(entity, property);
         });
       }
 
       entity[associationProperty] = this.getId();
 
-      return entity.save().then(() => entity);
+      return entity.save().then(function () {
+        return entity;
+      });
     }
 
     url.push(entity.getId());
 
-    return this.getTransport().create(url.join('/')).then(() => entity);
-  }
+    return this.getTransport().create(url.join('/')).then(function () {
+      return entity;
+    });
+  };
 
-  removeCollectionAssociation(entity, property) {
+  Entity.prototype.removeCollectionAssociation = function removeCollectionAssociation(entity, property) {
     property = property || getPropertyForAssociation(this, entity);
-    let idToRemove = entity;
+    var idToRemove = entity;
 
     if (entity instanceof Entity) {
       if (!entity.getId()) {
@@ -432,22 +527,24 @@ export let Entity = (_dec3 = transient(), _dec3(_class5 = class Entity {
     }
 
     return this.getTransport().destroy([this.getResource(), this.getId(), property, idToRemove].join('/'));
-  }
+  };
 
-  saveCollections() {
-    let tasks = [];
-    let currentCollections = getCollectionsCompact(this, true);
-    let cleanCollections = this.__cleanValues.data ? this.__cleanValues.data.collections : null;
+  Entity.prototype.saveCollections = function saveCollections() {
+    var _this7 = this;
 
-    let addTasksForDifferences = (base, candidate, method) => {
+    var tasks = [];
+    var currentCollections = getCollectionsCompact(this, true);
+    var cleanCollections = this.__cleanValues.data ? this.__cleanValues.data.collections : null;
+
+    var addTasksForDifferences = function addTasksForDifferences(base, candidate, method) {
       if (base === null) {
         return;
       }
 
-      Object.getOwnPropertyNames(base).forEach(property => {
-        base[property].forEach(id => {
+      Object.getOwnPropertyNames(base).forEach(function (property) {
+        base[property].forEach(function (id) {
           if (candidate === null || !Array.isArray(candidate[property]) || candidate[property].indexOf(id) === -1) {
-            tasks.push(method.call(this, id, property));
+            tasks.push(method.call(_this7, id, property));
           }
         });
       });
@@ -457,11 +554,13 @@ export let Entity = (_dec3 = transient(), _dec3(_class5 = class Entity {
 
     addTasksForDifferences(cleanCollections, currentCollections, this.removeCollectionAssociation);
 
-    return Promise.all(tasks).then(results => this);
-  }
+    return Promise.all(tasks).then(function (results) {
+      return _this7;
+    });
+  };
 
-  markClean() {
-    let cleanValues = getFlat(this);
+  Entity.prototype.markClean = function markClean() {
+    var cleanValues = getFlat(this);
 
     this.__cleanValues = {
       checksum: JSON.stringify(cleanValues),
@@ -469,27 +568,29 @@ export let Entity = (_dec3 = transient(), _dec3(_class5 = class Entity {
     };
 
     return this;
-  }
+  };
 
-  isClean() {
+  Entity.prototype.isClean = function isClean() {
     return getFlat(this, true) === this.__cleanValues.checksum;
-  }
+  };
 
-  isDirty() {
+  Entity.prototype.isDirty = function isDirty() {
     return !this.isClean();
-  }
+  };
 
-  isNew() {
+  Entity.prototype.isNew = function isNew() {
     return !this.getId();
-  }
+  };
 
-  reset(shallow) {
-    let pojo = {};
-    let metadata = this.getMeta();
+  Entity.prototype.reset = function reset(shallow) {
+    var _this8 = this;
 
-    Object.keys(this).forEach(propertyName => {
-      let value = this[propertyName];
-      let association = metadata.fetch('associations', propertyName);
+    var pojo = {};
+    var metadata = this.getMeta();
+
+    Object.keys(this).forEach(function (propertyName) {
+      var value = _this8[propertyName];
+      var association = metadata.fetch('associations', propertyName);
 
       if (!association || !value) {
         pojo[propertyName] = value;
@@ -502,12 +603,12 @@ export let Entity = (_dec3 = transient(), _dec3(_class5 = class Entity {
       return this;
     }
 
-    let isNew = this.isNew();
-    let associations = this.getMeta().fetch('associations');
+    var isNew = this.isNew();
+    var associations = this.getMeta().fetch('associations');
 
-    Object.keys(this).forEach(propertyName => {
+    Object.keys(this).forEach(function (propertyName) {
       if (Object.getOwnPropertyNames(associations).indexOf(propertyName) === -1) {
-        delete this[propertyName];
+        delete _this8[propertyName];
       }
     });
 
@@ -521,61 +622,61 @@ export let Entity = (_dec3 = transient(), _dec3(_class5 = class Entity {
       return this.markClean();
     }
 
-    let collections = this.__cleanValues.data.collections;
+    var collections = this.__cleanValues.data.collections;
 
-    Object.getOwnPropertyNames(collections).forEach(index => {
-      this[index] = [];
-      collections[index].forEach(entity => {
+    Object.getOwnPropertyNames(collections).forEach(function (index) {
+      _this8[index] = [];
+      collections[index].forEach(function (entity) {
         if (typeof entity === 'number') {
-          this[index].push(entity);
+          _this8[index].push(entity);
         }
       });
     });
 
     return this.markClean();
-  }
+  };
 
-  static getResource() {
+  Entity.getResource = function getResource() {
     return OrmMetadata.forTarget(this).fetch('resource');
-  }
+  };
 
-  getResource() {
+  Entity.prototype.getResource = function getResource() {
     return this.__resource || this.getMeta().fetch('resource');
-  }
+  };
 
-  setResource(resource) {
+  Entity.prototype.setResource = function setResource(resource) {
     return this.define('__resource', resource);
-  }
+  };
 
-  destroy() {
+  Entity.prototype.destroy = function destroy() {
     if (!this.getId()) {
       throw new Error('Required value "id" missing on entity.');
     }
 
     return this.getTransport().destroy(this.getResource(), this.getId());
-  }
+  };
 
-  getName() {
-    let metaName = this.getMeta().fetch('name');
-
-    if (metaName) {
-      return metaName;
-    }
-
-    return this.getResource();
-  }
-
-  static getName() {
-    let metaName = OrmMetadata.forTarget(this).fetch('name');
+  Entity.prototype.getName = function getName() {
+    var metaName = this.getMeta().fetch('name');
 
     if (metaName) {
       return metaName;
     }
 
     return this.getResource();
-  }
+  };
 
-  setData(data, markClean) {
+  Entity.getName = function getName() {
+    var metaName = OrmMetadata.forTarget(this).fetch('name');
+
+    if (metaName) {
+      return metaName;
+    }
+
+    return this.getResource();
+  };
+
+  Entity.prototype.setData = function setData(data, markClean) {
     Object.assign(this, data);
 
     if (markClean) {
@@ -583,57 +684,59 @@ export let Entity = (_dec3 = transient(), _dec3(_class5 = class Entity {
     }
 
     return this;
-  }
+  };
 
-  setValidator(validator) {
+  Entity.prototype.setValidator = function setValidator(validator) {
     this.define('__validator', validator);
 
     return this;
-  }
+  };
 
-  getValidator() {
+  Entity.prototype.getValidator = function getValidator() {
     if (!this.hasValidation()) {
       return null;
     }
 
     return this.__validator;
-  }
+  };
 
-  hasValidation() {
+  Entity.prototype.hasValidation = function hasValidation() {
     return !!this.getMeta().fetch('validation');
-  }
+  };
 
-  validate(propertyName, rules) {
+  Entity.prototype.validate = function validate(propertyName, rules) {
     if (!this.hasValidation()) {
       return Promise.resolve([]);
     }
 
     return propertyName ? this.getValidator().validateProperty(this, propertyName, rules) : this.getValidator().validateObject(this, rules);
-  }
+  };
 
-  asObject(shallow) {
-    return asObject(this, shallow);
-  }
+  Entity.prototype.asObject = function asObject(shallow) {
+    return _asObject(this, shallow);
+  };
 
-  asJson(shallow) {
-    return asJson(this, shallow);
-  }
-}) || _class5);
+  Entity.prototype.asJson = function asJson(shallow) {
+    return _asJson(this, shallow);
+  };
 
-function asObject(entity, shallow) {
-  let pojo = {};
-  let metadata = entity.getMeta();
+  return Entity;
+}()) || _class5);
 
-  Object.keys(entity).forEach(propertyName => {
-    let value = entity[propertyName];
-    let associationMeta = metadata.fetch('associations', propertyName);
-    let typeMeta = metadata.fetch('types', propertyName);
+function _asObject(entity, shallow) {
+  var pojo = {};
+  var metadata = entity.getMeta();
+
+  Object.keys(entity).forEach(function (propertyName) {
+    var value = entity[propertyName];
+    var associationMeta = metadata.fetch('associations', propertyName);
+    var typeMeta = metadata.fetch('types', propertyName);
 
     if (associationMeta && associationMeta.ignoreOnSave) {
       return;
     }
 
-    if (value && typeof value === 'object') {
+    if (value && (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object') {
       if (typeMeta === 'datetime' && typeof value.toISOString === 'function') {
         pojo[propertyName] = value.toISOString();
 
@@ -653,36 +756,20 @@ function asObject(entity, shallow) {
 
     if (shallow) {
       if (value.id && associationMeta.includeOnlyIds) {
-        pojo[`${ propertyName }Id`] = value.id;
+        pojo[propertyName + 'Id'] = value.id;
 
         return;
       } else if (Array.isArray(value) && associationMeta.includeOnlyIds) {
-        pojo[`${ propertyName.replace(/s$/, '') }Ids`] = value.map(v => v.id);
+        pojo[propertyName.replace(/s$/, '') + 'Ids'] = value.map(function (v) {
+          return v.id;
+        });
 
         return;
       } else if (value instanceof Entity) {
         pojo[propertyName] = value.asObject();
 
         return;
-      } else if (['string', 'number', 'boolean'].indexOf(typeof value) > -1 || value.constructor === Object) {
-        pojo[propertyName] = value;
-
-        return;
-      }
-
-      if (value instanceof Entity && value.getId()) {
-        pojo[propertyName] = value.getId();
-
-        return;
-      }
-
-      if (value instanceof Entity) {
-        pojo[propertyName] = value.asObject();
-
-        return;
-      }
-
-      if (['string', 'number', 'boolean'].indexOf(typeof value) > -1 || value.constructor === Object) {
+      } else if (['string', 'number', 'boolean'].indexOf(typeof value === 'undefined' ? 'undefined' : _typeof(value)) > -1 || value.constructor === Object) {
         pojo[propertyName] = value;
 
         return;
@@ -695,10 +782,10 @@ function asObject(entity, shallow) {
       return;
     }
 
-    let asObjects = [];
+    var asObjects = [];
 
-    value.forEach(childValue => {
-      if (typeof childValue !== 'object') {
+    value.forEach(function (childValue) {
+      if ((typeof childValue === 'undefined' ? 'undefined' : _typeof(childValue)) !== 'object') {
         return;
       }
 
@@ -708,9 +795,7 @@ function asObject(entity, shallow) {
         return;
       }
 
-      if (!shallow || typeof childValue === 'object' && !childValue.getId()) {
-        asObjects.push(childValue.asObject(shallow));
-      }
+      asObjects.push(childValue.asObject(shallow));
     });
 
     if (asObjects.length > 0) {
@@ -721,11 +806,11 @@ function asObject(entity, shallow) {
   return pojo;
 }
 
-function asJson(entity, shallow) {
-  let json;
+function _asJson(entity, shallow) {
+  var json = void 0;
 
   try {
-    json = JSON.stringify(asObject(entity, shallow));
+    json = JSON.stringify(_asObject(entity, shallow));
   } catch (error) {
     json = '';
   }
@@ -734,22 +819,23 @@ function asJson(entity, shallow) {
 }
 
 function getCollectionsCompact(forEntity, includeNew) {
-  let associations = forEntity.getMeta().fetch('associations');
-  let collections = {};
+  var associations = forEntity.getMeta().fetch('associations');
+  var collections = {};
 
-  Object.getOwnPropertyNames(associations).forEach(index => {
-    let association = associations[index];
+  Object.getOwnPropertyNames(associations).forEach(function (index) {
+    var association = associations[index];
 
     if (association.type !== 'collection') {
       return;
     }
 
     collections[index] = [];
+
     if (!Array.isArray(forEntity[index])) {
       return;
     }
 
-    forEntity[index].forEach(entity => {
+    forEntity[index].forEach(function (entity) {
       if (typeof entity === 'number') {
         collections[index].push(entity);
 
@@ -778,8 +864,8 @@ function getCollectionsCompact(forEntity, includeNew) {
 }
 
 function getFlat(entity, json) {
-  let flat = {
-    entity: asObject(entity, true),
+  var flat = {
+    entity: _asObject(entity, true),
     collections: getCollectionsCompact(entity)
   };
 
@@ -791,76 +877,80 @@ function getFlat(entity, json) {
 }
 
 function getPropertyForAssociation(forEntity, entity) {
-  let associations = forEntity.getMeta().fetch('associations');
+  var associations = forEntity.getMeta().fetch('associations');
 
-  return Object.keys(associations).filter(key => {
+  return Object.keys(associations).filter(function (key) {
     return associations[key].entity === entity.getResource();
   })[0];
 }
 
-export function idProperty(propertyName) {
+function idProperty(propertyName) {
   return function (target) {
     OrmMetadata.forTarget(target).put('idProperty', propertyName);
   };
 }
 
-export function jsonRoot(name) {
+function jsonRoot(name) {
   return function (target) {
     OrmMetadata.forTarget(target).put('jsonRoot', name);
   };
 }
 
-export function name(entityName) {
+function name(entityName) {
   return function (target) {
     OrmMetadata.forTarget(target).put('name', entityName || target.name.toLowerCase());
   };
 }
 
-export function repository(repositoryReference) {
+function repository(repositoryReference) {
   return function (target) {
     OrmMetadata.forTarget(target).put('repository', repositoryReference);
   };
 }
 
-export function resource(resourceName) {
+function resource(resourceName) {
   return function (target) {
     OrmMetadata.forTarget(target).put('resource', resourceName || target.name.toLowerCase());
   };
 }
 
-export function validation(ValidatorClass = Validator) {
+function validation() {
+  var ValidatorClass = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _aureliaValidation.Validator;
+
   return function (target) {
     OrmMetadata.forTarget(target).put('validation', ValidatorClass);
   };
 }
 
-export let EntityManager = (_dec4 = inject(Container), _dec4(_class6 = class EntityManager {
-  constructor(container) {
+var EntityManager = exports.EntityManager = (_dec4 = (0, _aureliaDependencyInjection.inject)(_aureliaDependencyInjection.Container), _dec4(_class6 = function () {
+  function EntityManager(container) {
+    
+
     this.repositories = {};
     this.entities = {};
 
     this.container = container;
   }
 
-  registerEntities(EntityClasses) {
-    for (let property in EntityClasses) {
+  EntityManager.prototype.registerEntities = function registerEntities(EntityClasses) {
+    for (var property in EntityClasses) {
       if (EntityClasses.hasOwnProperty(property)) {
         this.registerEntity(EntityClasses[property]);
       }
     }
 
     return this;
-  }
+  };
 
-  registerEntity(EntityClass) {
+  EntityManager.prototype.registerEntity = function registerEntity(EntityClass) {
     this.entities[OrmMetadata.forTarget(EntityClass).fetch('resource')] = EntityClass;
 
     return this;
-  }
+  };
 
-  getRepository(entity) {
-    let reference = this.resolveEntityReference(entity);
-    let resource = entity;
+  EntityManager.prototype.getRepository = function getRepository(entity) {
+    var reference = this.resolveEntityReference(entity);
+    var resource = entity;
 
     if (typeof reference.getResource === 'function') {
       resource = reference.getResource() || resource;
@@ -874,9 +964,9 @@ export let EntityManager = (_dec4 = inject(Container), _dec4(_class6 = class Ent
       return this.repositories[resource];
     }
 
-    let metaData = OrmMetadata.forTarget(reference);
-    let repository = metaData.fetch('repository');
-    let instance = this.container.get(repository);
+    var metaData = OrmMetadata.forTarget(reference);
+    var repository = metaData.fetch('repository');
+    var instance = this.container.get(repository);
 
     if (instance.meta && instance.resource && instance.entityManager) {
       return instance;
@@ -891,10 +981,10 @@ export let EntityManager = (_dec4 = inject(Container), _dec4(_class6 = class Ent
     }
 
     return instance;
-  }
+  };
 
-  resolveEntityReference(resource) {
-    let entityReference = resource;
+  EntityManager.prototype.resolveEntityReference = function resolveEntityReference(resource) {
+    var entityReference = resource;
 
     if (typeof resource === 'string') {
       entityReference = this.entities[resource] || Entity;
@@ -905,12 +995,12 @@ export let EntityManager = (_dec4 = inject(Container), _dec4(_class6 = class Ent
     }
 
     throw new Error('Unable to resolve to entity reference. Expected string or function.');
-  }
+  };
 
-  getEntity(entity) {
-    let reference = this.resolveEntityReference(entity);
-    let instance = this.container.get(reference);
-    let resource = reference.getResource();
+  EntityManager.prototype.getEntity = function getEntity(entity) {
+    var reference = this.resolveEntityReference(entity);
+    var instance = this.container.get(reference);
+    var resource = reference.getResource();
 
     if (!resource) {
       if (typeof entity !== 'string') {
@@ -921,26 +1011,29 @@ export let EntityManager = (_dec4 = inject(Container), _dec4(_class6 = class Ent
     }
 
     if (instance.hasValidation() && !instance.getValidator()) {
-      let validator = this.container.get(OrmMetadata.forTarget(reference).fetch('validation'));
+      var validator = this.container.get(OrmMetadata.forTarget(reference).fetch('validation'));
 
       instance.setValidator(validator);
     }
 
     return instance.setResource(resource).setRepository(this.getRepository(resource));
-  }
-}) || _class6);
+  };
 
-export function validatedResource(resourceName, ValidatorClass) {
+  return EntityManager;
+}()) || _class6);
+function validatedResource(resourceName, ValidatorClass) {
   return function (target, propertyName) {
     resource(resourceName)(target);
     validation(ValidatorClass)(target, propertyName);
   };
 }
 
-export function configure(frameworkConfig, configCallback) {
-  ValidationRules.customRule('hasAssociation', value => !!(value instanceof Entity && typeof value.id === 'number' || typeof value === 'number'), `\${$displayName} must be an association.`);
+function configure(frameworkConfig, configCallback) {
+  _aureliaValidation.ValidationRules.customRule('hasAssociation', function (value) {
+    return !!(value instanceof Entity && typeof value.id === 'number' || typeof value === 'number');
+  }, '${$displayName} must be an association.');
 
-  let entityManagerInstance = frameworkConfig.container.get(EntityManager);
+  var entityManagerInstance = frameworkConfig.container.get(EntityManager);
 
   configCallback(entityManagerInstance);
 
@@ -948,19 +1041,19 @@ export function configure(frameworkConfig, configCallback) {
   frameworkConfig.globalResources('./component/paged');
 }
 
-export const logger = getLogger('aurelia-orm');
+var logger = exports.logger = (0, _aureliaLogging.getLogger)('aurelia-orm');
 
-export function data(metaData) {
+function data(metaData) {
   return function (target, propertyName) {
-    if (typeof metaData !== 'object') {
-      logger.error('data must be an object, ' + typeof metaData + ' given.');
+    if ((typeof metaData === 'undefined' ? 'undefined' : _typeof(metaData)) !== 'object') {
+      logger.error('data must be an object, ' + (typeof metaData === 'undefined' ? 'undefined' : _typeof(metaData)) + ' given.');
     }
 
     OrmMetadata.forTarget(target.constructor).put('data', propertyName, metaData);
   };
 }
 
-export function endpoint(entityEndpoint) {
+function endpoint(entityEndpoint) {
   return function (target) {
     if (!OrmMetadata.forTarget(target).fetch('resource')) {
       logger.warn('Need to set the resource before setting the endpoint!');
@@ -970,17 +1063,17 @@ export function endpoint(entityEndpoint) {
   };
 }
 
-export function ensurePropertyIsConfigurable(target, propertyName, descriptor) {
+function ensurePropertyIsConfigurable(target, propertyName, descriptor) {
   if (descriptor && descriptor.configurable === false) {
     descriptor.configurable = true;
 
     if (!Reflect.defineProperty(target, propertyName, descriptor)) {
-      logger.warn(`Cannot make configurable property '${ propertyName }' of object`, target);
+      logger.warn('Cannot make configurable property \'' + propertyName + '\' of object', target);
     }
   }
 }
 
-export function association(associationData) {
+function association(associationData) {
   return function (target, propertyName, descriptor) {
     ensurePropertyIsConfigurable(target, propertyName, descriptor);
 
@@ -1000,7 +1093,7 @@ export function association(associationData) {
   };
 }
 
-export function type(typeValue) {
+function type(typeValue) {
   return function (target, propertyName, descriptor) {
     ensurePropertyIsConfigurable(target, propertyName, descriptor);
 

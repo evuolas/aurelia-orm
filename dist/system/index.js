@@ -1,18 +1,15 @@
 'use strict';
 
-System.register(['./aurelia-orm'], function (_export, _context) {
-  "use strict";
+exports.__esModule = true;
 
-  return {
-    setters: [function (_aureliaOrm) {
-      var _exportObj = {};
+var _aureliaOrm = require('./aurelia-orm');
 
-      for (var _key in _aureliaOrm) {
-        if (_key !== "default" && _key !== "__esModule") _exportObj[_key] = _aureliaOrm[_key];
-      }
-
-      _export(_exportObj);
-    }],
-    execute: function () {}
-  };
+Object.keys(_aureliaOrm).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _aureliaOrm[key];
+    }
+  });
 });
