@@ -263,8 +263,8 @@ System.register(['aurelia-dependency-injection', './orm-metadata'], function (_e
 
           return this.getTransport().create(path, requestBody, options).then(function (created) {
             var data = rootObject ? created[repository.jsonRootObjectSingle] : created;
+            repository.getPopulatedEntity(data, _this);
 
-            _this.setId(data[_this.getIdProperty()]);
             response = data;
           }).then(function () {
             return _this.markClean();
@@ -305,6 +305,7 @@ System.register(['aurelia-dependency-injection', './orm-metadata'], function (_e
 
           return this.getTransport().update(path, this.getId(), requestBody, options).then(function (updated) {
             var data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
+            repository.getPopulatedEntity(data, _this2);
 
             response = data;
           }).then(function () {

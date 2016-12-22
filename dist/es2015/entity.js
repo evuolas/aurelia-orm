@@ -78,8 +78,8 @@ export let Entity = (_dec = transient(), _dec(_class = class Entity {
 
     return this.getTransport().create(path, requestBody, options).then(created => {
       const data = rootObject ? created[repository.jsonRootObjectSingle] : created;
+      repository.getPopulatedEntity(data, this);
 
-      this.setId(data[this.getIdProperty()]);
       response = data;
     }).then(() => this.markClean()).then(() => response);
   }
@@ -114,6 +114,7 @@ export let Entity = (_dec = transient(), _dec(_class = class Entity {
 
     return this.getTransport().update(path, this.getId(), requestBody, options).then(updated => {
       const data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
+      repository.getPopulatedEntity(data, this);
 
       response = data;
     }).then(() => this.markClean()).then(() => response);
