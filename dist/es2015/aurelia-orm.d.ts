@@ -187,6 +187,16 @@ declare module 'aurelia-orm' {
     update(path?: any, options?: any): any;
     
     /**
+       * Execute action to an entity (POST).
+       *
+       * @param {string} action    Name of the action to execute.
+       * @param {{}}     [options] Extra fetch options.
+       *
+       * @return {Promise}
+       */
+    execute(action?: any, options?: any): any;
+    
+    /**
        * Add an entity to a collection (persist).
        *
        * When given entity has data, create the entity and set up the relation.

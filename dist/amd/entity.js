@@ -99,6 +99,7 @@ define(['exports', 'aurelia-dependency-injection', './orm-metadata'], function (
 
       return this.getTransport().create(path, requestBody, options).then(function (created) {
         var data = rootObject ? created[repository.jsonRootObjectSingle] : created;
+
         repository.getPopulatedEntity(data, _this);
 
         response = data;
@@ -141,6 +142,7 @@ define(['exports', 'aurelia-dependency-injection', './orm-metadata'], function (
 
       return this.getTransport().update(path, this.getId(), requestBody, options).then(function (updated) {
         var data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
+
         repository.getPopulatedEntity(data, _this2);
 
         response = data;
@@ -151,8 +153,38 @@ define(['exports', 'aurelia-dependency-injection', './orm-metadata'], function (
       });
     };
 
-    Entity.prototype.addCollectionAssociation = function addCollectionAssociation(entity, property) {
+    Entity.prototype.execute = function execute(action, options) {
       var _this3 = this;
+
+      if (this.isNew()) {
+        throw new Error('Required value "id" missing on entity.');
+      }
+
+      var repository = this.getRepository();
+      var resource = this.getResource();
+      var path = resource + '/' + this.getId() + '/' + action;
+
+      var rootObject = repository.enableRootObjects;
+
+      var response = void 0;
+
+      return this.getTransport().post(path, {}, options).then(function (updated) {
+        var data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
+
+        if (data) {
+          repository.getPopulatedEntity(data, _this3);
+        }
+
+        response = data;
+      }).then(function () {
+        return _this3.markClean();
+      }).then(function () {
+        return response;
+      });
+    };
+
+    Entity.prototype.addCollectionAssociation = function addCollectionAssociation(entity, property) {
+      var _this4 = this;
 
       property = property || getPropertyForAssociation(this, entity);
       var url = [this.getResource(), this.getId(), property];
@@ -177,7 +209,7 @@ define(['exports', 'aurelia-dependency-injection', './orm-metadata'], function (
               throw new Error('Entity did not return return an id on saving.');
             }
 
-            return _this3.addCollectionAssociation(entity, property);
+            return _this4.addCollectionAssociation(entity, property);
           });
         }
 
@@ -211,7 +243,7 @@ define(['exports', 'aurelia-dependency-injection', './orm-metadata'], function (
     };
 
     Entity.prototype.saveCollections = function saveCollections() {
-      var _this4 = this;
+      var _this5 = this;
 
       var tasks = [];
       var currentCollections = getCollectionsCompact(this, true);
@@ -225,7 +257,7 @@ define(['exports', 'aurelia-dependency-injection', './orm-metadata'], function (
         Object.getOwnPropertyNames(base).forEach(function (property) {
           base[property].forEach(function (id) {
             if (candidate === null || !Array.isArray(candidate[property]) || candidate[property].indexOf(id) === -1) {
-              tasks.push(method.call(_this4, id, property));
+              tasks.push(method.call(_this5, id, property));
             }
           });
         });
@@ -236,7 +268,7 @@ define(['exports', 'aurelia-dependency-injection', './orm-metadata'], function (
       addTasksForDifferences(cleanCollections, currentCollections, this.removeCollectionAssociation);
 
       return Promise.all(tasks).then(function (results) {
-        return _this4;
+        return _this5;
       });
     };
 
@@ -264,13 +296,13 @@ define(['exports', 'aurelia-dependency-injection', './orm-metadata'], function (
     };
 
     Entity.prototype.reset = function reset(shallow) {
-      var _this5 = this;
+      var _this6 = this;
 
       var pojo = {};
       var metadata = this.getMeta();
 
       Object.keys(this).forEach(function (propertyName) {
-        var value = _this5[propertyName];
+        var value = _this6[propertyName];
         var association = metadata.fetch('associations', propertyName);
 
         if (!association || !value) {
@@ -289,7 +321,7 @@ define(['exports', 'aurelia-dependency-injection', './orm-metadata'], function (
 
       Object.keys(this).forEach(function (propertyName) {
         if (Object.getOwnPropertyNames(associations).indexOf(propertyName) === -1) {
-          delete _this5[propertyName];
+          delete _this6[propertyName];
         }
       });
 
@@ -306,10 +338,10 @@ define(['exports', 'aurelia-dependency-injection', './orm-metadata'], function (
       var collections = this.__cleanValues.data.collections;
 
       Object.getOwnPropertyNames(collections).forEach(function (index) {
-        _this5[index] = [];
+        _this6[index] = [];
         collections[index].forEach(function (entity) {
           if (typeof entity === 'number') {
-            _this5[index].push(entity);
+            _this6[index].push(entity);
           }
         });
       });
