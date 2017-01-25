@@ -158,6 +158,7 @@ export class Entity {
       .create(path, requestBody, options)
       .then((created) => {
         const data = rootObject ? created[repository.jsonRootObjectSingle] : created;
+
         repository.getPopulatedEntity(data, this);
 
         response = data;
@@ -208,7 +209,44 @@ export class Entity {
       .update(path, this.getId(), requestBody, options)
       .then((updated) => {
         const data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
+
         repository.getPopulatedEntity(data, this);
+
+        response = data;
+      })
+      .then(() => this.markClean())
+      .then(() => response);
+  }
+
+  /**
+   * Execute action to an entity (POST).
+   *
+   * @param {string} action    Name of the action to execute.
+   * @param {{}}     [options] Extra fetch options.
+   *
+   * @return {Promise}
+   */
+  execute(action, options) {
+    if (this.isNew()) {
+      throw new Error('Required value "id" missing on entity.');
+    }
+
+    const repository = this.getRepository();
+    const resource = this.getResource();
+    const path = `${resource}/${this.getId()}/${action}`;
+
+    const rootObject = repository.enableRootObjects;
+
+    let response;
+
+    return this.getTransport()
+      .post(path, {}, options)
+      .then(updated => {
+        const data = rootObject ? updated[repository.jsonRootObjectSingle] : updated;
+
+        if (data) {
+          repository.getPopulatedEntity(data, this);
+        }
 
         response = data;
       })
