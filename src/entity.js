@@ -662,12 +662,13 @@ function asObject(entity, shallow) {
     }
 
     // Convert moment properties to strings
-    if (value && typeof value === 'object') {
-      if (typeMeta === 'datetime' && typeof value.toISOString === 'function') {
-        pojo[propertyName] = value.toISOString();
+    if (value && typeof value === 'object' && typeof value.format === 'function') {
+      if (typeMeta === 'datetime') {
+        pojo[propertyName] = value.format();
 
         return;
-      } else if (typeMeta === 'date' && typeof value.format === 'function') {
+      }
+      if (typeMeta === 'date') {
         pojo[propertyName] = value.format('YYYY-MM-DD');
 
         return;
