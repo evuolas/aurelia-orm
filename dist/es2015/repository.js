@@ -18,7 +18,7 @@ export let Repository = (_dec = inject(Config), _dec(_class = class Repository {
       this.transport = this.clientConfig.getEndpoint(this.getMeta().fetch('endpoint'));
 
       if (!this.transport) {
-        throw new Error(`No transport found for '${ this.getMeta().fetch('endpoint') || 'default' }'.`);
+        throw new Error(`No transport found for '${this.getMeta().fetch('endpoint') || 'default'}'.`);
       }
     }
 

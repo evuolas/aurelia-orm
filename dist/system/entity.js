@@ -24,12 +24,13 @@ System.register(['aurelia-dependency-injection', './orm-metadata'], function (_e
         return;
       }
 
-      if (value && (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object') {
-        if (typeMeta === 'datetime' && typeof value.toISOString === 'function') {
-          pojo[propertyName] = value.toISOString();
+      if (value && (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object' && typeof value.format === 'function') {
+        if (typeMeta === 'datetime') {
+          pojo[propertyName] = value.format();
 
           return;
-        } else if (typeMeta === 'date' && typeof value.format === 'function') {
+        }
+        if (typeMeta === 'date') {
           pojo[propertyName] = value.format('YYYY-MM-DD');
 
           return;

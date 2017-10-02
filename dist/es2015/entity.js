@@ -129,7 +129,7 @@ export let Entity = (_dec = transient(), _dec(_class = class Entity {
 
     const repository = this.getRepository();
     const resource = this.getResource();
-    const path = `${ resource }/${ this.getId() }/${ action }`;
+    const path = `${resource}/${this.getId()}/${action}`;
 
     const rootObject = repository.enableRootObjects;
 
@@ -398,12 +398,13 @@ function asObject(entity, shallow) {
       return;
     }
 
-    if (value && typeof value === 'object') {
-      if (typeMeta === 'datetime' && typeof value.toISOString === 'function') {
-        pojo[propertyName] = value.toISOString();
+    if (value && typeof value === 'object' && typeof value.format === 'function') {
+      if (typeMeta === 'datetime') {
+        pojo[propertyName] = value.format();
 
         return;
-      } else if (typeMeta === 'date' && typeof value.format === 'function') {
+      }
+      if (typeMeta === 'date') {
         pojo[propertyName] = value.format('YYYY-MM-DD');
 
         return;
@@ -418,11 +419,11 @@ function asObject(entity, shallow) {
 
     if (shallow) {
       if (value.id && associationMeta.includeOnlyIds) {
-        pojo[`${ propertyName }Id`] = value.id;
+        pojo[`${propertyName}Id`] = value.id;
 
         return;
       } else if (Array.isArray(value) && associationMeta.includeOnlyIds) {
-        pojo[`${ propertyName.replace(/s$/, '') }Ids`] = value.map(v => v.id);
+        pojo[`${propertyName.replace(/s$/, '')}Ids`] = value.map(v => v.id);
 
         return;
       } else if (value instanceof Entity) {

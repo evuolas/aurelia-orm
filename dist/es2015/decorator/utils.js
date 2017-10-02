@@ -5,7 +5,7 @@ export function ensurePropertyIsConfigurable(target, propertyName, descriptor) {
     descriptor.configurable = true;
 
     if (!Reflect.defineProperty(target, propertyName, descriptor)) {
-      logger.warn(`Cannot make configurable property '${ propertyName }' of object`, target);
+      logger.warn(`Cannot make configurable property '${propertyName}' of object`, target);
     }
   }
 }
