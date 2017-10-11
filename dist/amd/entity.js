@@ -462,6 +462,12 @@ define(['exports', 'aurelia-dependency-injection', './orm-metadata'], function (
         }
       }
 
+      if (shallow && !value && associationMeta && associationMeta.includeOnlyIds) {
+        pojo[propertyName + 'Id'] = null;
+
+        return;
+      }
+
       if (!associationMeta || !value) {
         pojo[propertyName] = value;
 

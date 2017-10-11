@@ -37,6 +37,12 @@ System.register(['aurelia-dependency-injection', './orm-metadata'], function (_e
         }
       }
 
+      if (shallow && !value && associationMeta && associationMeta.includeOnlyIds) {
+        pojo[propertyName + 'Id'] = null;
+
+        return;
+      }
+
       if (!associationMeta || !value) {
         pojo[propertyName] = value;
 

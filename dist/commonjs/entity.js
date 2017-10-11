@@ -457,6 +457,12 @@ function _asObject(entity, shallow) {
       }
     }
 
+    if (shallow && !value && associationMeta && associationMeta.includeOnlyIds) {
+      pojo[propertyName + 'Id'] = null;
+
+      return;
+    }
+
     if (!associationMeta || !value) {
       pojo[propertyName] = value;
 
